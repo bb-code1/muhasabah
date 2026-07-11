@@ -6,7 +6,6 @@ import path from 'path';
 config({ path: path.resolve(process.cwd(), '.env') });
 
 export default defineConfig({
-  earlyAccess: true,
   datasource: {
     url: process.env.DATABASE_URL,
   },

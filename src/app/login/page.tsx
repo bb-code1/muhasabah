@@ -27,26 +27,28 @@ export default function Login() {
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '1rem' }}>
-      <div className="glass-panel" style={{ maxWidth: '400px', width: '100%', textAlign: 'center' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '1rem', backgroundColor: 'var(--c-surface-container-lowest)' }}>
+      <div className="card" style={{ maxWidth: '400px', width: '100%', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '50%' }}>
-            <Lock size={32} color="var(--primary-color)" />
+          <div style={{ backgroundColor: 'var(--c-primary-container)', padding: '1rem', borderRadius: '50%' }}>
+            <Lock size={32} color="var(--c-on-primary)" />
           </div>
         </div>
-        <h2 style={{ marginBottom: '0.5rem' }}>Personal Access</h2>
-        <p className="text-secondary" style={{ marginBottom: '2rem' }}>Enter your app password to continue to My Muhasabah</p>
+        <h2 className="text-headline-md" style={{ marginBottom: '0.5rem' }}>Personal Access</h2>
+        <p className="text-body-md text-on-surface-variant" style={{ marginBottom: '2rem' }}>Enter your app password to continue to My Muhasabah</p>
         
         <form onSubmit={handleSubmit}>
           <input
             type="password"
             name="password"
             placeholder="App Password"
+            className="search-input"
+            style={{ width: '100%', marginBottom: '16px', paddingLeft: '16px' }}
             autoFocus
             required
           />
-          {error && <p style={{ color: 'var(--danger-color)', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>}
-          <button type="submit" className="primary" style={{ width: '100%' }} disabled={loading}>
+          {error && <p className="text-label-sm" style={{ color: 'var(--c-error)', marginBottom: '1rem' }}>{error}</p>}
+          <button type="submit" className="primary-btn" style={{ width: '100%', padding: '12px' }} disabled={loading}>
             {loading ? 'Verifying...' : 'Unlock'}
           </button>
         </form>

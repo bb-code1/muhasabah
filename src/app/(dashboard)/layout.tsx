@@ -6,10 +6,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="container">
+    <div className="app-layout">
       <Navigation />
-      <main>
-        {children}
+      <main className="main-content" style={{ width: '100%' }}>
+        <div className="container-max">
+          {children}
+        </div>
       </main>
     </div>
   );
