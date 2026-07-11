@@ -90,6 +90,11 @@ export default async function Dashboard() {
           <span className="text-title-md" style={{ fontWeight: 600 }}>Spiritual</span>
           <span className="material-symbols-outlined" style={{ marginLeft: 'auto', color: 'var(--c-on-surface-variant)' }}>chevron_right</span>
         </Link>
+        <Link href="/debts" className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', textDecoration: 'none', color: 'inherit', padding: '16px' }}>
+          <span style={{ backgroundColor: 'var(--c-primary-container)', color: 'var(--c-primary)', padding: '12px', borderRadius: '50%', display: 'flex' }} className="material-symbols-outlined">account_balance</span>
+          <span className="text-title-md" style={{ fontWeight: 600 }}>Credit & Debit</span>
+          <span className="material-symbols-outlined" style={{ marginLeft: 'auto', color: 'var(--c-on-surface-variant)' }}>chevron_right</span>
+        </Link>
       </div>
 
       <div className="grid-container">
