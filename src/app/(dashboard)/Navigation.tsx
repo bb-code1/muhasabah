@@ -58,6 +58,10 @@ export default function Navigation() {
             <span className="material-symbols-outlined">event_upcoming</span>
             <span className="text-body-md">Tomorrow</span>
           </Link>
+          <Link href="/weekend" className={`nav-item ${pathname === '/weekend' ? 'active' : ''}`}>
+            <span className="material-symbols-outlined">calendar_clock</span>
+            <span className="text-body-md">Weekend Tasks</span>
+          </Link>
           <Link href="/transactions" className={`nav-item ${pathname === '/transactions' ? 'active' : ''}`}>
             <span className="material-symbols-outlined">payments</span>
             <span className="text-body-md">Finances</span>
