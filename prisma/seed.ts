@@ -91,6 +91,24 @@ async function main() {
     data: journals,
   });
 
+  // Bulk Daily Tasks
+  await prisma.dailyTask.deleteMany();
+  
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  await prisma.dailyTask.createMany({
+    data: [
+      { title: 'Review PRs for the new dashboard', targetDate: today, isCompleted: true },
+      { title: 'Email the client regarding the invoice', targetDate: today, isCompleted: false },
+      { title: 'Buy groceries (Milk, Eggs, Bread)', targetDate: today, isCompleted: false },
+      
+      { title: 'Plan the upcoming sprint', targetDate: tomorrow, isCompleted: false },
+      { title: 'Schedule dentist appointment', targetDate: tomorrow, isCompleted: false },
+      { title: 'Read 10 pages of Atomic Habits', targetDate: tomorrow, isCompleted: false },
+    ],
+  });
+
   console.log('Database seeded successfully with bulk data!');
 }
 

@@ -3,20 +3,34 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/actions';
+import { useState, useRef, useEffect } from 'react';
 
 export default function Navigation() {
   const pathname = usePathname();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
     await logoutAction();
   };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuRef]);
 
   return (
     <>
       <aside className="sidebar">
         <div style={{ marginBottom: '40px', padding: '0 8px' }}>
           <h1 className="text-headline-md text-on-surface">My Muhasabah</h1>
-          <p className="text-label-sm text-on-surface-variant" style={{ opacity: 0.7 }}>Focus & Clarity</p>
         </div>
         
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -41,16 +55,6 @@ export default function Navigation() {
             <span className="text-body-md">Journal</span>
           </Link>
         </nav>
-
-        <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: '1px solid var(--c-outline-variant)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <button className="primary-btn" style={{ width: '100%', marginBottom: '16px', padding: '12px' }}>
-            Quick Add
-          </button>
-          <button onClick={handleLogout} className="nav-item" style={{ width: '100%', textAlign: 'left' }}>
-            <span className="material-symbols-outlined">logout</span>
-            <span className="text-body-md">Logout</span>
-          </button>
-        </div>
       </aside>
 
       <header className="topbar">
@@ -60,19 +64,41 @@ export default function Navigation() {
             <input className="search-input" placeholder="Search entries, goals..." type="text"/>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <button className="primary-btn">
-            New Entry
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', position: 'relative' }} ref={menuRef}>
+          <button 
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--c-outline-variant)', backgroundColor: 'var(--c-surface-container-high)', cursor: 'pointer', padding: 0 }}
+          >
+            <span className="material-symbols-outlined" style={{ display: 'block', marginTop: '3px', color: 'var(--c-on-surface)' }}>person</span>
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button style={{ color: 'var(--c-on-surface-variant)' }}>
-              <span className="material-symbols-outlined">notifications</span>
-            </button>
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--c-outline-variant)', backgroundColor: 'var(--c-surface-container-high)' }}>
-              {/* Fallback avatar if no image */}
-              <span className="material-symbols-outlined" style={{ display: 'block', margin: '4px auto', color: 'var(--c-on-surface)' }}>person</span>
+
+          {showProfileMenu && (
+            <div style={{
+              position: 'absolute',
+              top: '48px',
+              right: '0',
+              backgroundColor: 'var(--c-surface-container-lowest)',
+              border: '1px solid var(--c-outline-variant)',
+              borderRadius: '12px',
+              padding: '8px 0',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              minWidth: '200px',
+              zIndex: 100
+            }}>
+              <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--c-outline-variant)', marginBottom: '8px' }}>
+                <p className="text-body-md" style={{ fontWeight: 600 }}>Kaisar Najar</p>
+                <p className="text-label-sm text-on-surface-variant">User Profile</p>
+              </div>
+              <button className="nav-item" style={{ width: '100%', textAlign: 'left', padding: '8px 16px', borderRadius: 0 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>account_circle</span>
+                <span className="text-body-md">Update Photo</span>
+              </button>
+              <button onClick={handleLogout} className="nav-item" style={{ width: '100%', textAlign: 'left', padding: '8px 16px', borderRadius: 0, color: 'var(--c-error)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>logout</span>
+                <span className="text-body-md">Logout</span>
+              </button>
             </div>
-          </div>
+          )}
         </div>
       </header>
     </>
