@@ -254,3 +254,36 @@ export async function deleteDailyTask(id: number) {
   });
   revalidatePath('/');
 }
+
+// --- WEEKEND TASKS ---
+export async function getWeekendTasks() {
+  return await prisma.weekendTask.findMany({
+    orderBy: { id: 'asc' },
+  });
+}
+
+export async function addWeekendTask(title: string) {
+  if (!title) throw new Error('Title is required.');
+  
+  await prisma.weekendTask.create({
+    data: { title },
+  });
+  revalidatePath('/weekend');
+}
+
+export async function deleteWeekendTask(id: number) {
+  await prisma.weekendTask.delete({
+    where: { id },
+  });
+  revalidatePath('/weekend');
+}
+
+export async function toggleWeekendTask(id: number, isCompleted: boolean) {
+  await prisma.weekendTask.update({
+    where: { id },
+    data: {
+      lastCompletedAt: isCompleted ? new Date() : null,
+    },
+  });
+  revalidatePath('/weekend');
+}

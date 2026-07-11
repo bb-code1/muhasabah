@@ -95,6 +95,11 @@ export default async function Dashboard() {
           <span className="text-title-md" style={{ fontWeight: 600 }}>Credit & Debit</span>
           <span className="material-symbols-outlined" style={{ marginLeft: 'auto', color: 'var(--c-on-surface-variant)' }}>chevron_right</span>
         </Link>
+        <Link href="/weekend" className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', textDecoration: 'none', color: 'inherit', padding: '16px' }}>
+          <span style={{ backgroundColor: 'var(--c-secondary-container)', color: 'var(--c-on-secondary-container)', padding: '12px', borderRadius: '50%', display: 'flex' }} className="material-symbols-outlined">calendar_clock</span>
+          <span className="text-title-md" style={{ fontWeight: 600 }}>Weekend Tasks</span>
+          <span className="material-symbols-outlined" style={{ marginLeft: 'auto', color: 'var(--c-on-surface-variant)' }}>chevron_right</span>
+        </Link>
       </div>
 
       <div className="grid-container">

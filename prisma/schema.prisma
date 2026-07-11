@@ -122,3 +122,10 @@ model DebtPayment {
   
   debt         DebtRecord @relation(fields: [debtId], references: [id], onDelete: Cascade)
 }
+
+model WeekendTask {
+  id              Int       @id @default(autoincrement())
+  title           String
+  lastCompletedAt DateTime? @db.Timestamptz()
+  createdAt       DateTime  @default(now()) @db.Timestamptz()
+}
