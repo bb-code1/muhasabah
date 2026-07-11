@@ -64,13 +64,18 @@ model ReligiousActivity {
   createdAt          DateTime @default(now()) @db.Timestamptz()
 }
 
-model DailyJournal {
-  id        Int      @id @default(autoincrement())
-  date      DateTime @unique @default(now()) @db.Date
-  office    String?  @db.Text
-  learning  String?  @db.Text
-  other     String?  @db.Text
-  createdAt DateTime @default(now()) @db.Timestamptz()
+enum JournalCategory {
+  OFFICE
+  LEARNING
+  MISC
+}
+
+model JournalEntry {
+  id        Int             @id @default(autoincrement())
+  content   String          @db.Text
+  category  JournalCategory
+  date      DateTime        @default(now()) @db.Date
+  createdAt DateTime        @default(now()) @db.Timestamptz()
 }
 
 model DailyTask {

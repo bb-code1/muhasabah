@@ -7,7 +7,7 @@ async function main() {
   await prisma.transaction.deleteMany();
   await prisma.goal.deleteMany();
   await prisma.religiousActivity.deleteMany();
-  await prisma.dailyJournal.deleteMany();
+  await prisma.journalEntry.deleteMany();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -76,19 +76,23 @@ async function main() {
     data: religiousActivities,
   });
 
-  // Bulk Daily Journals
-  const journals = days.map(day => {
+  // Bulk Daily Journals (now JournalEntry)
+  const journalEntries: any[] = [];
+  days.forEach(day => {
     const randomBool = () => Math.random() > 0.5;
-    return {
-      date: day,
-      office: randomBool() ? 'Completed the sprint planning and fixed 3 major bugs in the dashboard module.' : 'Attended multiple meetings and unblocked the design team.',
-      learning: randomBool() ? 'Read a chapter on Next.js App Router caching mechanisms.' : 'Watched a tutorial on advanced TypeScript patterns.',
-      other: randomBool() ? 'Went out for dinner with friends at a new Turkish restaurant.' : 'Cleaned the house and did grocery shopping.',
-    };
+    if (randomBool()) {
+      journalEntries.push({ date: day, category: 'OFFICE', content: 'Completed the sprint planning and fixed 3 major bugs in the dashboard module.' });
+    }
+    if (randomBool()) {
+      journalEntries.push({ date: day, category: 'LEARNING', content: 'Read a chapter on Next.js App Router caching mechanisms.' });
+    }
+    if (randomBool()) {
+      journalEntries.push({ date: day, category: 'MISC', content: 'Went out for dinner with friends at a new Turkish restaurant.' });
+    }
   });
 
-  await prisma.dailyJournal.createMany({
-    data: journals,
+  await prisma.journalEntry.createMany({
+    data: journalEntries,
   });
 
   // Bulk Daily Tasks

@@ -183,29 +183,37 @@ export async function updateQuranMemorization(formData: FormData) {
 }
 
 // --- DAILY JOURNAL ---
-export async function getJournal(dateStr: string) {
-  const date = new Date(dateStr);
-  const journal = await prisma.dailyJournal.findUnique({
-    where: { date },
+export async function getJournalEntries(category?: 'OFFICE' | 'LEARNING' | 'MISC') {
+  return await prisma.journalEntry.findMany({
+    where: category ? { category } : undefined,
+    orderBy: { createdAt: 'desc' },
   });
-
-  return journal || { date, office: '', learning: '', other: '' };
 }
 
-export async function updateJournal(formData: FormData) {
-  const dateStr = formData.get('date') as string;
-  const office = formData.get('office') as string;
-  const learning = formData.get('learning') as string;
-  const other = formData.get('other') as string;
+export async function addJournalEntry(formData: FormData) {
+  const content = formData.get('content') as string;
+  const categoryStr = formData.get('category') as string;
+  const category = categoryStr as 'OFFICE' | 'LEARNING' | 'MISC';
 
-  if (!dateStr) throw new Error('Date is required.');
+  if (!content || !category) throw new Error('Content and category are required.');
 
-  await prisma.dailyJournal.upsert({
-    where: { date: new Date(dateStr) },
-    update: { office, learning, other },
-    create: { date: new Date(dateStr), office, learning, other },
+  await prisma.journalEntry.create({
+    data: {
+      content,
+      category,
+      date: new Date(),
+    },
   });
   revalidatePath('/journal');
+  revalidatePath('/');
+}
+
+export async function deleteJournalEntry(id: number) {
+  await prisma.journalEntry.delete({
+    where: { id },
+  });
+  revalidatePath('/journal');
+  revalidatePath('/');
 }
 
 // --- DAILY TASKS ---
