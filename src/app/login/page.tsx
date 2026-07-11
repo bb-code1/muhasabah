@@ -35,7 +35,7 @@ export default function Login() {
           </div>
         </div>
         <h2 className="text-headline-md" style={{ marginBottom: '0.5rem' }}>Personal Access</h2>
-        <p className="text-body-md text-on-surface-variant" style={{ marginBottom: '2rem' }}>Enter your app password to continue to My Muhasabah</p>
+        <p className="text-body-md text-on-surface-variant" style={{ marginBottom: '2rem' }}>Enter your app password to continue to Muhasabah</p>
         
         <form onSubmit={handleSubmit}>
           <input
