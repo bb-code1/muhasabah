@@ -1,65 +1,81 @@
 # My Muhasabah
 
-A personal accountability application designed to track expenses, goals, and daily religious activities. Built with a modern, high-performance tech stack focusing on a premium glassmorphism design and seamless light/dark mode adaptation.
+A comprehensive, beautifully designed personal dashboard and self-accountability application to help you track your goals, finances, religious duties, journal entries, and daily/weekend tasks.
+
+## Features
+
+- **Financial Tracker:** Track your daily, weekly, and monthly income and expenses with elegant charts and visual filtering.
+- **Credit & Debit Manager:** Easily manage money you owe and money owed to you on a per-person basis with a built-in address book.
+- **Goals Dashboard:** Set Daily, Weekly, Monthly, Quarterly, Yearly, and Lifetime goals, and visually track your progress.
+- **Spiritual Tracker:** Maintain a daily streak for your prayers (Fajr, Dhuhr, Asr, Maghrib, Isha), Quran reading, Adhkar, and log specific Quran memorization verses with historical tracking.
+- **Daily & Weekend Tasks:** Manage recurring tasks that automatically reset when appropriate to ensure you stay on top of your responsibilities.
+- **Journaling System:** Keep categorized notes for Office, Learning, and Miscellaneous topics to clear your mind.
+- **Task History:** Pick any past date from a built-in calendar to review exactly what tasks you were supposed to do and what you actually accomplished.
 
 ## Tech Stack
 
-- **Framework:** Next.js (App Router)
-- **Language:** TypeScript
-- **Database ORM:** Prisma
-- **Database:** PostgreSQL
-- **Styling:** Vanilla CSS (CSS Variables)
-- **Icons:** Lucide React
+- **Framework:** Next.js 16+ (App Router)
+- **Styling:** Vanilla CSS + Global Custom Properties (Glassmorphism & Dynamic Themes)
+- **Database:** PostgreSQL (managed via Prisma ORM)
+- **Deployment:** Vercel (or any standard Node environment)
+- **Icons:** Lucide React & Google Material Symbols
 
-## Getting Started
+## Project Architecture (Post-Refactoring)
 
-### Prerequisites
+The application has been heavily refactored for maximum scalability, modularity, and strict typing:
 
-- Node.js (v18 or higher)
-- PostgreSQL running locally
-
-### 1. Installation
-
-Clone the repository and install the dependencies:
-
-```bash
-git clone https://github.com/kaisarnajar/my-muhasabah.git
-cd my-muhasabah
-npm install
+```text
+src/
+├── actions/             # Strictly typed modular server actions
+│   ├── auth.ts          # Authentication logic
+│   ├── debts.ts         # Credit & Debit tracking
+│   ├── goals.ts         # Goal management
+│   ├── journal.ts       # Journal entries
+│   ├── religious.ts     # Spiritual tracking
+│   ├── tasks.ts         # Daily/Weekend task management
+│   ├── transactions.ts  # Finance tracking
+│   └── index.ts         # Global exporter
+├── app/
+│   ├── (dashboard)/     # Main protected application UI (Pages & Client Components)
+│   ├── login/           # Authentication pages
+│   ├── globals.css      # Core Design System (Tokens, Reset, Global Utilities)
+│   └── layout.tsx       # Root layout
+├── lib/                 # Core utilities
+│   └── prisma.ts        # Database connection singleton
+└── types/               # (Removed in favor of native `@prisma/client` generated types)
 ```
 
-### 2. Environment Setup
+## Setup & Local Development
 
-Create a `.env` file in the root directory of the project with the following configuration:
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-```env
-# Database connection string (replace with your local postgres credentials)
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/my_muhasabah?schema=public"
+2. **Database Setup**
+   Configure your PostgreSQL connection in a `.env` file:
+   ```env
+   DATABASE_URL="postgres://..."
+   ```
+   Push the schema to your database:
+   ```bash
+   npx prisma db push
+   ```
 
-# Password required to access the application
-APP_PASSWORD="mysecretpassword123"
-```
+3. **Seed the Database (Optional but Recommended)**
+   Populate your dashboard with a massive amount of varied dummy data to test out all the features visually:
+   ```bash
+   npx prisma db seed
+   ```
 
-### 3. Database Initialization
+4. **Run the Development Server**
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:3000` to view the application.
 
-Sync the database schema and push the test data to your local PostgreSQL instance:
+## Best Practices Enforced
 
-```bash
-npx prisma db push
-npx prisma db seed
-```
-
-### 4. Running the Development Server
-
-Start the Next.js development server:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser. You will be prompted to enter the `APP_PASSWORD` configured in your `.env` file to access the dashboard.
-
-## Deployment
-
-This application is optimized for deployment on Vercel. 
-Simply import the GitHub repository into your Vercel dashboard, and make sure to add both `DATABASE_URL` and `APP_PASSWORD` to your Vercel Environment Variables before deploying.
+- **0 TypeScript Errors:** The codebase strictly relies on `@prisma/client` types and custom interfaces. There are absolutely no `any` types rendering data.
+- **Pure CSS:** We have removed bloated CSS frameworks and replaced them with highly reusable global CSS utility classes (`flex-row`, `justify-between`, `gap-16`) to keep JSX components incredibly clean and performant.
+- **Modular Actions:** All server logic is split by domain, preventing monolithic file bottlenecks and ensuring easy maintainability as the app grows.
