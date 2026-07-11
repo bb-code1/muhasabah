@@ -93,34 +93,27 @@ enum DebtType {
 
 enum DebtStatus {
   PENDING
-  PARTIALLY_PAID
   PAID
+}
+
+model Person {
+  id        Int          @id @default(autoincrement())
+  name      String       @unique
+  createdAt DateTime     @default(now()) @db.Timestamptz()
+  debts     DebtRecord[]
 }
 
 model DebtRecord {
   id           Int           @id @default(autoincrement())
-  personName   String
+  personId     Int
   amount       Decimal       @db.Decimal(10, 2)
   type         DebtType
   date         DateTime      @default(now()) @db.Date
-  dueDate      DateTime?     @db.Date
   status       DebtStatus    @default(PENDING)
-  category     String?
   notes        String?       @db.Text
-  attachment   String?       @db.Text
   createdAt    DateTime      @default(now()) @db.Timestamptz()
-  payments     DebtPayment[]
-}
-
-model DebtPayment {
-  id           Int        @id @default(autoincrement())
-  debtId       Int
-  amount       Decimal    @db.Decimal(10, 2)
-  date         DateTime   @default(now()) @db.Date
-  notes        String?    @db.Text
-  createdAt    DateTime   @default(now()) @db.Timestamptz()
   
-  debt         DebtRecord @relation(fields: [debtId], references: [id], onDelete: Cascade)
+  person       Person        @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
 
 model WeekendTask {
