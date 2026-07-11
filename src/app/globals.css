@@ -120,7 +120,8 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
   display: flex;
   flex-direction: column;
   padding: var(--s-gutter) 16px;
-  z-index: 50;
+  z-index: 150;
+  transition: transform 0.3s ease;
 }
 
 .topbar {
@@ -137,6 +138,7 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
   justify-content: space-between;
   padding: 0 var(--s-gutter);
   z-index: 40;
+  transition: left 0.3s ease;
 }
 @media (prefers-color-scheme: dark) {
   .topbar { background-color: rgba(17, 17, 17, 0.8); }
@@ -146,6 +148,52 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
   margin-left: 256px;
   padding-top: 64px;
   min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .topbar {
+    left: 0;
+  }
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 140;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--c-on-surface);
+}
+@media (max-width: 768px) {
+  .hamburger-btn {
+    display: block;
+  }
 }
 
 .container-max {

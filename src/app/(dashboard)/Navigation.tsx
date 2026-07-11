@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 export default function Navigation() {
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
@@ -26,11 +27,26 @@ export default function Navigation() {
     };
   }, [menuRef]);
 
+  // Close mobile menu when navigating
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
   return (
     <>
-      <aside className="sidebar">
-        <div style={{ marginBottom: '40px', padding: '0 8px' }}>
+      {/* Mobile Overlay */}
+      <div 
+        className={`mobile-overlay ${isMobileMenuOpen ? 'open' : ''}`}
+        onClick={() => setIsMobileMenuOpen(false)}
+      ></div>
+
+      <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+        <div style={{ marginBottom: '40px', padding: '0 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 className="text-headline-md text-on-surface">My Muhasabah</h1>
+          {/* Close button for mobile inside sidebar (optional but good practice) */}
+          <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(false)}>
+            <span className="material-symbols-outlined">close</span>
+          </button>
         </div>
         
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -62,7 +78,10 @@ export default function Navigation() {
       </aside>
 
       <header className="topbar">
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(true)}>
+            <span className="material-symbols-outlined">menu</span>
+          </button>
           <div style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
             <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-on-surface-variant)', fontSize: '20px' }}>search</span>
             <input className="search-input" placeholder="Search entries, goals..." type="text"/>
