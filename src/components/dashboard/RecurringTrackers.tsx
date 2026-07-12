@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { CalendarRange, Check, Calendar, Plus, X } from 'lucide-react';
+import { CalendarRange, Check, Calendar, Plus, X, CalendarCheck, Edit2 } from 'lucide-react';
 import { addRecurringTracker, updateRecurringLastDone, deleteRecurringTracker } from '@/actions/tasks';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { useToast } from '@/context/ToastContext';
@@ -18,6 +18,8 @@ interface RecurringTracker {
 export default function RecurringTrackers({ initialTrackers }: { initialTrackers: RecurringTracker[] }) {
   const [newTitle, setNewTitle] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedTrackerForEdit, setSelectedTrackerForEdit] = useState<RecurringTracker | null>(null);
+  const [editDate, setEditDate] = useState('');
   const [isPending, startTransition] = useTransition();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
@@ -51,6 +53,7 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
     startTransition(async () => {
       try {
         await updateRecurringLastDone(id, todayStr);
+        setSelectedTrackerForEdit(null);
         showToast(`Marked "${title}" as completed today!`, 'success');
         router.refresh();
       } catch (error) {
@@ -60,15 +63,30 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
     });
   };
 
-  const handleDateChange = async (id: number, title: string, dateStr: string) => {
+  const handleSaveCustomDate = async (id: number, title: string) => {
     startTransition(async () => {
       try {
-        await updateRecurringLastDone(id, dateStr || null);
+        await updateRecurringLastDone(id, editDate || null);
+        setSelectedTrackerForEdit(null);
         showToast(`Updated completed date for "${title}".`, 'success');
         router.refresh();
       } catch (error) {
         console.error(error);
         showToast('Failed to update date.', 'error');
+      }
+    });
+  };
+
+  const handleClearDate = async (id: number, title: string) => {
+    startTransition(async () => {
+      try {
+        await updateRecurringLastDone(id, null);
+        setSelectedTrackerForEdit(null);
+        showToast(`Cleared completed date for "${title}".`, 'success');
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+        showToast('Failed to clear date.', 'error');
       }
     });
   };
@@ -90,7 +108,6 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
     if (!lastDoneDate) return 'Never completed';
 
     const d = new Date(lastDoneDate);
-    // Force reset time to local midnight for timezone-safe date diff comparison
     const localD = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     
     const now = new Date();
@@ -133,13 +150,13 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
       {/* TRACKERS LIST */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {initialTrackers.map(tracker => {
-          const formattedDate = tracker.lastDone 
-            ? new Date(tracker.lastDone).toISOString().split('T')[0] 
-            : '';
-
           return (
             <div 
               key={tracker.id} 
+              onClick={() => {
+                setSelectedTrackerForEdit(tracker);
+                setEditDate(tracker.lastDone ? new Date(tracker.lastDone).toISOString().split('T')[0] : '');
+              }}
               className="habit-item" 
               style={{ 
                 backgroundColor: 'var(--c-surface-container-low)', 
@@ -150,7 +167,17 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
                 alignItems: 'center',
                 flexWrap: 'wrap',
                 gap: '16px',
-                border: '1px solid var(--c-outline-variant)'
+                border: '1px solid var(--c-outline-variant)',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s ease, transform 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--c-surface-container-high)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--c-surface-container-low)';
+                e.currentTarget.style.transform = 'none';
               }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -162,48 +189,19 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
                 </span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                {/* Done Today button */}
-                <button 
-                  onClick={() => handleMarkDoneToday(tracker.id, tracker.title)}
-                  className="primary-btn"
-                  style={{ 
-                    padding: '6px 14px', 
-                    borderRadius: '24px', 
-                    fontSize: '13px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '4px',
-                    backgroundColor: 'var(--c-surface-container-high)',
-                    color: 'var(--c-on-surface)',
-                    border: '1px solid var(--c-outline-variant)',
-                    boxShadow: 'none',
-                    backgroundImage: 'none'
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }} onClick={(e) => e.stopPropagation()}>
+                {/* Visual indicator / trigger edit */}
+                <span 
+                  className="material-symbols-outlined" 
+                  style={{ color: 'var(--c-on-surface-variant)', fontSize: '20px', cursor: 'pointer' }}
+                  onClick={() => {
+                    setSelectedTrackerForEdit(tracker);
+                    setEditDate(tracker.lastDone ? new Date(tracker.lastDone).toISOString().split('T')[0] : '');
                   }}
-                  title="Mark done today"
+                  title="Edit completion date"
                 >
-                  <Check size={14} style={{ color: 'var(--c-primary)' }} />
-                  Done Today
-                </button>
-
-                {/* Date Input to set custom date */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', position: 'relative' }}>
-                  <Calendar size={16} className="text-on-surface-variant" />
-                  <input 
-                    type="date" 
-                    value={formattedDate}
-                    onChange={(e) => handleDateChange(tracker.id, tracker.title, e.target.value)}
-                    className="search-input"
-                    style={{ 
-                      borderRadius: '8px', 
-                      padding: '4px 10px', 
-                      fontSize: '13px', 
-                      width: '135px',
-                      backgroundColor: 'var(--c-surface)',
-                      border: '1px solid var(--c-outline-variant)'
-                    }}
-                  />
-                </div>
+                  calendar_month
+                </span>
 
                 {/* Delete button confirmation wrapper */}
                 <DeleteConfirmButton 
@@ -335,6 +333,184 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
               </button>
             </div>
           </form>
+        </div>,
+        document.body
+      )}
+
+      {/* EDIT TRACKER MODAL DIALOG */}
+      {selectedTrackerForEdit && mounted && createPortal(
+        <div 
+          style={{ 
+            position: 'fixed', 
+            top: 0, left: 0, right: 0, bottom: 0, 
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            zIndex: 1000, 
+            padding: '16px', 
+            backdropFilter: 'blur(4px)' 
+          }}
+          onClick={() => setSelectedTrackerForEdit(null)}
+        >
+          <div 
+            className="card" 
+            style={{ 
+              maxWidth: '450px', 
+              width: '100%', 
+              position: 'relative', 
+              padding: '32px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              boxShadow: 'var(--shadow-lg)',
+              backgroundColor: 'var(--c-surface)',
+              border: '1px solid var(--c-outline-variant)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              type="button"
+              onClick={() => setSelectedTrackerForEdit(null)} 
+              style={{ 
+                position: 'absolute', 
+                top: '16px', 
+                right: '16px', 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer', 
+                color: 'var(--c-on-surface-variant)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '6px',
+                borderRadius: '50%',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--c-surface-container-high)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              title="Close"
+            >
+              <X size={20} />
+            </button>
+
+            <div>
+              <h3 className="text-title-md" style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', margin: 0, color: 'var(--c-on-surface)' }}>
+                <CalendarCheck size={22} style={{ color: 'var(--c-primary)' }} />
+                Update Completion
+              </h3>
+              <p className="text-body-md text-on-surface" style={{ fontWeight: 600, marginTop: '8px', color: 'var(--c-primary)' }}>
+                {selectedTrackerForEdit.title}
+              </p>
+              <p className="text-label-sm text-on-surface-variant" style={{ marginTop: '4px' }}>
+                Last done: {formatLastDone(selectedTrackerForEdit.lastDone)}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '20px' }}>
+              {/* Option 1: Done Today */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span className="text-label-sm text-on-surface" style={{ fontWeight: 600 }}>Option 1: Complete Today</span>
+                <button
+                  type="button"
+                  onClick={() => handleMarkDoneToday(selectedTrackerForEdit.id, selectedTrackerForEdit.title)}
+                  className="primary-btn"
+                  style={{ 
+                    padding: '12px 20px', 
+                    borderRadius: '8px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    gap: '8px',
+                    fontSize: '14px',
+                    fontWeight: 700
+                  }}
+                >
+                  <Check size={18} /> Mark Completed Today
+                </button>
+              </div>
+
+              {/* Option 2: Custom Date */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px' }}>
+                <span className="text-label-sm text-on-surface" style={{ fontWeight: 600 }}>Option 2: Select Custom Date</span>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <input 
+                    type="date" 
+                    value={editDate}
+                    onChange={(e) => setEditDate(e.target.value)}
+                    className="search-input"
+                    style={{ 
+                      borderRadius: '8px', 
+                      padding: '8px 12px', 
+                      fontSize: '14px', 
+                      flex: 1,
+                      backgroundColor: 'var(--c-surface)',
+                      border: '1px solid var(--c-outline-variant)'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    disabled={!editDate}
+                    onClick={() => handleSaveCustomDate(selectedTrackerForEdit.id, selectedTrackerForEdit.title)}
+                    className="primary-btn"
+                    style={{ 
+                      padding: '8px 16px', 
+                      borderRadius: '8px', 
+                      fontSize: '14px',
+                      opacity: !editDate ? 0.5 : 1,
+                      cursor: !editDate ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    Save Date
+                  </button>
+                </div>
+              </div>
+
+              {/* Option 3: Reset / Clear Date */}
+              {selectedTrackerForEdit.lastDone && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleClearDate(selectedTrackerForEdit.id, selectedTrackerForEdit.title)}
+                    className="primary-btn"
+                    style={{ 
+                      padding: '10px 20px', 
+                      borderRadius: '8px', 
+                      fontSize: '14px',
+                      backgroundColor: 'var(--c-surface-container-high)',
+                      color: 'var(--c-error)',
+                      border: '1px solid var(--c-outline-variant)',
+                      boxShadow: 'none',
+                      backgroundImage: 'none',
+                      fontWeight: 600
+                    }}
+                  >
+                    Clear Completion Date
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px' }}>
+              <button 
+                type="button" 
+                onClick={() => setSelectedTrackerForEdit(null)} 
+                className="primary-btn" 
+                style={{ 
+                  padding: '8px 20px', 
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--c-surface-container-high)', 
+                  color: 'var(--c-on-surface)', 
+                  boxShadow: 'none',
+                  border: '1px solid var(--c-outline-variant)',
+                  backgroundImage: 'none',
+                  fontSize: '14px'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>,
         document.body
       )}
