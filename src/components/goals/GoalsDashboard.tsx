@@ -7,7 +7,6 @@ import { Goal, GoalCategory, GoalPriority } from '@prisma/client';
 
 export function GoalsDashboard({ goals }: { goals: Goal[] }) {
   const [activeTab, setActiveTab] = useState<GoalCategory>('RELIGIOUS');
-  const [sortBy, setSortBy] = useState('priority');
   const [currentPage, setCurrentPage] = useState(1);
 
   const tabs: Array<{ value: GoalCategory; label: string }> = [
@@ -23,27 +22,14 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
     setCurrentPage(1);
   };
 
-  const handleSortChange = (val: string) => {
-    setSortBy(val);
-    setCurrentPage(1);
-  };
-
   const filteredGoals = goals.filter(goal => {
     return goal.category === activeTab;
   });
 
   filteredGoals.sort((a, b) => {
-    if (sortBy === 'priority') {
-      const p: Record<GoalPriority, number> = { HIGH: 3, MEDIUM: 2, LOW: 1 };
-      if (p[b.priority] !== p[a.priority]) return p[b.priority] - p[a.priority];
-    }
-    if (sortBy === 'progress') {
-      if (b.progress !== a.progress) return b.progress - a.progress;
-    }
-    if (sortBy === 'date') {
-      if (!a.targetDate) return 1;
-      if (!b.targetDate) return -1;
-      return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+    const priorityWeights: Record<GoalPriority, number> = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+    if (priorityWeights[b.priority] !== priorityWeights[a.priority]) {
+      return priorityWeights[b.priority] - priorityWeights[a.priority];
     }
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
@@ -58,18 +44,7 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
     <div>
       <AddGoalForm activeCategory={activeTab} />
 
-      <div className="flex-row gap-16 mb-24" style={{ justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-        <select 
-          value={sortBy} 
-          onChange={(e) => handleSortChange(e.target.value)}
-          className="search-input"
-          style={{ borderRadius: '8px', padding: '8px 16px', width: 'auto' }}
-        >
-          <option value="priority">Sort by Priority</option>
-          <option value="progress">Sort by Progress</option>
-          <option value="date">Sort by Target Date</option>
-        </select>
-      </div>
+      <div style={{ marginBottom: '16px' }} />
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '8px', borderBottom: '1px solid var(--c-outline-variant)' }}>
         {tabs.map(tab => (
