@@ -76,7 +76,6 @@ export default function Navigation() {
             <span className="text-body-md">Spiritual</span>
           </Link>
           <div style={{ paddingLeft: '8px', paddingTop: '4px', paddingBottom: '4px' }}>
-            <span className="text-label-sm text-on-surface-variant" style={{ fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', marginBottom: '4px', paddingLeft: '8px' }}>Journal</span>
             <Link href="/journal/office" className={`nav-item ${pathname.startsWith('/journal/office') ? 'active' : ''}`} style={{ paddingLeft: '20px' }}>
               <span className="material-symbols-outlined">work</span>
               <span className="text-body-md">Office Work</span>
