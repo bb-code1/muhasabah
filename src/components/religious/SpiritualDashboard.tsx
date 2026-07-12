@@ -146,6 +146,11 @@ export default function SpiritualDashboard({
   // Pagination states for history
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Statistics Filter States
+  const [statsFilter, setStatsFilter] = useState<'day' | 'week' | 'month' | 'year' | 'all' | 'custom'>('month');
+  const [statsCustomStart, setStatsCustomStart] = useState<string>('');
+  const [statsCustomEnd, setStatsCustomEnd] = useState<string>('');
+
   const requiredCompleted = initialTodayData.habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name) && h.isCompleted).length;
   const requiredTotal = initialTodayData.habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name)).length;
   const optionalCompleted = initialTodayData.habits.filter(h => OPTIONAL_HABIT_NAMES.has(h.name) && h.isCompleted).length;
@@ -205,11 +210,60 @@ export default function SpiritualDashboard({
   const paginatedHistory = initialHistory.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
   const selectedRecord = selectedHistoryIndex !== null ? initialHistory[selectedHistoryIndex] : null;
 
-  // Helper to calculate statistics
-  const getMonthlyPrayerStats = () => {
+  // Helper to calculate statistics based on active filters
+  const getFilteredPrayerStats = () => {
     const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
+    const todayStr = dateStr;
+    
+    let startLimit: Date | null = null;
+    let endLimit: Date | null = null;
+
+    if (statsFilter === 'day') {
+      const start = new Date(today);
+      start.setHours(0, 0, 0, 0);
+      startLimit = start;
+      const end = new Date(today);
+      end.setHours(23, 59, 59, 999);
+      endLimit = end;
+    } else if (statsFilter === 'week') {
+      const day = today.getDay();
+      const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Monday
+      const monday = new Date(today.setDate(diff));
+      monday.setHours(0, 0, 0, 0);
+      startLimit = monday;
+      
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      endLimit = sunday;
+    } else if (statsFilter === 'month') {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      start.setHours(0, 0, 0, 0);
+      startLimit = start;
+      
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      end.setHours(23, 59, 59, 999);
+      endLimit = end;
+    } else if (statsFilter === 'year') {
+      const start = new Date(today.getFullYear(), 0, 1);
+      start.setHours(0, 0, 0, 0);
+      startLimit = start;
+      
+      const end = new Date(today.getFullYear(), 11, 31);
+      end.setHours(23, 59, 59, 999);
+      endLimit = end;
+    } else if (statsFilter === 'custom') {
+      if (statsCustomStart) {
+        const start = new Date(statsCustomStart);
+        start.setHours(0, 0, 0, 0);
+        startLimit = start;
+      }
+      if (statsCustomEnd) {
+        const end = new Date(statsCustomEnd);
+        end.setHours(23, 59, 59, 999);
+        endLimit = end;
+      }
+    }
 
     const prayers = ['Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha', 'Tahajjud'];
     const stats: Record<string, { completed: number; jamaat: number; total: number }> = {};
@@ -218,46 +272,54 @@ export default function SpiritualDashboard({
       stats[p] = { completed: 0, jamaat: 0, total: 0 };
     });
 
-    const todayDateStr = dateStr;
-    
+    // 1. Gather historical data
     initialHistory.forEach(record => {
       const recDate = new Date(record.date);
-      if (recDate.getFullYear() === currentYear && recDate.getMonth() === currentMonth) {
-        const recStr = recDate.toISOString().split('T')[0];
-        if (recStr === todayDateStr) {
-          return;
-        }
+      if (startLimit && recDate < startLimit) return;
+      if (endLimit && recDate > endLimit) return;
 
-        prayers.forEach(p => {
-          const habit = record.habits.find(h => h.name === p);
-          stats[p].total += 1;
-          if (habit?.isCompleted) {
-            stats[p].completed += 1;
-            if (habit.prayedWithJamaat) {
-              stats[p].jamaat += 1;
-            }
-          }
-        });
+      const recStr = recDate.toISOString().split('T')[0];
+      if (recStr === todayStr) {
+        return;
       }
-    });
 
-    prayers.forEach(p => {
-      const habit = initialTodayData.habits.find(h => h.name === p);
-      if (habit) {
+      prayers.forEach(p => {
+        const habit = record.habits.find(h => h.name === p);
         stats[p].total += 1;
-        if (habit.isCompleted) {
+        if (habit?.isCompleted) {
           stats[p].completed += 1;
           if (habit.prayedWithJamaat) {
             stats[p].jamaat += 1;
           }
         }
-      }
+      });
     });
+
+    // 2. Gather today's live data
+    const todayDateObj = new Date();
+    let includeToday = true;
+    if (startLimit && todayDateObj < startLimit) includeToday = false;
+    if (endLimit && todayDateObj > endLimit) includeToday = false;
+
+    if (includeToday) {
+      prayers.forEach(p => {
+        const habit = initialTodayData.habits.find(h => h.name === p);
+        if (habit) {
+          stats[p].total += 1;
+          if (habit.isCompleted) {
+            stats[p].completed += 1;
+            if (habit.prayedWithJamaat) {
+              stats[p].jamaat += 1;
+            }
+          }
+        }
+      });
+    }
 
     return stats;
   };
 
-  const monthlyStats = getMonthlyPrayerStats();
+  const monthlyStats = getFilteredPrayerStats();
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -387,12 +449,68 @@ export default function SpiritualDashboard({
 
       {/* MONTHLY PRAYER STATISTICS */}
       <div className="card">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
           <Calendar color="var(--c-primary)" size={24} />
           <h2 className="text-headline-md" style={{ margin: 0, fontWeight: 700 }}>
-            Prayer Stats ({new Date().toLocaleString('default', { month: 'long', year: 'numeric' })})
+            {statsFilter === 'day' && 'Prayer Stats (Today)'}
+            {statsFilter === 'week' && 'Prayer Stats (This Week)'}
+            {statsFilter === 'month' && `Prayer Stats (${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })})`}
+            {statsFilter === 'year' && `Prayer Stats (Year ${new Date().getFullYear()})`}
+            {statsFilter === 'all' && 'Prayer Stats (All Time)'}
+            {statsFilter === 'custom' && (statsCustomStart && statsCustomEnd ? `Prayer Stats (${statsCustomStart} to ${statsCustomEnd})` : 'Prayer Stats (Custom Range)')}
           </h2>
         </div>
+
+        {/* Statistics filter tabs */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+          {[
+            { id: 'day', label: 'Today' },
+            { id: 'week', label: 'This Week' },
+            { id: 'month', label: 'This Month' },
+            { id: 'year', label: 'This Year' },
+            { id: 'all', label: 'All Time' },
+            { id: 'custom', label: 'Custom Range' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setStatsFilter(tab.id as any)}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '20px',
+                fontWeight: 600,
+                fontSize: '13px',
+                backgroundColor: statsFilter === tab.id ? 'var(--c-primary)' : 'var(--c-surface-container-high)',
+                color: statsFilter === tab.id ? 'var(--c-on-primary)' : 'var(--c-on-surface-variant)',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Custom date range inputs */}
+        {statsFilter === 'custom' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+            <input
+              type="date"
+              value={statsCustomStart}
+              onChange={(e) => setStatsCustomStart(e.target.value)}
+              className="search-input"
+              style={{ borderRadius: '8px', padding: '6px 12px', backgroundColor: 'var(--c-surface)', fontSize: '13px', color: 'var(--c-on-surface)' }}
+            />
+            <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)' }}>to</span>
+            <input
+              type="date"
+              value={statsCustomEnd}
+              onChange={(e) => setStatsCustomEnd(e.target.value)}
+              className="search-input"
+              style={{ borderRadius: '8px', padding: '6px 12px', backgroundColor: 'var(--c-surface)', fontSize: '13px', color: 'var(--c-on-surface)' }}
+            />
+          </div>
+        )}
 
         <div style={{
           display: 'grid',
