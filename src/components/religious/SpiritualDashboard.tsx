@@ -6,7 +6,7 @@ import { Moon, CheckCircle2, Circle, Plus, X, Settings, Users, ScrollText, Calen
 import { toggleSpiritualHabit, addSpiritualHabit, deleteSpiritualHabit, setPrayerJamaat, updateQuranMemorization, updateOtherActivities } from '@/actions/religious';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { useToast } from '@/context/ToastContext';
-import { isDefaultSpiritualHabit, PRAYER_HABIT_NAMES, sortSpiritualHabits } from '@/lib/spiritualHabits';
+import { isDefaultSpiritualHabit, PRAYER_HABIT_NAMES, sortSpiritualHabits, OPTIONAL_HABIT_NAMES } from '@/lib/spiritualHabits';
 import { QURAN_SURAHS } from '@/lib/quranData';
 
 interface HabitStatus {
@@ -149,8 +149,12 @@ export default function SpiritualDashboard({
   // Pagination states for history
   const [currentPage, setCurrentPage] = useState(1);
 
-  const completedCount = initialTodayData.habits.filter(h => h.isCompleted).length;
-  const totalCount = initialTodayData.habits.length;
+  const requiredCompleted = initialTodayData.habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name) && h.isCompleted).length;
+  const requiredTotal = initialTodayData.habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name)).length;
+  const optionalCompleted = initialTodayData.habits.filter(h => OPTIONAL_HABIT_NAMES.has(h.name) && h.isCompleted).length;
+
+  const completedCount = requiredCompleted + optionalCompleted;
+  const totalCount = requiredTotal + optionalCompleted;
 
   const handleToggle = async (habitId: number, currentCompleted: boolean) => {
     setTogglingId(habitId);

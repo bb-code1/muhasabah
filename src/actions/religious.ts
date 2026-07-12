@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { DEFAULT_HABIT_ORDER, isDefaultSpiritualHabit, mergeHistoryHabits, PRAYER_HABIT_NAMES, sortSpiritualHabits } from '@/lib/spiritualHabits';
+import { DEFAULT_HABIT_ORDER, isDefaultSpiritualHabit, mergeHistoryHabits, PRAYER_HABIT_NAMES, sortSpiritualHabits, OPTIONAL_HABIT_NAMES } from '@/lib/spiritualHabits';
 import { revalidatePath } from 'next/cache';
 
 export async function getSpiritualHabits() {
@@ -218,11 +218,15 @@ export async function getSpiritualHistory() {
   return Object.values(historyMap)
     .map(entry => {
       const habits = mergeHistoryHabits(entry.habits, allHabits);
+      const requiredCompleted = habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name) && h.isCompleted).length;
+      const requiredTotal = habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name)).length;
+      const optionalCompleted = habits.filter(h => OPTIONAL_HABIT_NAMES.has(h.name) && h.isCompleted).length;
+
       return {
         ...entry,
         habits,
-        completedCount: habits.filter(habit => habit.isCompleted).length,
-        totalCount: habits.length,
+        completedCount: requiredCompleted + optionalCompleted,
+        totalCount: requiredTotal + optionalCompleted,
       };
     })
     .sort((a, b) => b.date.getTime() - a.date.getTime());
