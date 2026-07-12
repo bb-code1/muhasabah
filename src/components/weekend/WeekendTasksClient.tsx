@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, List, Calendar, CalendarHeart } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Plus, List, Calendar, CalendarHeart, X } from 'lucide-react';
 import { addWeekendTask, deleteWeekendTask, toggleWeekendTask } from '@/actions/tasks';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { WeekendTask, WeekendTaskLog } from '@prisma/client';
@@ -34,6 +35,21 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<'table' | 'manage'>('table');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedEditWeek, setSelectedEditWeek] = useState<Date | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  const getWeekLabel = (weekDate: Date) => {
+    const endDate = new Date(weekDate);
+    endDate.setDate(weekDate.getDate() + 6);
+    const startLabel = weekDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const endLabel = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return `From ${startLabel} - To ${endLabel}`;
+  };
   
   const weeks = generatePastWeeks(12); // Show last 12 weeks
 
@@ -193,19 +209,46 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
               <tbody>
                 {weeks.map((week, idx) => {
                   const weekDateStr = week.toISOString().split('T')[0];
-                  const endDate = new Date(week);
-                  endDate.setDate(week.getDate() + 6);
-                  
-                  const startLabel = week.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                  const endLabel = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                  const weekLabel = `From ${startLabel} - To ${endLabel}`;
-                  
+                  const weekLabel = getWeekLabel(week);
                   const isCurrentWeek = idx === 0;
                   
                   return (
                     <tr key={weekDateStr} style={{ backgroundColor: isCurrentWeek ? 'var(--c-surface-container-high)' : 'transparent', borderBottom: '1px solid var(--c-outline-variant)' }}>
-                      <td style={{ padding: '16px', textAlign: 'left', fontWeight: isCurrentWeek ? '700' : '500' }}>
-                        {isCurrentWeek ? `Current Week (${weekLabel})` : weekLabel}
+                      <td 
+                        onClick={() => {
+                          if (!isCurrentWeek) {
+                            setSelectedEditWeek(week);
+                          }
+                        }}
+                        style={{ 
+                          padding: '16px', 
+                          textAlign: 'left', 
+                          fontWeight: isCurrentWeek ? '700' : '500',
+                          cursor: isCurrentWeek ? 'default' : 'pointer',
+                          color: isCurrentWeek ? 'var(--c-on-surface)' : 'var(--c-primary)',
+                          transition: 'color 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isCurrentWeek) {
+                            e.currentTarget.style.color = 'var(--c-primary-light, #dcae2e)';
+                            e.currentTarget.style.textDecoration = 'underline';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isCurrentWeek) {
+                            e.currentTarget.style.color = 'var(--c-primary)';
+                            e.currentTarget.style.textDecoration = 'none';
+                          }
+                        }}
+                      >
+                        {isCurrentWeek ? (
+                          `Current Week (${weekLabel})`
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>{weekLabel}</span>
+                            <span className="material-symbols-outlined" style={{ fontSize: '18px', opacity: 0.8 }}>edit</span>
+                          </div>
+                        )}
                       </td>
                       
                       {initialTasks.map(task => {
@@ -215,7 +258,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                         });
                         
                         return (
-                              <td key={task.id} style={{ padding: '16px' }}>
+                          <td key={task.id} style={{ padding: '16px' }}>
                             <input 
                               type="checkbox" 
                               checked={isCompleted}
@@ -223,6 +266,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                               onClick={(e) => {
                                 if (!isCurrentWeek) {
                                   e.preventDefault();
+                                  setSelectedEditWeek(week);
                                 }
                               }}
                               onChange={() => {
@@ -236,7 +280,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                                 appearance: 'auto', 
                                 width: '24px', 
                                 height: '24px', 
-                                cursor: isCurrentWeek ? 'pointer' : 'default', 
+                                cursor: 'pointer', 
                                 accentColor: isCurrentWeek ? 'var(--c-primary)' : 'var(--c-outline)', 
                                 opacity: 1 
                               }}
@@ -251,6 +295,132 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
             </table>
           </div>
         </div>
+      )}
+
+      {selectedEditWeek && mounted && createPortal(
+        <div 
+          style={{ 
+            position: 'fixed', 
+            top: 0, left: 0, right: 0, bottom: 0, 
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            zIndex: 1000, 
+            padding: '16px', 
+            backdropFilter: 'blur(4px)' 
+          }}
+        >
+          <div 
+            className="card" 
+            style={{ 
+              maxWidth: '500px', 
+              width: '100%', 
+              position: 'relative', 
+              padding: '32px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              boxShadow: 'var(--shadow-lg)',
+              backgroundColor: 'var(--c-surface)',
+              border: '1px solid var(--c-outline-variant)'
+            }}
+          >
+            <button 
+              type="button"
+              onClick={() => setSelectedEditWeek(null)} 
+              style={{ 
+                position: 'absolute', 
+                top: '16px', 
+                right: '16px', 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer', 
+                color: 'var(--c-on-surface-variant)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '6px',
+                borderRadius: '50%',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--c-surface-container-high)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              title="Close"
+            >
+              <X size={20} />
+            </button>
+
+            <div>
+              <h3 className="text-title-md" style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', margin: 0, color: 'var(--c-on-surface)' }}>
+                <Calendar size={22} style={{ color: 'var(--c-primary)' }} />
+                Edit Week Progress
+              </h3>
+              <p className="text-label-sm text-primary" style={{ marginTop: '6px', textTransform: 'uppercase', fontWeight: 700 }}>
+                {getWeekLabel(selectedEditWeek)}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
+              {initialTasks.map(task => {
+                const weekDateStr = selectedEditWeek.toISOString().split('T')[0];
+                const isCompleted = task.logs.some(log => {
+                  const logWeekStr = new Date(log.weekStartDate).toISOString().split('T')[0];
+                  return logWeekStr === weekDateStr;
+                });
+
+                return (
+                  <div 
+                    key={task.id} 
+                    className="habit-item" 
+                    style={{ 
+                      backgroundColor: 'var(--c-surface-container-low)', 
+                      padding: '12px 16px', 
+                      borderRadius: '8px', 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      border: '1px solid var(--c-outline-variant)'
+                    }}
+                  >
+                    <span className="text-body-md" style={{ fontWeight: 500, color: 'var(--c-on-surface)' }}>
+                      {task.title}
+                    </span>
+                    
+                    <button 
+                      type="button"
+                      onClick={() => handleToggle(task.id, isCompleted, weekDateStr)}
+                      className={`habit-checkbox ${isCompleted ? 'checked' : ''}`}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' }}>
+              <button 
+                type="button" 
+                onClick={() => setSelectedEditWeek(null)} 
+                className="primary-btn" 
+                style={{ 
+                  padding: '8px 16px', 
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--c-surface-container-high)', 
+                  color: 'var(--c-on-surface)', 
+                  boxShadow: 'none',
+                  border: '1px solid var(--c-outline-variant)',
+                  backgroundImage: 'none',
+                  fontSize: '14px'
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );
