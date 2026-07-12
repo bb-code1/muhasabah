@@ -156,11 +156,12 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                 {weeks.map((week, idx) => {
                   const weekDateStr = week.toISOString().split('T')[0];
                   const weekLabel = week.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  const isCurrentWeek = idx === 0;
                   
                   return (
-                    <tr key={weekDateStr} style={{ backgroundColor: idx === 0 ? 'var(--c-surface-container-high)' : 'transparent', borderBottom: '1px solid var(--c-outline-variant)' }}>
-                      <td style={{ padding: '16px', textAlign: 'left', fontWeight: idx === 0 ? '700' : '500' }}>
-                        {idx === 0 ? `Current Week (${weekLabel})` : weekLabel}
+                    <tr key={weekDateStr} style={{ backgroundColor: isCurrentWeek ? 'var(--c-surface-container-high)' : 'transparent', borderBottom: '1px solid var(--c-outline-variant)' }}>
+                      <td style={{ padding: '16px', textAlign: 'left', fontWeight: isCurrentWeek ? '700' : '500' }}>
+                        {isCurrentWeek ? `Current Week (${weekLabel})` : weekLabel}
                       </td>
                       
                       {initialTasks.map(task => {
@@ -174,9 +175,10 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                             <input 
                               type="checkbox" 
                               checked={isCompleted}
+                              disabled={!isCurrentWeek}
                               onChange={() => handleToggle(task.id, isCompleted, weekDateStr)}
                               className="habit-checkbox"
-                              style={{ margin: '0 auto', appearance: 'auto', width: '24px', height: '24px', cursor: 'pointer', accentColor: 'var(--c-primary)' }}
+                              style={{ margin: '0 auto', appearance: 'auto', width: '24px', height: '24px', cursor: isCurrentWeek ? 'pointer' : 'not-allowed', accentColor: 'var(--c-primary)', opacity: isCurrentWeek ? 1 : 0.6 }}
                             />
                           </td>
                         );
