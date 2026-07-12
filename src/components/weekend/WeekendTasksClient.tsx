@@ -155,7 +155,13 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
               <tbody>
                 {weeks.map((week, idx) => {
                   const weekDateStr = week.toISOString().split('T')[0];
-                  const weekLabel = week.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  const endDate = new Date(week);
+                  endDate.setDate(week.getDate() + 6);
+                  
+                  const startLabel = week.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  const endLabel = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  const weekLabel = `From ${startLabel} - To ${endLabel}`;
+                  
                   const isCurrentWeek = idx === 0;
                   
                   return (
