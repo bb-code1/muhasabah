@@ -722,7 +722,7 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
   font-family: 'Amiri', 'Scheherazade New', serif;
   font-size: 26px;
   line-height: 1.8;
-  text-align: right;
+  text-align: center;
   direction: rtl;
   color: var(--c-primary);
   font-weight: 700;
