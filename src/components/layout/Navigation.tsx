@@ -83,6 +83,10 @@ export default function Navigation() {
             <span className="material-symbols-outlined">sticky_note_2</span>
             <span className="text-body-md">Notes</span>
           </Link>
+          <Link href="/fitness" className={`nav-item ${pathname === '/fitness' ? 'active' : ''}`}>
+            <span className="material-symbols-outlined">fitness_center</span>
+            <span className="text-body-md">Fitness</span>
+          </Link>
         </nav>
       </aside>
 

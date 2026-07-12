@@ -19,6 +19,7 @@ async function main() {
   await prisma.weekendTaskLog.deleteMany();
   await prisma.weekendTask.deleteMany();
   await prisma.note.deleteMany();
+  await prisma.fitnessLog.deleteMany();
 
   console.log('Seeding massive data...');
 
@@ -197,6 +198,27 @@ async function main() {
     });
   }
   await prisma.note.createMany({ data: notes });
+
+  // --- FITNESS LOGS ---
+  console.log('Seeding Fitness Logs...');
+  const fitnessLogs = [];
+  const activitiesList = ['Running', 'Gym', 'Walking', 'Cycling', 'Yoga', 'Swimming'];
+  for (let i = 0; i < 25; i++) {
+    const act = activitiesList[Math.floor(Math.random() * activitiesList.length)];
+    const dur = [20, 30, 45, 60, 90][Math.floor(Math.random() * 5)];
+    const dist = ['Running', 'Walking', 'Cycling'].includes(act) 
+      ? Math.floor(Math.random() * 10) + 1 + (Math.floor(Math.random() * 10) / 10)
+      : null;
+    
+    fitnessLogs.push({
+      activity: act,
+      duration: dur,
+      distance: dist,
+      notes: Math.random() > 0.4 ? `Good workout, felt strong ${i}.` : null,
+      date: getPastDate(Math.floor(Math.random() * 30)),
+    });
+  }
+  await prisma.fitnessLog.createMany({ data: fitnessLogs });
 
   console.log('✅ Seeding completed successfully!');
 }
