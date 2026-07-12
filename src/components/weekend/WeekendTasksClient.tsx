@@ -124,13 +124,6 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
             <button 
               onClick={() => setIsAddWeekOpen(true)} 
               className="primary-btn" 
-              style={{
-                backgroundColor: 'var(--c-surface-container-high)',
-                color: 'var(--c-on-surface)',
-                border: '1px solid var(--c-outline-variant)',
-                boxShadow: 'none',
-                backgroundImage: 'none'
-              }}
             >
               <Plus size={18} /> Add Week
             </button>
