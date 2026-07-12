@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Moon, CheckCircle2, Circle, Plus, X, BookOpen, Settings } from 'lucide-react';
 import { toggleSpiritualHabit, addSpiritualHabit, deleteSpiritualHabit, updateQuranMemorization } from '@/actions/religious';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
+import { useToast } from '@/context/ToastContext';
 
 interface HabitStatus {
   id: number;
@@ -35,6 +36,7 @@ export default function SpiritualDashboard({
   initialHistory,
   allHabits
 }: SpiritualDashboardProps) {
+  const { showToast } = useToast();
   // Modal states
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const [newHabitName, setNewHabitName] = useState('');
@@ -57,7 +59,7 @@ export default function SpiritualDashboard({
       await toggleSpiritualHabit(dateStr, habitId, currentCompleted);
     } catch (error) {
       console.error(error);
-      alert('Failed to update habit status.');
+      showToast('Failed to update habit status.', 'error');
     } finally {
       setTogglingId(null);
     }
@@ -74,7 +76,7 @@ export default function SpiritualDashboard({
       setNewHabitName('');
     } catch (error: any) {
       console.error(error);
-      alert(error.message || 'Failed to add habit.');
+      showToast(error.message || 'Failed to add habit.', 'error');
     } finally {
       setSubmittingHabit(false);
     }
@@ -92,7 +94,7 @@ export default function SpiritualDashboard({
       setTimeout(() => setQuranMessage(''), 3000);
     } catch (error) {
       console.error(error);
-      alert('Failed to save Quran notes.');
+      showToast('Failed to save Quran notes.', 'error');
     } finally {
       setSavingQuran(false);
     }

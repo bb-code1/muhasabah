@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { Plus, Search, Edit2, Calendar, Clock, X } from 'lucide-react';
 import { addNote, updateNote, deleteNote } from '@/actions/notes';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
+import { useToast } from '@/context/ToastContext';
 import { Note } from '@prisma/client';
 
 export default function NotesDashboard({ initialNotes }: { initialNotes: Note[] }) {
   const [search, setSearch] = useState('');
+  const { showToast } = useToast();
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title'>('newest');
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -53,7 +55,7 @@ export default function NotesDashboard({ initialNotes }: { initialNotes: Note[] 
       closeModal();
     } catch (error) {
       console.error(error);
-      alert('Failed to save note');
+      showToast('Failed to save note', 'error');
     } finally {
       setSubmitting(false);
     }

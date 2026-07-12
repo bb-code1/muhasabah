@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { Plus, Filter } from 'lucide-react';
 import { addJournalEntry, deleteJournalEntry } from '@/actions';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
+import { useToast } from '@/context/ToastContext';
 import { JournalEntry } from '@prisma/client';
 
 export default function JournalDashboard({ initialEntries }: { initialEntries: JournalEntry[] }) {
   const [tab, setTab] = useState<'OFFICE' | 'LEARNING' | 'MISC'>('OFFICE');
+  const { showToast } = useToast();
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [filterPeriod, setFilterPeriod] = useState('ALL'); // ALL, TODAY, WEEK, MONTH
@@ -29,7 +31,7 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
       setCurrentPage(1); // Reset to first page
     } catch (error) {
       console.error(error);
-      alert('Failed to add entry');
+      showToast('Failed to add entry', 'error');
     } finally {
       setLoading(false);
     }

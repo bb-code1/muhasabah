@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { Plus, Calendar, Clock, X, Dumbbell, Flame, Compass, Activity, Sparkles, MessageSquare, TrendingUp } from 'lucide-react';
 import { addFitnessLog, deleteFitnessLog } from '@/actions/fitness';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
+import { useToast } from '@/context/ToastContext';
 import { FitnessLog } from '@prisma/client';
 
 export default function FitnessDashboard({ initialLogs }: { initialLogs: FitnessLog[] }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const { showToast } = useToast();
 
   // Form states
   const [activity, setActivity] = useState('Gym');
@@ -51,12 +53,12 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
     e.preventDefault();
     const durNum = parseInt(duration, 10);
     if (isNaN(durNum) || durNum <= 0) {
-      alert('Please enter a valid duration.');
+      showToast('Please enter a valid duration.', 'error');
       return;
     }
     const distNum = distance.trim() ? parseFloat(distance) : null;
     if (distNum !== null && (isNaN(distNum) || distNum < 0)) {
-      alert('Please enter a valid distance.');
+      showToast('Please enter a valid distance.', 'error');
       return;
     }
 
@@ -73,7 +75,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
       closeModal();
     } catch (error) {
       console.error(error);
-      alert('Failed to log fitness activity.');
+      showToast('Failed to log fitness activity.', 'error');
     } finally {
       setSubmitting(false);
     }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, List, Calendar, CalendarHeart, X } from 'lucide-react';
+import { useToast } from '@/context/ToastContext';
 import { addWeekendTask, deleteWeekendTask, toggleWeekendTask } from '@/actions/tasks';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { WeekendTask, WeekendTaskLog } from '@prisma/client';
@@ -33,6 +34,7 @@ function generatePastWeeks(count: number) {
 export default function WeekendTasksClient({ initialTasks }: { initialTasks: TaskWithLogs[] }) {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
   const [view, setView] = useState<'table' | 'manage'>('table');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEditWeek, setSelectedEditWeek] = useState<Date | null>(null);
@@ -85,7 +87,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
       setCurrentPage(1); // Reset page on add
     } catch (error) {
       console.error(error);
-      alert('Failed to add task');
+      showToast('Failed to add task', 'error');
     } finally {
       setLoading(false);
     }
@@ -467,7 +469,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
               const endDateStr = formData.get('endDate') as string;
               
               if (!startDateStr || !endDateStr) {
-                alert("Please fill in both dates.");
+                showToast("Please fill in both dates.", "error");
                 return;
               }
 
@@ -488,7 +490,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
               const isOneWeek = diffDays === 6;
 
               if (!isMonday || !isSunday || !isOneWeek) {
-                alert("You haven't entered the dates correctly. The week must start on a Monday and end on a Sunday.");
+                showToast("You haven't entered the dates correctly. The week must start on a Monday and end on a Sunday.", "error");
                 return;
               }
 

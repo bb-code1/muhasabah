@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Trash2, AlertTriangle } from 'lucide-react';
+import { useToast } from '@/context/ToastContext';
 
 export default function DeleteConfirmButton({
   action,
@@ -20,6 +21,7 @@ export default function DeleteConfirmButton({
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const { showToast } = useToast();
 
   useEffect(() => {
     setMounted(true);
@@ -33,7 +35,7 @@ export default function DeleteConfirmButton({
         setIsOpen(false);
       } catch (error) {
         console.error(error);
-        alert("Failed to delete item.");
+        showToast("Failed to delete item.", "error");
       }
     });
   };
