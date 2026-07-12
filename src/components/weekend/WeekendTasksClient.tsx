@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, List, Calendar, CalendarHeart } from 'lucide-react';
+import { Plus, List, Calendar, CalendarHeart } from 'lucide-react';
 import { addWeekendTask, deleteWeekendTask, toggleWeekendTask } from '@/actions/tasks';
+import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { WeekendTask, WeekendTaskLog } from '@prisma/client';
 
 type TaskWithLogs = WeekendTask & { logs: WeekendTaskLog[] };
@@ -52,12 +53,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to permanently delete this task?')) {
-      await deleteWeekendTask(id);
-      setCurrentPage(1); // Reset page on delete
-    }
-  };
+
 
   const handleToggle = async (id: number, currentCompletedState: boolean, weekStartDateStr: string) => {
     await toggleWeekendTask(id, !currentCompletedState, weekStartDateStr);
@@ -135,13 +131,16 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                 <span className="text-body-md" style={{ fontWeight: 500, color: 'var(--c-on-surface)' }}>
                   {task.title}
                 </span>
-                <button 
-                  onClick={() => handleDelete(task.id)} 
-                  style={{ color: 'var(--c-error)', opacity: 0.7, padding: '8px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                <DeleteConfirmButton 
+                  action={async () => {
+                    await deleteWeekendTask(task.id);
+                    setCurrentPage(1);
+                  }}
+                  iconSize={18}
                   title="Delete Task"
-                >
-                  <Trash2 size={18} />
-                </button>
+                  message="Are you sure you want to permanently delete this weekend task?"
+                  style={{ padding: '8px' }}
+                />
               </div>
             ))}
             {paginatedTasks.length === 0 && (

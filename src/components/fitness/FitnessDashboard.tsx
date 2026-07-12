@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, Calendar, Clock, X, Dumbbell, Flame, Compass, Activity, Sparkles, MessageSquare, TrendingUp } from 'lucide-react';
+import { Plus, Calendar, Clock, X, Dumbbell, Flame, Compass, Activity, Sparkles, MessageSquare, TrendingUp } from 'lucide-react';
 import { addFitnessLog, deleteFitnessLog } from '@/actions/fitness';
+import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { FitnessLog } from '@prisma/client';
 
 export default function FitnessDashboard({ initialLogs }: { initialLogs: FitnessLog[] }) {
@@ -78,17 +79,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this activity log?')) {
-      try {
-        await deleteFitnessLog(id);
-        setCurrentPage(1); // Reset page on delete
-      } catch (error) {
-        console.error(error);
-        alert('Failed to delete log.');
-      }
-    }
-  };
+
 
   // Pagination Logic
   const PAGE_SIZE = 25;
@@ -195,14 +186,15 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                 </div>
               </div>
 
-              <button 
-                onClick={() => handleDelete(log.id)}
-                style={{ color: 'var(--c-error)', background: 'none', border: 'none', cursor: 'pointer', padding: '8px', borderRadius: '50%', display: 'flex', transition: 'background-color 0.2s' }}
-                className="icon-btn-hover"
+              <DeleteConfirmButton 
+                action={async () => {
+                  await deleteFitnessLog(log.id);
+                  setCurrentPage(1);
+                }}
+                iconSize={18}
                 title="Delete Activity"
-              >
-                <Trash2 size={18} />
-              </button>
+                message="Are you sure you want to delete this activity log?"
+              />
             </div>
           );
         })}

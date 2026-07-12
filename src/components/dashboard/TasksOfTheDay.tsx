@@ -1,6 +1,6 @@
 import { getDailyTasks, addDailyTask, toggleDailyTask, deleteDailyTask } from '@/actions';
-import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 
 export default async function TasksOfTheDay({ 
   dateStr, 
@@ -92,11 +92,12 @@ export default async function TasksOfTheDay({
                 </span>
               </div>
               {!readOnly && (
-                <form action={deleteAction}>
-                  <button type="submit" style={{ all: 'unset', cursor: 'pointer', color: 'var(--c-error)', opacity: 0.7, display: 'flex' }}>
-                    <Trash2 size={18} />
-                  </button>
-                </form>
+                <DeleteConfirmButton 
+                  action={deleteAction} 
+                  iconSize={18} 
+                  title="Delete Task"
+                  message={`Are you sure you want to delete "${task.title}"?`}
+                />
               )}
             </div>
           );

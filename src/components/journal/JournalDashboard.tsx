@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, Filter } from 'lucide-react';
+import { Plus, Filter } from 'lucide-react';
 import { addJournalEntry, deleteJournalEntry } from '@/actions';
+import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { JournalEntry } from '@prisma/client';
 
 export default function JournalDashboard({ initialEntries }: { initialEntries: JournalEntry[] }) {
@@ -34,11 +35,7 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this entry?')) {
-      await deleteJournalEntry(id);
-    }
-  };
+
 
   const handleTabChange = (newTab: 'OFFICE' | 'LEARNING' | 'MISC') => {
     setTab(newTab);
@@ -142,9 +139,13 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
                   </span>
                 </div>
               </div>
-              <button onClick={() => handleDelete(entry.id)} style={{ color: 'var(--c-error)', opacity: 0.7, flexShrink: 0, padding: '4px' }}>
-                <Trash2 size={18} />
-              </button>
+              <DeleteConfirmButton 
+                action={() => deleteJournalEntry(entry.id)}
+                iconSize={18}
+                title="Delete Entry"
+                message="Are you sure you want to delete this journal entry?"
+                style={{ flexShrink: 0, padding: '4px' }}
+              />
             </div>
           ))
         )}

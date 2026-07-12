@@ -1,8 +1,9 @@
 import { getPersonById, markDebtPaid, deleteDebtRecord, deletePerson, markDebtPending } from '@/actions/debts';
 import AddDebtRecordForm from '@/components/debts/AddDebtRecordForm';
 import Link from 'next/link';
-import { ArrowLeft, Trash2, CheckCircle2, Circle, Wallet } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Wallet } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 
 export default async function PersonDebtPage(props: { 
   params: Promise<{ personId: string }>,
@@ -49,11 +50,14 @@ export default async function PersonDebtPage(props: {
         </Link>
         <h2 className="text-display-sm" style={{ margin: 0 }}>{person.name}</h2>
         
-        <form action={deletePersonAction} style={{ marginLeft: 'auto' }}>
-          <button type="submit" className="text-on-surface-variant" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }} title="Delete Person">
-            <Trash2 size={20} color="var(--c-error)" />
-          </button>
-        </form>
+        <div style={{ marginLeft: 'auto' }}>
+          <DeleteConfirmButton 
+            action={deletePersonAction} 
+            iconSize={20} 
+            title="Delete Person"
+            message={`Are you sure you want to delete ${person.name}? This will permanently delete all associated credit and debit records.`}
+          />
+        </div>
       </div>
 
       <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '32px' }}>
@@ -109,11 +113,13 @@ export default async function PersonDebtPage(props: {
                     )}
                   </div>
 
-                  <form action={delAction}>
-                    <button type="submit" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', color: 'var(--c-error)', padding: '8px' }}>
-                      <Trash2 size={18} />
-                    </button>
-                  </form>
+                  <DeleteConfirmButton 
+                    action={delAction} 
+                    iconSize={18} 
+                    title="Delete Record"
+                    message="Are you sure you want to delete this debt record?"
+                    style={{ padding: '8px' }}
+                  />
                 </div>
               );
             })}

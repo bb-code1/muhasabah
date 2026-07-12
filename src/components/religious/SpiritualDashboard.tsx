@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Moon, CheckCircle2, Circle, Trash2, Plus, X, BookOpen, Settings } from 'lucide-react';
+import { Moon, CheckCircle2, Circle, Plus, X, BookOpen, Settings } from 'lucide-react';
 import { toggleSpiritualHabit, addSpiritualHabit, deleteSpiritualHabit, updateQuranMemorization } from '@/actions/religious';
+import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 
 interface HabitStatus {
   id: number;
@@ -79,16 +80,7 @@ export default function SpiritualDashboard({
     }
   };
 
-  const handleDeleteHabit = async (id: number) => {
-    if (confirm('Are you sure you want to delete this habit? All past logs for this habit will also be permanently deleted.')) {
-      try {
-        await deleteSpiritualHabit(id);
-      } catch (error) {
-        console.error(error);
-        alert('Failed to delete habit.');
-      }
-    }
-  };
+
 
   const handleSaveQuran = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -338,14 +330,12 @@ export default function SpiritualDashboard({
                   }}
                 >
                   <span className="text-body-md" style={{ fontWeight: 600 }}>{habit.name}</span>
-                  <button 
-                    onClick={() => handleDeleteHabit(habit.id)}
-                    style={{ color: 'var(--c-error)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '50%', display: 'flex', transition: 'background-color 0.2s' }}
-                    className="icon-btn-hover"
+                  <DeleteConfirmButton 
+                    action={() => deleteSpiritualHabit(habit.id)}
+                    iconSize={16}
                     title="Delete Habit"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                    message="Are you sure you want to delete this habit? All past logs for this habit will also be permanently deleted."
+                  />
                 </div>
               ))}
 

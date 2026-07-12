@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Search, Edit2, Trash2, Calendar, Clock, X } from 'lucide-react';
+import { Plus, Search, Edit2, Calendar, Clock, X } from 'lucide-react';
 import { addNote, updateNote, deleteNote } from '@/actions/notes';
+import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { Note } from '@prisma/client';
 
 export default function NotesDashboard({ initialNotes }: { initialNotes: Note[] }) {
@@ -58,17 +59,7 @@ export default function NotesDashboard({ initialNotes }: { initialNotes: Note[] 
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to permanently delete this note?')) {
-      try {
-        await deleteNote(id);
-        setCurrentPage(1); // Reset page on delete
-      } catch (error) {
-        console.error(error);
-        alert('Failed to delete note');
-      }
-    }
-  };
+
 
   // Filter notes
   const filteredNotes = initialNotes.filter(note => {
@@ -154,14 +145,15 @@ export default function NotesDashboard({ initialNotes }: { initialNotes: Note[] 
                     >
                       <Edit2 size={16} />
                     </button>
-                    <button 
-                      onClick={() => handleDelete(note.id)} 
-                      style={{ color: 'var(--c-error)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '50%', display: 'flex', transition: 'background-color 0.2s' }}
-                      className="icon-btn-hover"
+                    <DeleteConfirmButton 
+                      action={async () => {
+                        await deleteNote(note.id);
+                        setCurrentPage(1);
+                      }}
+                      iconSize={16}
                       title="Delete Note"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                      message="Are you sure you want to permanently delete this note?"
+                    />
                   </div>
                 </div>
 
