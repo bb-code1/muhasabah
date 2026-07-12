@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { DEFAULT_HABIT_ORDER, mergeHistoryHabits, PRAYER_HABIT_NAMES, sortSpiritualHabits } from '@/lib/spiritualHabits';
+import { DEFAULT_HABIT_ORDER, isDefaultSpiritualHabit, mergeHistoryHabits, PRAYER_HABIT_NAMES, sortSpiritualHabits } from '@/lib/spiritualHabits';
 import { revalidatePath } from 'next/cache';
 
 export async function getSpiritualHabits() {
@@ -29,6 +29,19 @@ export async function addSpiritualHabit(name: string) {
 }
 
 export async function deleteSpiritualHabit(id: number) {
+  const habit = await prisma.spiritualHabit.findUnique({
+    where: { id },
+    select: { name: true },
+  });
+
+  if (!habit) {
+    throw new Error('Habit not found.');
+  }
+
+  if (isDefaultSpiritualHabit(habit.name)) {
+    throw new Error('Default spiritual habits cannot be deleted.');
+  }
+
   await prisma.spiritualHabit.delete({
     where: { id },
   });

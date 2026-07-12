@@ -6,7 +6,7 @@ import { Moon, CheckCircle2, Circle, Plus, X, Settings, Users, ScrollText, Calen
 import { toggleSpiritualHabit, addSpiritualHabit, deleteSpiritualHabit, setPrayerJamaat } from '@/actions/religious';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { useToast } from '@/context/ToastContext';
-import { PRAYER_HABIT_NAMES, sortSpiritualHabits } from '@/lib/spiritualHabits';
+import { isDefaultSpiritualHabit, PRAYER_HABIT_NAMES, sortSpiritualHabits } from '@/lib/spiritualHabits';
 
 interface HabitStatus {
   id: number;
@@ -577,12 +577,18 @@ export default function SpiritualDashboard({
                   }}
                 >
                   <span className="text-body-md" style={{ fontWeight: 600 }}>{habit.name}</span>
-                  <DeleteConfirmButton
-                    action={() => deleteSpiritualHabit(habit.id)}
-                    iconSize={16}
-                    title="Delete Habit"
-                    message="Are you sure you want to delete this habit? All past logs for this habit will also be permanently deleted."
-                  />
+                  {isDefaultSpiritualHabit(habit.name) ? (
+                    <span className="text-label-sm text-on-surface-variant" style={{ fontWeight: 600, padding: '4px 10px', borderRadius: '999px', backgroundColor: 'var(--c-surface-container-high)' }}>
+                      Default
+                    </span>
+                  ) : (
+                    <DeleteConfirmButton
+                      action={() => deleteSpiritualHabit(habit.id)}
+                      iconSize={16}
+                      title="Delete Habit"
+                      message="Are you sure you want to delete this habit? All past logs for this habit will also be permanently deleted."
+                    />
+                  )}
                 </div>
               ))}
 

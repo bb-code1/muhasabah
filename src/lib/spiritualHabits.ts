@@ -5,7 +5,14 @@ export const DEFAULT_HABIT_ORDER = [
   'Maghrib',
   'Isha',
   'Azkaar',
+  'Quran Memorisation',
 ] as const;
+
+export const DEFAULT_HABIT_NAMES = new Set<string>(DEFAULT_HABIT_ORDER);
+
+export function isDefaultSpiritualHabit(name: string): boolean {
+  return DEFAULT_HABIT_NAMES.has(name);
+}
 
 export const PRAYER_HABIT_NAMES = new Set<string>([
   'Fajr',

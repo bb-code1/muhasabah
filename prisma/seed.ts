@@ -83,7 +83,7 @@ async function main() {
   // --- SPIRITUAL HABITS & LOGS ---
   console.log('Seeding Spiritual Habits...');
   const defaultHabits = [
-    'Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha', 'Azkaar'
+    'Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha', 'Azkaar', 'Quran Memorisation'
   ];
   const seededHabits = [];
   for (const name of defaultHabits) {
