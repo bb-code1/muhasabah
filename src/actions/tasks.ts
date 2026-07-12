@@ -94,3 +94,34 @@ export async function toggleWeekendTask(id: number, isCompleted: boolean, weekSt
   }
   revalidatePath('/tasks/weekend');
 }
+
+// --- RECURRING TRACKERS ---
+export async function getRecurringTrackers() {
+  return await prisma.recurringTracker.findMany({
+    orderBy: { title: 'asc' },
+  });
+}
+
+export async function addRecurringTracker(title: string) {
+  if (!title.trim()) throw new Error('Title is required.');
+  await prisma.recurringTracker.create({
+    data: { title: title.trim() },
+  });
+  revalidatePath('/tasks');
+}
+
+export async function updateRecurringLastDone(id: number, dateValueStr: string | null) {
+  const lastDone = dateValueStr ? new Date(dateValueStr) : null;
+  await prisma.recurringTracker.update({
+    where: { id },
+    data: { lastDone },
+  });
+  revalidatePath('/tasks');
+}
+
+export async function deleteRecurringTracker(id: number) {
+  await prisma.recurringTracker.delete({
+    where: { id },
+  });
+  revalidatePath('/tasks');
+}

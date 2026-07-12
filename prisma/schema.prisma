@@ -162,3 +162,10 @@ model FitnessLog {
   date      DateTime @default(now()) @db.Date // Workout date
   createdAt DateTime @default(now()) @db.Timestamptz()
 }
+
+model RecurringTracker {
+  id        Int      @id @default(autoincrement())
+  title     String   @unique
+  lastDone  DateTime? @db.Date
+  createdAt DateTime @default(now()) @db.Timestamptz()
+}

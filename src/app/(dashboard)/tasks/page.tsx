@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
+import RecurringTrackers from '@/components/dashboard/RecurringTrackers';
+import { getRecurringTrackers } from '@/actions/tasks';
 
 const TASK_SECTIONS = [
   { href: '/tasks/today', icon: 'today', label: 'Today\'s Task List', bg: 'var(--c-primary-container)', color: 'var(--c-primary)' },
@@ -16,6 +18,8 @@ export default async function TasksPage(props: { searchParams?: Promise<{ [key: 
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+  const trackers = await getRecurringTrackers();
 
   return (
     <>
@@ -34,8 +38,10 @@ export default async function TasksPage(props: { searchParams?: Promise<{ [key: 
         ))}
       </div>
 
-      <div style={{ marginTop: '24px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         <TasksOfTheDay dateStr={tomorrowStr} page={page} />
+        
+        <RecurringTrackers initialTrackers={trackers} />
       </div>
     </>
   );
