@@ -171,14 +171,31 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                         });
                         
                         return (
-                          <td key={task.id} style={{ padding: '16px' }}>
+                              <td key={task.id} style={{ padding: '16px' }}>
                             <input 
                               type="checkbox" 
                               checked={isCompleted}
-                              disabled={!isCurrentWeek}
-                              onChange={() => handleToggle(task.id, isCompleted, weekDateStr)}
+                              readOnly
+                              onClick={(e) => {
+                                if (!isCurrentWeek) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              onChange={() => {
+                                if (isCurrentWeek) {
+                                  handleToggle(task.id, isCompleted, weekDateStr);
+                                }
+                              }}
                               className="habit-checkbox"
-                              style={{ margin: '0 auto', appearance: 'auto', width: '24px', height: '24px', cursor: isCurrentWeek ? 'pointer' : 'not-allowed', accentColor: 'var(--c-primary)', opacity: isCurrentWeek ? 1 : 0.6 }}
+                              style={{ 
+                                margin: '0 auto', 
+                                appearance: 'auto', 
+                                width: '24px', 
+                                height: '24px', 
+                                cursor: isCurrentWeek ? 'pointer' : 'default', 
+                                accentColor: 'var(--c-primary)', 
+                                opacity: 1 
+                              }}
                             />
                           </td>
                         );
