@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { DailyTask } from '@prisma/client';
-import { Calendar, ChevronDown, ChevronUp, CheckCircle2, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle2, XCircle, X } from 'lucide-react';
 
 interface TaskHistoryTableProps {
   tasks: DailyTask[];
 }
 
 export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
-  const [expandedDays, setExpandedDays] = useState<Record<string, boolean>>({});
+  const [selectedDayStr, setSelectedDayStr] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Generate the last 30 days of history
@@ -20,11 +20,12 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
     return d;
   });
 
-  const toggleDay = (dayStr: string) => {
-    setExpandedDays((prev) => ({
-      ...prev,
-      [dayStr]: !prev[dayStr],
-    }));
+  const openModal = (dayStr: string) => {
+    setSelectedDayStr(dayStr);
+  };
+
+  const closeModal = () => {
+    setSelectedDayStr(null);
   };
 
   // Group tasks by date string
@@ -49,6 +50,13 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
   const activePage = currentPage > totalPages ? totalPages : currentPage;
   const paginatedDays = activeDays.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
 
+  // Get data for selected day modal
+  const selectedDayTasks = selectedDayStr ? tasksByDay[selectedDayStr] || [] : [];
+  const selectedDayDate = selectedDayStr ? new Date(selectedDayStr + 'T00:00:00') : null;
+  const selectedDayDisplayDate = selectedDayDate 
+    ? selectedDayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }) 
+    : '';
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {paginatedDays.map((day) => {
@@ -63,7 +71,6 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
         const completedCount = dayTasks.filter((t) => t.isCompleted).length;
         const totalCount = dayTasks.length;
         const completionRate = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-        const isExpanded = !!expandedDays[dayStr];
 
         return (
           <div 
@@ -76,9 +83,9 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
               boxShadow: isToday ? 'var(--shadow-glow-primary)' : 'var(--shadow-sm)'
             }}
           >
-            {/* Accordion Header */}
+            {/* Header Card (Triggers Modal) */}
             <div 
-              onClick={() => toggleDay(dayStr)}
+              onClick={() => openModal(dayStr)}
               style={{ 
                 padding: '20px 24px', 
                 cursor: 'pointer', 
@@ -99,11 +106,11 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
                   </span>
                 </div>
                 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span className="text-label-sm text-on-surface-variant" style={{ fontWeight: 600 }}>
                     {completedCount} of {totalCount} tasks done
                   </span>
-                  {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                  <span className="material-symbols-outlined" style={{ color: 'var(--c-on-surface-variant)', fontSize: '20px' }}>visibility</span>
                 </div>
               </div>
 
@@ -119,67 +126,6 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
                 />
               </div>
             </div>
-
-            {/* Accordion Body (Task list) */}
-            {isExpanded && (
-              <div 
-                style={{ 
-                  padding: '20px 24px', 
-                  borderTop: '1px solid var(--c-outline-variant)', 
-                  backgroundColor: 'var(--c-surface-container-lowest)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px'
-                }}
-              >
-                {dayTasks.map((task) => (
-                  <div 
-                    key={task.id} 
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'space-between', 
-                      padding: '12px 16px', 
-                      backgroundColor: 'var(--c-surface)', 
-                      borderRadius: '8px', 
-                      border: '1px solid var(--c-outline-variant)' 
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      {task.isCompleted ? (
-                        <CheckCircle2 size={20} color="var(--c-secondary)" />
-                      ) : (
-                        <XCircle size={20} color="var(--c-error)" />
-                      )}
-                      <span 
-                        className="text-body-md" 
-                        style={{ 
-                          fontWeight: 500, 
-                          textDecoration: task.isCompleted ? 'line-through' : 'none',
-                          color: task.isCompleted ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)',
-                          opacity: task.isCompleted ? 0.7 : 1
-                        }}
-                      >
-                        {task.title}
-                      </span>
-                    </div>
-                    
-                    <span 
-                      style={{ 
-                        fontSize: '12px', 
-                        fontWeight: 600, 
-                        color: task.isCompleted ? 'var(--c-secondary)' : 'var(--c-error)',
-                        backgroundColor: task.isCompleted ? 'var(--c-surface-container-highest)' : 'var(--c-error-container)',
-                        padding: '4px 8px',
-                        borderRadius: '4px'
-                      }}
-                    >
-                      {task.isCompleted ? 'Completed' : 'Missed'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         );
       })}
@@ -214,6 +160,118 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
           >
             Next
           </button>
+        </div>
+      )}
+
+      {/* DETAILED MODAL DIALOG */}
+      {selectedDayStr && (
+        <div 
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            zIndex: 1000, 
+            padding: '16px', 
+            backdropFilter: 'blur(4px)' 
+          }}
+          onClick={closeModal}
+        >
+          <div 
+            className="card" 
+            style={{ 
+              width: '100%', 
+              maxWidth: '500px', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '20px', 
+              padding: '24px', 
+              position: 'relative', 
+              boxShadow: 'var(--shadow-lg)',
+              maxHeight: '80vh',
+              overflowY: 'auto'
+            }}
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking card inside modal
+          >
+            <button 
+              onClick={closeModal} 
+              style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-on-surface-variant)' }}
+            >
+              <X size={20} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Calendar size={22} color="var(--c-primary)" />
+              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 700 }}>
+                {selectedDayDisplayDate}
+              </h3>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
+              {selectedDayTasks.map((task) => (
+                <div 
+                  key={task.id} 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    padding: '12px 16px', 
+                    backgroundColor: 'var(--c-surface-container-low)', 
+                    borderRadius: '8px', 
+                    border: '1px solid var(--c-outline-variant)' 
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {task.isCompleted ? (
+                      <CheckCircle2 size={20} color="var(--c-secondary)" />
+                    ) : (
+                      <XCircle size={20} color="var(--c-error)" />
+                    )}
+                    <span 
+                      className="text-body-md" 
+                      style={{ 
+                        fontWeight: 500, 
+                        textDecoration: task.isCompleted ? 'line-through' : 'none',
+                        color: task.isCompleted ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)',
+                        opacity: task.isCompleted ? 0.7 : 1
+                      }}
+                    >
+                      {task.title}
+                    </span>
+                  </div>
+                  
+                  <span 
+                    style={{ 
+                      fontSize: '12px', 
+                      fontWeight: 600, 
+                      color: task.isCompleted ? 'var(--c-secondary)' : 'var(--c-error)',
+                      backgroundColor: task.isCompleted ? 'var(--c-surface-container-highest)' : 'var(--c-error-container)',
+                      padding: '4px 8px',
+                      borderRadius: '4px'
+                    }}
+                  >
+                    {task.isCompleted ? 'Completed' : 'Missed'}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+              <button 
+                type="button" 
+                onClick={closeModal} 
+                className="primary-btn" 
+                style={{ padding: '8px 20px', borderRadius: '8px' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
