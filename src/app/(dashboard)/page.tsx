@@ -3,11 +3,11 @@ import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import Link from 'next/link';
 
 const QUICK_ACTIONS = [
-  { href: '/transactions', icon: 'add_card', label: 'Add Transaction', bg: 'var(--c-error-container)', color: 'var(--c-error)' },
-  { href: '/journal', icon: 'edit_note', label: 'Log Journal', bg: 'var(--c-primary-container)', color: 'var(--c-primary)' },
-  { href: '/goals', icon: 'flag', label: 'Update Goal', bg: 'var(--c-secondary-container)', color: 'var(--c-secondary)' },
-  { href: '/tasks/tomorrow', icon: 'event_upcoming', label: 'Plan Tomorrow', bg: 'var(--c-tertiary-container)', color: 'var(--c-on-tertiary-container)' },
-  { href: '/religious', icon: 'auto_awesome', label: 'Spiritual', bg: 'var(--c-surface-variant)', color: 'var(--c-on-surface)' },
+  { href: '/transactions', icon: 'add_card', label: 'Add Transaction' },
+  { href: '/journal', icon: 'edit_note', label: 'Log Journal' },
+  { href: '/goals', icon: 'flag', label: 'Update Goal' },
+  { href: '/tasks/tomorrow', icon: 'event_upcoming', label: 'Plan Tomorrow' },
+  { href: '/religious', icon: 'auto_awesome', label: 'Spiritual' },
 ];
 
 export default async function Dashboard() {
@@ -46,23 +46,34 @@ export default async function Dashboard() {
         {[
           { label: 'TODAY', amount: dailySpending },
           { label: 'THIS WEEK', amount: weeklySpending },
-          { label: 'THIS MONTH', amount: monthlySpending },
+          { label: 'THIS MONTH', amount: monthlySpending, highlight: true },
           { label: 'THIS YEAR', amount: yearlySpending }
         ].map((item, i) => (
-          <div key={i} className="card flex-col justify-center p-16" style={{ backgroundColor: 'var(--c-surface-container-high)' }}>
+          <div 
+            key={i} 
+            className={`card flex-col justify-center p-16 ${item.highlight ? 'highlight-card' : ''}`}
+            style={{ 
+              backgroundColor: 'var(--c-surface-container-high)',
+              borderTop: item.highlight ? '3px solid var(--c-primary)' : '1px solid var(--c-outline-variant)'
+            }}
+          >
             <span className="text-label-sm text-on-surface-variant mb-8">{item.label}</span>
-            <h3 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--c-error)' }}>${item.amount.toFixed(2)}</h3>
+            <h3 className="summary-amount" style={{ fontSize: '24px', fontWeight: 'bold' }}>
+              ${item.amount.toFixed(2)}
+            </h3>
           </div>
         ))}
       </div>
 
       {/* QUICK ACTIONS */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+      <div className="quick-actions-container">
         {QUICK_ACTIONS.map((action, i) => (
-          <Link key={i} href={action.href} className="card flex-row p-16" style={{ gap: '16px', textDecoration: 'none', color: 'inherit' }}>
-            <span style={{ backgroundColor: action.bg, color: action.color, padding: '12px', borderRadius: '50%', display: 'flex' }} className="material-symbols-outlined">{action.icon}</span>
-            <span className="text-title-md" style={{ fontWeight: 600 }}>{action.label}</span>
-            <span className="material-symbols-outlined" style={{ marginLeft: 'auto', color: 'var(--c-on-surface-variant)' }}>chevron_right</span>
+          <Link key={i} href={action.href} className="quick-action-item">
+            <span className="quick-action-icon-wrapper">
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>{action.icon}</span>
+            </span>
+            <span className="text-body-md" style={{ fontWeight: 600 }}>{action.label}</span>
+            <span className="quick-action-arrow">→</span>
           </Link>
         ))}
       </div>

@@ -2,35 +2,35 @@
 
 :root {
   /* LIGHT MODE (Ultra Premium Aesthetic) */
-  --c-background: #f4f4f5;
+  --c-background: #f8f9fa;
   --c-surface: #ffffff;
   --c-surface-container-lowest: #ffffff;
   --c-surface-container-low: #fcfcfd;
-  --c-surface-container-high: #f1f5f9;
-  --c-on-surface: #0f172a;
+  --c-surface-container-high: #ffffff;
+  --c-on-surface: #1e293b;
   --c-on-surface-variant: #64748b;
   
-  --c-outline-variant: #e2e8f0;
+  --c-outline-variant: #f1f5f9;
   --c-outline: #cbd5e1;
 
-  /* Modern Royal Blue / Violet Gradients */
-  --c-primary: #4f46e5;
-  --c-primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  /* Gold / Mustard Primary Theme Accent */
+  --c-primary: #bf9129;
+  --c-primary-gradient: linear-gradient(135deg, #d4a737 0%, #bf9129 100%);
   --c-on-primary: #ffffff;
-  --c-primary-container: #e0e7ff;
-  --c-on-primary-container: #3730a3;
+  --c-primary-container: #fdf6e2;
+  --c-on-primary-container: #bf9129;
 
-  /* Emerald Gradients for Success/Secondary */
-  --c-secondary: #0ea5e9;
-  --c-secondary-gradient: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  /* Secondary */
+  --c-secondary: #bf9129;
+  --c-secondary-gradient: linear-gradient(135deg, #d4a737 0%, #bf9129 100%);
   --c-on-secondary: #ffffff;
-  --c-secondary-container: #e0f2fe;
-  --c-on-secondary-container: #0369a1;
+  --c-secondary-container: #fdf6e2;
+  --c-on-secondary-container: #bf9129;
 
   /* Tertiary */
-  --c-tertiary: #10b981;
-  --c-tertiary-container: #d1fae5;
-  --c-on-tertiary-container: #047857;
+  --c-tertiary: #a27b18;
+  --c-tertiary-container: #fcf8ec;
+  --c-on-tertiary-container: #a27b18;
   
   /* Error / Destructive */
   --c-error: #ef4444;
@@ -47,7 +47,8 @@
   --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
   --shadow-md: 0 12px 24px -8px rgba(15, 23, 42, 0.08), 0 4px 8px -4px rgba(15, 23, 42, 0.04);
   --shadow-lg: 0 24px 48px -12px rgba(15, 23, 42, 0.12), 0 12px 24px -8px rgba(15, 23, 42, 0.08);
-  --shadow-glow-primary: 0 12px 24px -8px rgba(79, 70, 229, 0.4);
+  --shadow-glow-primary: 0 12px 24px -8px rgba(191, 145, 41, 0.3);
+  --shadow-glow-secondary: 0 0 12px rgba(191, 145, 41, 0.4);
   
   /* Transitions */
   --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -57,40 +58,47 @@
   --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-border: rgba(255, 255, 255, 0.6);
   --glass-blur: blur(24px);
+
+  /* Shape variables (Round checkboxes in light mode) */
+  --checkbox-radius: 50%;
+  
+  /* Summary Amount Color variables */
+  --c-summary-amount: var(--c-on-surface);
+  --c-summary-amount-highlight: var(--c-primary);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     /* DARK MODE (Sleek Obsidian) */
-    --c-background: #09090b;
-    --c-surface: #18181b;
-    --c-surface-container-lowest: #000000;
-    --c-surface-container-low: #18181b;
-    --c-surface-container-high: #27272a;
-    --c-on-surface: #f8fafc;
-    --c-on-surface-variant: #94a3b8;
+    --c-background: #0c0d0f;
+    --c-surface: #141517;
+    --c-surface-container-lowest: #08090a;
+    --c-surface-container-low: #111214;
+    --c-surface-container-high: #1e2023;
+    --c-on-surface: #f3f4f6;
+    --c-on-surface-variant: #9ca3af;
     
-    --c-outline-variant: #27272a;
-    --c-outline: #3f3f46;
+    --c-outline-variant: #222428;
+    --c-outline: #2e3135;
 
-    /* Electric Cyan/Indigo Gradient */
-    --c-primary: #818cf8;
-    --c-primary-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-    --c-on-primary: #0f172a;
-    --c-primary-container: #1e1b4b;
-    --c-on-primary-container: #e0e7ff;
+    /* Gold / Mustard Theme Accent (Brightened for Dark Mode Contrast) */
+    --c-primary: #dcae2e;
+    --c-primary-gradient: linear-gradient(135deg, #e5ba42 0%, #c0921c 100%);
+    --c-on-primary: #0c0d0f;
+    --c-primary-container: #2e250c;
+    --c-on-primary-container: #dcae2e;
 
     /* Secondary */
-    --c-secondary: #2dd4bf;
-    --c-secondary-gradient: linear-gradient(135deg, #2dd4bf 0%, #3b82f6 100%);
-    --c-on-secondary: #042f2e;
-    --c-secondary-container: #134e4a;
-    --c-on-secondary-container: #ccfbf1;
+    --c-secondary: #dcae2e;
+    --c-secondary-gradient: linear-gradient(135deg, #e5ba42 0%, #c0921c 100%);
+    --c-on-secondary: #0c0d0f;
+    --c-secondary-container: #2e250c;
+    --c-on-secondary-container: #dcae2e;
 
     /* Tertiary */
-    --c-tertiary: #a78bfa;
-    --c-tertiary-container: #4c1d95;
-    --c-on-tertiary-container: #ede9fe;
+    --c-tertiary: #e5c158;
+    --c-tertiary-container: #2e250c;
+    --c-on-tertiary-container: #e5c158;
     
     /* Error */
     --c-error: #f87171;
@@ -101,11 +109,19 @@
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6);
     --shadow-md: 0 12px 24px -8px rgba(0, 0, 0, 0.8), 0 4px 8px -4px rgba(0, 0, 0, 0.6);
     --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 1), 0 12px 24px -8px rgba(0, 0, 0, 0.8);
-    --shadow-glow-primary: 0 12px 24px -8px rgba(56, 189, 248, 0.25);
+    --shadow-glow-primary: 0 12px 24px -8px rgba(220, 174, 46, 0.25);
+    --shadow-glow-secondary: 0 0 12px rgba(220, 174, 46, 0.4);
     
-    --glass-bg: rgba(24, 24, 27, 0.65);
+    --glass-bg: rgba(20, 21, 23, 0.75);
     --glass-border: rgba(255, 255, 255, 0.05);
     --glass-blur: blur(32px);
+
+    /* Shape variables (Square-rounded checkboxes in dark mode) */
+    --checkbox-radius: 6px;
+
+    /* Summary Amount Color variables */
+    --c-summary-amount: var(--c-primary);
+    --c-summary-amount-highlight: var(--c-primary);
   }
 }
 
@@ -410,7 +426,7 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
 .habit-checkbox {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: var(--checkbox-radius);
   border: 2px solid var(--c-outline);
   display: flex;
   align-items: center;
@@ -424,7 +440,7 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
   background: var(--c-secondary-gradient);
   border-color: transparent;
   color: var(--c-on-secondary);
-  box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
+  box-shadow: var(--shadow-glow-secondary);
 }
 .habit-checkbox:hover:not(.checked) {
   border-color: var(--c-primary);
@@ -451,7 +467,7 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
 }
 .fab:hover {
   transform: scale(1.1) translateY(-4px) rotate(90deg);
-  box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.8);
+  box-shadow: var(--shadow-glow-primary);
 }
 .fab:active {
   transform: scale(0.95);
@@ -484,3 +500,108 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
 .text-center { text-align: center; }
 .flex-1 { flex: 1; }
 .w-full { width: 100%; }
+
+/* Spending Summary Amount Colors & Highlights */
+.summary-amount {
+  color: var(--c-summary-amount);
+}
+.highlight-card {
+  border-top: 3px solid var(--c-primary) !important;
+}
+.highlight-card .summary-amount {
+  color: var(--c-summary-amount-highlight) !important;
+}
+
+/* Quick Actions Pill Styles */
+.quick-actions-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.quick-action-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background-color: var(--c-primary-container);
+  color: var(--c-on-surface);
+  border-radius: 16px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: var(--transition-smooth);
+  border: 1px solid var(--c-outline-variant);
+}
+.quick-action-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--c-primary);
+}
+.quick-action-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background-color: rgba(195, 150, 38, 0.1);
+  color: var(--c-primary);
+}
+.quick-action-arrow {
+  color: var(--c-primary);
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+/* Dark mode overrides for Quick Actions */
+@media (prefers-color-scheme: dark) {
+  .quick-action-item {
+    background-color: var(--c-surface);
+    border-color: var(--c-outline-variant);
+  }
+  .quick-action-icon-wrapper {
+    background-color: rgba(220, 174, 46, 0.15);
+  }
+}
+
+/* Responsive Add Task Button */
+.add-task-btn {
+  border-radius: 50% !important;
+  width: 44px;
+  height: 44px;
+  padding: 0 !important;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.add-text-label {
+  display: none;
+}
+.add-icon {
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .add-task-btn {
+    border-radius: 8px !important;
+    width: auto;
+    height: 44px;
+    padding: 0 16px !important;
+  }
+  .add-text-label {
+    display: inline;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+}
+
+.topbar-search-wrapper {
+  display: none;
+}
+@media (min-width: 1025px) {
+  .topbar-search-wrapper {
+    display: block;
+  }
+}

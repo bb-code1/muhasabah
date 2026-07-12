@@ -1,5 +1,5 @@
 import { getDailyTasks, addDailyTask, toggleDailyTask, deleteDailyTask } from '@/actions';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function TasksOfTheDay({ 
@@ -45,7 +45,7 @@ export default async function TasksOfTheDay({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h3 className="text-headline-md">{titleText}</h3>
-            <p className="text-label-sm text-on-surface-variant">{displayDate}</p>
+            <p className="text-label-sm text-primary" style={{ textTransform: 'uppercase', fontWeight: 700 }}>{displayDate}</p>
           </div>
         </div>
       )}
@@ -56,13 +56,14 @@ export default async function TasksOfTheDay({
           <input 
             type="text" 
             name="title" 
-            placeholder="Add a new task..." 
+            placeholder="What needs to be done today?" 
             className="search-input"
             required
             style={{ flex: 1, borderRadius: '8px' }}
           />
-          <button type="submit" className="primary-btn" style={{ borderRadius: '8px', padding: '0 16px' }}>
-            <PlusCircle size={20} />
+          <button type="submit" className="primary-btn add-task-btn">
+            <span className="material-symbols-outlined add-icon">add</span>
+            <span className="add-text-label">Add Task</span>
           </button>
         </form>
       )}

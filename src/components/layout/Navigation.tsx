@@ -43,7 +43,7 @@ export default function Navigation() {
 
       <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
         <div style={{ marginBottom: '40px', padding: '0 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 className="text-headline-md text-on-surface">Muhasabah</h1>
+          <h1 className="text-headline-md text-primary" style={{ fontWeight: 800 }}>Muhasabah</h1>
           {/* Close button for mobile inside sidebar (optional but good practice) */}
           <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(false)}>
             <span className="material-symbols-outlined">close</span>
@@ -89,21 +89,37 @@ export default function Navigation() {
           </Link>
         </nav>
       </aside>
-
-      <header className="topbar">
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(true)}>
-            <span className="material-symbols-outlined">menu</span>
-          </button>
-
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', position: 'relative' }} ref={menuRef}>
-          <button 
-            onClick={() => setShowProfileMenu(!showProfileMenu)}
-            style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--c-outline-variant)', backgroundColor: 'var(--c-surface-container-high)', cursor: 'pointer', padding: 0 }}
-          >
-            <span className="material-symbols-outlined" style={{ display: 'block', marginTop: '3px', color: 'var(--c-on-surface)' }}>person</span>
-          </button>
+ 
+       <header className="topbar">
+         <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
+           <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(true)}>
+             <span className="material-symbols-outlined">menu</span>
+           </button>
+           <div className="topbar-search-wrapper" style={{ position: 'relative', width: '320px' }}>
+             <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-on-surface-variant)', fontSize: '20px' }}>search</span>
+             <input 
+               type="text" 
+               placeholder="Search insights, tasks, or entries..." 
+               className="search-input" 
+               style={{ paddingLeft: '40px', paddingRight: '12px', height: '40px', fontSize: '14px', borderRadius: '10px' }}
+               readOnly
+             />
+           </div>
+         </div>
+         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', position: 'relative' }} ref={menuRef}>
+           <button style={{ color: 'var(--c-on-surface-variant)', position: 'relative', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+             <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>notifications</span>
+             <span style={{ position: 'absolute', top: '2px', right: '2px', width: '6px', height: '6px', backgroundColor: 'var(--c-primary)', borderRadius: '50%' }}></span>
+           </button>
+           <button style={{ color: 'var(--c-on-surface-variant)', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+             <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>settings</span>
+           </button>
+           <button 
+             onClick={() => setShowProfileMenu(!showProfileMenu)}
+             style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--c-outline-variant)', backgroundColor: 'var(--c-surface-container-high)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+           >
+             <span className="text-label-sm text-primary" style={{ fontWeight: 700, fontSize: '12px', letterSpacing: '0px' }}>KN</span>
+           </button>
 
           {showProfileMenu && (
             <div style={{
