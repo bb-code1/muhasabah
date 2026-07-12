@@ -321,6 +321,128 @@ export default function SpiritualDashboard({
 
   const monthlyStats = getFilteredPrayerStats();
 
+  // Helper to calculate additional stats (Quran and other activities) based on active filters
+  const getFilteredAdditionalStats = () => {
+    const today = new Date();
+    const todayStr = dateStr;
+    
+    let startLimit: Date | null = null;
+    let endLimit: Date | null = null;
+
+    if (statsFilter === 'day') {
+      const start = new Date(today);
+      start.setHours(0, 0, 0, 0);
+      startLimit = start;
+      const end = new Date(today);
+      end.setHours(23, 59, 59, 999);
+      endLimit = end;
+    } else if (statsFilter === 'week') {
+      const day = today.getDay();
+      const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(today.setDate(diff));
+      monday.setHours(0, 0, 0, 0);
+      startLimit = monday;
+      
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      endLimit = sunday;
+    } else if (statsFilter === 'month') {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      start.setHours(0, 0, 0, 0);
+      startLimit = start;
+      
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      end.setHours(23, 59, 59, 999);
+      endLimit = end;
+    } else if (statsFilter === 'year') {
+      const start = new Date(today.getFullYear(), 0, 1);
+      start.setHours(0, 0, 0, 0);
+      startLimit = start;
+      
+      const end = new Date(today.getFullYear(), 11, 31);
+      end.setHours(23, 59, 59, 999);
+      endLimit = end;
+    } else if (statsFilter === 'custom') {
+      if (statsCustomStart) {
+        const start = new Date(statsCustomStart);
+        start.setHours(0, 0, 0, 0);
+        startLimit = start;
+      }
+      if (statsCustomEnd) {
+        const end = new Date(statsCustomEnd);
+        end.setHours(23, 59, 59, 999);
+        endLimit = end;
+      }
+    }
+
+    let quranDays = 0;
+    let totalVerses = 0;
+    const memorizedSurahs = new Set<string>();
+    const activitiesList: Array<{ date: Date; text: string }> = [];
+
+    const processQuranData = (quranVal: string | null) => {
+      if (!quranVal) return;
+      try {
+        const parsed = JSON.parse(quranVal);
+        if (parsed && typeof parsed === 'object' && 'surahNumber' in parsed) {
+          quranDays += 1;
+          const count = (parsed.toVerse - parsed.fromVerse) + 1;
+          if (count > 0) totalVerses += count;
+          
+          const surah = QURAN_SURAHS.find(s => s.number === parsed.surahNumber);
+          if (surah) {
+            memorizedSurahs.add(surah.englishName);
+          }
+        }
+      } catch (e) {}
+    };
+
+    // 1. Gather historical data
+    initialHistory.forEach(record => {
+      const recDate = new Date(record.date);
+      if (startLimit && recDate < startLimit) return;
+      if (endLimit && recDate > endLimit) return;
+
+      const recStr = recDate.toISOString().split('T')[0];
+      if (recStr === todayStr) {
+        return;
+      }
+
+      // Quran memorisation
+      processQuranData(record.quranMemorization);
+
+      // Other activities
+      if (record.otherActivities && record.otherActivities.trim()) {
+        activitiesList.push({ date: recDate, text: record.otherActivities.trim() });
+      }
+    });
+
+    // 2. Gather today's live data
+    const todayDateObj = new Date();
+    let includeToday = true;
+    if (startLimit && todayDateObj < startLimit) includeToday = false;
+    if (endLimit && todayDateObj > endLimit) includeToday = false;
+
+    if (includeToday) {
+      if (initialTodayData.quranMemorization) {
+        processQuranData(initialTodayData.quranMemorization);
+      }
+      if (otherActivities && otherActivities.trim()) {
+        activitiesList.push({ date: todayDateObj, text: otherActivities.trim() });
+      }
+    }
+
+    return {
+      quranDays,
+      totalVerses,
+      surahs: Array.from(memorizedSurahs),
+      activities: activitiesList.sort((a, b) => b.date.getTime() - a.date.getTime()),
+    };
+  };
+
+  const additionalStats = getFilteredAdditionalStats();
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
@@ -579,6 +701,112 @@ export default function SpiritualDashboard({
             );
           })}
         </div>
+      </div>
+
+      {/* ADDITIONAL STATISTICS (QURAN & OTHER ACTIVITIES) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+        
+        {/* QURAN INSIGHTS */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <ScrollText color="var(--c-primary)" size={22} />
+            <h3 className="text-title-md" style={{ margin: 0, fontWeight: 700 }}>Quran Memorisation Insights</h3>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ padding: '14px', borderRadius: '12px', backgroundColor: 'var(--c-surface-container-low)', border: '1px solid var(--c-outline-variant)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <span style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Days Completed</span>
+              <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--c-on-surface)' }}>{additionalStats.quranDays}</span>
+            </div>
+            
+            <div style={{ padding: '14px', borderRadius: '12px', backgroundColor: 'var(--c-surface-container-low)', border: '1px solid var(--c-outline-variant)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <span style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Verses Memorised</span>
+              <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--c-secondary)' }}>{additionalStats.totalVerses}</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexGrow: 1 }}>
+            <span style={{ fontSize: '12px', color: 'var(--c-on-surface-variant)', fontWeight: 600 }}>Surahs Memorised</span>
+            {additionalStats.surahs.length > 0 ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                {additionalStats.surahs.map(sName => (
+                  <span
+                    key={sName}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '20px',
+                      backgroundColor: 'rgba(195, 150, 38, 0.08)',
+                      border: '1px solid rgba(195, 150, 38, 0.2)',
+                      color: 'var(--c-primary)',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {sName}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)', margin: 0, fontStyle: 'italic', opacity: 0.7 }}>
+                No surahs memorised during this period.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* OTHER ACTIVITIES INSIGHTS */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <Plus color="var(--c-secondary)" size={22} />
+            <h3 className="text-title-md" style={{ margin: 0, fontWeight: 700 }}>Good Deeds Log</h3>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderRadius: '12px', backgroundColor: 'var(--c-surface-container-low)', border: '1px solid var(--c-outline-variant)' }}>
+            <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)', fontWeight: 600 }}>Active Days</span>
+            <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--c-on-surface)' }}>{additionalStats.activities.length}</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
+            <span style={{ fontSize: '12px', color: 'var(--c-on-surface-variant)', fontWeight: 600 }}>Logged Deeds History</span>
+            <div style={{
+              maxHeight: '130px',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              paddingRight: '4px',
+            }}>
+              {additionalStats.activities.length > 0 ? (
+                additionalStats.activities.map((act, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      backgroundColor: 'var(--c-surface-container-lowest)',
+                      border: '1px solid var(--c-outline-variant)',
+                      fontSize: '13px',
+                      color: 'var(--c-on-surface)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px',
+                    }}
+                  >
+                    <span style={{ fontSize: '10px', color: 'var(--c-on-surface-variant)', fontWeight: 600 }}>
+                      {new Date(act.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </span>
+                    <span style={{ whiteSpace: 'pre-wrap' }}>{act.text}</span>
+                  </div>
+                ))
+              ) : (
+                <p style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)', margin: 0, fontStyle: 'italic', opacity: 0.7 }}>
+                  No other activities logged during this period.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* IBADAH REGISTER */}
