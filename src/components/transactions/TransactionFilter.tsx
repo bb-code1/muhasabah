@@ -5,11 +5,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { Calendar } from 'lucide-react';
 
 const FILTER_TABS = [
-  { id: 'day', label: 'Daily' },
-  { id: 'week', label: 'Weekly' },
-  { id: 'month', label: 'Monthly' },
-  { id: 'quarter', label: 'Quarterly' },
-  { id: 'year', label: 'Yearly' },
+  { id: 'day', label: 'Current Day' },
+  { id: 'week', label: 'Current Week' },
+  { id: 'month', label: 'Current Month' },
+  { id: 'quarter', label: 'Current Quarter' },
+  { id: 'year', label: 'Current Year' },
   { id: 'custom', label: 'Custom Range' },
 ];
 
