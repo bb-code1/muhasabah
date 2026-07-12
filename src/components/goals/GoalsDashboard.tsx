@@ -189,16 +189,6 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
               </div>
             </div>
 
-            {/* Progress */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Progress</span>
-                <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--c-primary)' }}>{selectedGoal.progress}%</span>
-              </div>
-              <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--c-surface-container-highest)', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: `${selectedGoal.progress}%`, height: '100%', backgroundColor: 'var(--c-primary)', borderRadius: '4px' }} />
-              </div>
-            </div>
 
             {/* Actions buttons */}
             <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '20px', marginTop: '10px', flexWrap: 'wrap' }}>
