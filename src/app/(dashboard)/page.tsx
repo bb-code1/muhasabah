@@ -148,8 +148,9 @@ export default async function Dashboard() {
               { label: 'THIS MONTH', value: `$${monthlySpending.toFixed(2)}`, highlight: true },
               { label: 'THIS YEAR', value: `$${yearlySpending.toFixed(2)}` }
             ].map((item, i) => (
-              <div 
+              <Link 
                 key={i} 
+                href="/transactions"
                 className={`card flex-col justify-center p-16 ${item.highlight ? 'highlight-card' : ''}`}
                 style={{ 
                   backgroundColor: 'var(--c-surface-container-high)',
@@ -158,14 +159,16 @@ export default async function Dashboard() {
                   borderRadius: '12px',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  textDecoration: 'none',
+                  cursor: 'pointer'
                 }}
               >
                 <span className="text-label-sm text-on-surface-variant mb-8">{item.label}</span>
                 <h3 className="summary-amount" style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
                   {item.value}
                 </h3>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
