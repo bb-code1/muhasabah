@@ -56,3 +56,36 @@ export async function updateGoalProgress(id: number, progress: number) {
   revalidatePath('/goals');
   revalidatePath('/');
 }
+
+export async function editGoal(id: number, formData: FormData) {
+  const title = formData.get('title') as string;
+  const targetDateStr = formData.get('targetDate') as string;
+  const description = formData.get('description') as string || null;
+  const category = (formData.get('category') as GoalCategory) || 'PERSONAL';
+  const priority = (formData.get('priority') as GoalPriority) || 'MEDIUM';
+  const progress = parseInt(formData.get('progress') as string) || 0;
+  
+  await prisma.goal.update({
+    where: { id },
+    data: {
+      title,
+      description,
+      category,
+      priority,
+      progress,
+      isCompleted: progress === 100,
+      targetDate: targetDateStr ? new Date(targetDateStr) : null,
+    },
+  });
+
+  revalidatePath('/goals');
+  revalidatePath('/');
+}
+
+export async function deleteGoal(id: number) {
+  await prisma.goal.delete({
+    where: { id },
+  });
+  revalidatePath('/goals');
+  revalidatePath('/');
+}

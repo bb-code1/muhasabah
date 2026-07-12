@@ -1,19 +1,13 @@
 'use client';
 
-import { toggleGoal, updateGoalProgress } from '@/actions';
+import { toggleGoal } from '@/actions';
 import { Clock } from 'lucide-react';
-import { useState } from 'react';
 import { Goal } from '@prisma/client';
 
-export function GoalItem({ goal }: { goal: Goal }) {
-  const [progress, setProgress] = useState(goal.progress);
-
-  const handleToggle = () => toggleGoal(goal.id, goal.isCompleted);
-  
-  const handleProgressChange = async (e: React.MouseEvent<HTMLInputElement> | React.TouchEvent<HTMLInputElement>) => {
-    const val = parseInt((e.target as HTMLInputElement).value);
-    setProgress(val);
-    await updateGoalProgress(goal.id, val);
+export function GoalItem({ goal, onClick }: { goal: Goal; onClick: () => void }) {
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent opening details modal
+    toggleGoal(goal.id, goal.isCompleted);
   };
 
   // Overdue check
@@ -28,7 +22,17 @@ export function GoalItem({ goal }: { goal: Goal }) {
   const colors = priorityColors[goal.priority as keyof typeof priorityColors] || priorityColors.MEDIUM;
 
   return (
-    <div className="habit-item p-16 rounded-8 flex-col gap-12" style={{ backgroundColor: 'var(--c-surface-container-low)' }}>
+    <div 
+      className="card flex-col gap-12" 
+      onClick={onClick}
+      style={{ 
+        backgroundColor: 'var(--c-surface-container-low)', 
+        cursor: 'pointer',
+        padding: '16px',
+        borderRadius: '12px',
+        border: '1px solid var(--c-outline-variant)'
+      }}
+    >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
           <button 
@@ -41,7 +45,7 @@ export function GoalItem({ goal }: { goal: Goal }) {
           
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <p className="text-body-md" style={{ fontWeight: 600, textDecoration: goal.isCompleted ? 'line-through' : 'none' }}>
+              <p className="text-body-md" style={{ fontWeight: 600, margin: 0, textDecoration: goal.isCompleted ? 'line-through' : 'none', color: 'var(--c-on-surface)' }}>
                 {goal.title}
               </p>
               <span style={{ backgroundColor: colors.bg, color: colors.text, padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>
@@ -55,13 +59,13 @@ export function GoalItem({ goal }: { goal: Goal }) {
             </div>
 
             {goal.description && (
-              <p className="text-label-sm text-on-surface-variant" style={{ marginTop: '4px', maxWidth: '500px' }}>
+              <p className="text-label-sm text-on-surface-variant" style={{ marginTop: '4px', margin: '4px 0 0', maxWidth: '500px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {goal.description}
               </p>
             )}
 
             {goal.targetDate && (
-              <p className="text-label-sm text-on-surface-variant" style={{ marginTop: '4px' }}>
+              <p className="text-label-sm text-on-surface-variant" style={{ marginTop: '4px', margin: '4px 0 0' }}>
                 Target: {new Date(goal.targetDate).toLocaleDateString()}
               </p>
             )}
@@ -70,23 +74,14 @@ export function GoalItem({ goal }: { goal: Goal }) {
       </div>
 
       {/* Progress Bar Area */}
-      {!goal.isCompleted && (
-        <div style={{ paddingLeft: '40px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <input 
-            type="range" 
-            min="0" 
-            max="100" 
-            value={progress}
-            onChange={(e) => setProgress(parseInt(e.target.value))}
-            onMouseUp={handleProgressChange} // Only trigger DB update when sliding stops
-            onTouchEnd={handleProgressChange}
-            style={{ flex: 1, accentColor: 'var(--c-primary)' }}
-          />
-          <span className="text-label-sm" style={{ fontWeight: 'bold', minWidth: '40px' }}>
-            {progress}%
-          </span>
+      <div style={{ paddingLeft: '40px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ flex: 1, height: '6px', backgroundColor: 'var(--c-surface-container-highest)', borderRadius: '3px', overflow: 'hidden' }}>
+          <div style={{ width: `${goal.progress}%`, height: '100%', backgroundColor: 'var(--c-primary)', borderRadius: '3px' }} />
         </div>
-      )}
+        <span className="text-label-sm" style={{ fontWeight: 'bold', minWidth: '40px', color: 'var(--c-on-surface-variant)' }}>
+          {goal.progress}%
+        </span>
+      </div>
     </div>
   );
 }
