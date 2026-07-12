@@ -215,40 +215,28 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                   return (
                     <tr key={weekDateStr} style={{ backgroundColor: isCurrentWeek ? 'var(--c-surface-container-high)' : 'transparent', borderBottom: '1px solid var(--c-outline-variant)' }}>
                       <td 
-                        onClick={() => {
-                          if (!isCurrentWeek) {
-                            setSelectedEditWeek(week);
-                          }
-                        }}
+                        onClick={() => setSelectedEditWeek(week)}
                         style={{ 
                           padding: '16px', 
                           textAlign: 'left', 
                           fontWeight: isCurrentWeek ? '700' : '500',
-                          cursor: isCurrentWeek ? 'default' : 'pointer',
-                          color: isCurrentWeek ? 'var(--c-on-surface)' : 'var(--c-primary)',
+                          cursor: 'pointer',
+                          color: 'var(--c-primary)',
                           transition: 'color 0.2s'
                         }}
                         onMouseEnter={(e) => {
-                          if (!isCurrentWeek) {
-                            e.currentTarget.style.color = 'var(--c-primary-light, #dcae2e)';
-                            e.currentTarget.style.textDecoration = 'underline';
-                          }
+                          e.currentTarget.style.color = 'var(--c-primary-light, #dcae2e)';
+                          e.currentTarget.style.textDecoration = 'underline';
                         }}
                         onMouseLeave={(e) => {
-                          if (!isCurrentWeek) {
-                            e.currentTarget.style.color = 'var(--c-primary)';
-                            e.currentTarget.style.textDecoration = 'none';
-                          }
+                          e.currentTarget.style.color = 'var(--c-primary)';
+                          e.currentTarget.style.textDecoration = 'none';
                         }}
                       >
-                        {isCurrentWeek ? (
-                          `Current Week (${weekLabel})`
-                        ) : (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span>{weekLabel}</span>
-                            <span className="material-symbols-outlined" style={{ fontSize: '18px', opacity: 0.8 }}>edit</span>
-                          </div>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{isCurrentWeek ? `Current Week (${weekLabel})` : weekLabel}</span>
+                          <span className="material-symbols-outlined" style={{ fontSize: '18px', opacity: 0.8 }}>edit</span>
+                        </div>
                       </td>
                       
                       {initialTasks.map(task => {
@@ -264,16 +252,10 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                               checked={isCompleted}
                               readOnly
                               onClick={(e) => {
-                                if (!isCurrentWeek) {
-                                  e.preventDefault();
-                                  setSelectedEditWeek(week);
-                                }
+                                e.preventDefault();
+                                setSelectedEditWeek(week);
                               }}
-                              onChange={() => {
-                                if (isCurrentWeek) {
-                                  handleToggle(task.id, isCompleted, weekDateStr);
-                                }
-                              }}
+                              onChange={() => {}}
                               className="habit-checkbox"
                               style={{ 
                                 margin: '0 auto', 
