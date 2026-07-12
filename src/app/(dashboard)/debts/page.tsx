@@ -1,6 +1,7 @@
-import { getPersons, addPerson } from '@/actions/debts';
+import { getPersons } from '@/actions/debts';
 import Link from 'next/link';
 import { UserPlus, ArrowRight, Wallet } from 'lucide-react';
+import AddPersonDialog from '@/components/debts/AddPersonDialog';
 
 
 export default async function DebtsPage(props: { searchParams?: Promise<{ [key: string]: string | undefined }> }) {
@@ -44,11 +45,12 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
 
   return (
     <div style={{ paddingBottom: '60px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 className="text-display-sm">Credit & Debit</h2>
           <p className="text-body-md text-on-surface-variant">Manage your contacts and financial relationships</p>
         </div>
+        <AddPersonDialog />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '40px' }}>
@@ -70,23 +72,6 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
             <h3 className="text-display-sm" style={{ color: 'var(--c-error)', margin: 0 }}>${totalIOweThem.toFixed(2)}</h3>
           </div>
         </div>
-      </div>
-
-      <div className="card" style={{ marginBottom: '32px' }}>
-        <form action={addPerson} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <input 
-            type="text" 
-            name="name" 
-            placeholder="Add new person..." 
-            className="search-input" 
-            style={{ flex: 1 }} 
-            required 
-          />
-          <button type="submit" className="primary-btn">
-            <UserPlus size={20} />
-            Add Person
-          </button>
-        </form>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
