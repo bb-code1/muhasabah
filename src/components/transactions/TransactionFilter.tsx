@@ -117,86 +117,9 @@ export default function TransactionFilter() {
         ))}
       </div>
 
-      {/* DATE PICKERS */}
-      <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center' }}>
-        {filterType === 'day' && (
-          <input 
-            type="date" 
-            value={dateValue}
-            onChange={handleDateChange}
-            className="search-input"
-            style={{ borderRadius: '8px', padding: '8px 16px', backgroundColor: 'var(--c-surface)' }}
-          />
-        )}
-
-        {filterType === 'week' && (
-          <input 
-            type="week" 
-            value={dateValue}
-            onChange={handleDateChange}
-            className="search-input"
-            style={{ borderRadius: '8px', padding: '8px 16px', backgroundColor: 'var(--c-surface)' }}
-          />
-        )}
-
-        {filterType === 'month' && (
-          <input 
-            type="month" 
-            value={dateValue}
-            onChange={handleDateChange}
-            className="search-input"
-            style={{ borderRadius: '8px', padding: '8px 16px', backgroundColor: 'var(--c-surface)' }}
-          />
-        )}
-
-        {filterType === 'quarter' && (
-          <div className="flex-row gap-8">
-            <select
-              value={dateValue.split('-')[0] || new Date().getFullYear().toString()}
-              onChange={(e) => {
-                const newDate = `${e.target.value}-${dateValue.split('-')[1] || 'Q1'}`;
-                setDateValue(newDate);
-                applyFilter(filterType, newDate, startDate, endDate);
-              }}
-              className="search-input"
-              style={{ borderRadius: '8px', padding: '8px 16px', backgroundColor: 'var(--c-surface)' }}
-            >
-              {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(y => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-            <select
-              value={dateValue.split('-')[1] || 'Q1'}
-              onChange={(e) => {
-                const newDate = `${dateValue.split('-')[0] || new Date().getFullYear()}-${e.target.value}`;
-                setDateValue(newDate);
-                applyFilter(filterType, newDate, startDate, endDate);
-              }}
-              className="search-input"
-              style={{ borderRadius: '8px', padding: '8px 16px', backgroundColor: 'var(--c-surface)' }}
-            >
-              <option value="Q1">Q1 (Jan - Mar)</option>
-              <option value="Q2">Q2 (Apr - Jun)</option>
-              <option value="Q3">Q3 (Jul - Sep)</option>
-              <option value="Q4">Q4 (Oct - Dec)</option>
-            </select>
-          </div>
-        )}
-
-        {filterType === 'year' && (
-          <select
-            value={dateValue}
-            onChange={handleDateChange}
-            className="search-input"
-            style={{ borderRadius: '8px', padding: '8px 16px', backgroundColor: 'var(--c-surface)' }}
-          >
-            {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        )}
-
-        {filterType === 'custom' && (
+      {/* DATE PICKERS (Only for custom range) */}
+      {filterType === 'custom' && (
+        <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center' }}>
           <div className="flex-row gap-8">
             <input 
               type="date" 
@@ -214,8 +137,8 @@ export default function TransactionFilter() {
               style={{ borderRadius: '8px', padding: '8px 16px', backgroundColor: 'var(--c-surface)' }}
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
