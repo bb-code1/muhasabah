@@ -1,7 +1,11 @@
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import Link from 'next/link';
 
-export default function TodayTasksPage() {
+export default async function TodayTasksPage(props: { searchParams?: Promise<{ [key: string]: string | undefined }> }) {
+  const searchParams = await props.searchParams;
+  const pageStr = searchParams?.page || '1';
+  const page = parseInt(pageStr, 10) || 1;
+
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
 
@@ -16,7 +20,7 @@ export default function TodayTasksPage() {
       </div>
       <div className="grid-container">
         <div className="col-span-12 flex-col gap-24" style={{ alignContent: 'start' }}>
-          <TasksOfTheDay dateStr={todayStr} />
+          <TasksOfTheDay dateStr={todayStr} page={page} />
         </div>
       </div>
     </>

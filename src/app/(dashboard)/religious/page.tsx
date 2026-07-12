@@ -1,8 +1,10 @@
 import { getReligiousActivity, getAllReligiousActivities, toggleReligiousActivity } from '@/actions';
 import { Moon, History, CheckCircle2, Circle } from 'lucide-react';
 import QuranSaveForm from '@/components/religious/QuranSaveForm';
+import Link from 'next/link';
 
-export default async function ReligiousPage() {
+export default async function ReligiousPage(props: { searchParams?: Promise<{ [key: string]: string | undefined }> }) {
+  const searchParams = await props.searchParams;
   const today = new Date();
   // Adjust for local timezone to ensure 'today' is the user's today
   const offset = today.getTimezoneOffset() * 60000;
@@ -21,6 +23,16 @@ export default async function ReligiousPage() {
     { key: 'quranReading', label: 'Quran Reading' },
     { key: 'adhkar', label: 'Morning/Evening Adhkar' },
   ] as const;
+
+  // Pagination Logic
+  const currentPageStr = searchParams?.page || '1';
+  let currentPage = parseInt(currentPageStr, 10);
+  if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
+  const PAGE_SIZE = 5;
+  const totalPages = Math.ceil(history.length / PAGE_SIZE) || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const paginatedHistory = history.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="flex-col gap-24">
@@ -69,7 +81,7 @@ export default async function ReligiousPage() {
           <p className="text-on-surface-variant">No spiritual history found.</p>
         ) : (
           <div className="flex-col gap-16">
-            {history.map(record => {
+            {paginatedHistory.map(record => {
               const totalCompleted = activities.reduce((acc, curr) => {
                 return acc + (record[curr.key as keyof typeof record] ? 1 : 0);
               }, 0);
@@ -95,7 +107,7 @@ export default async function ReligiousPage() {
                         <div key={key} className="flex-row gap-8">
                           {isCompleted ? <CheckCircle2 size={16} color="var(--c-primary)" /> : <Circle size={16} color="var(--c-on-surface-variant)" style={{ opacity: 0.5 }} />}
                           <span className="text-label-sm text-on-surface-variant" style={{ opacity: isCompleted ? 1 : 0.6 }}>
-                            {label}
+                             {label}
                           </span>
                         </div>
                       );
@@ -110,6 +122,35 @@ export default async function ReligiousPage() {
                 </div>
               );
             })}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
+                {currentPage > 1 ? (
+                  <Link href={`?page=${currentPage - 1}`} className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-high)', color: 'var(--c-on-surface)', boxShadow: 'none' }}>
+                    Previous
+                  </Link>
+                ) : (
+                  <button disabled className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-lowest)', color: 'var(--c-on-surface-variant)', opacity: 0.5, cursor: 'not-allowed', boxShadow: 'none' }}>
+                    Previous
+                  </button>
+                )}
+                
+                <span className="text-body-md text-on-surface-variant" style={{ fontWeight: 600 }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                {currentPage < totalPages ? (
+                  <Link href={`?page=${currentPage + 1}`} className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-high)', color: 'var(--c-on-surface)', boxShadow: 'none' }}>
+                    Next
+                  </Link>
+                ) : (
+                  <button disabled className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-lowest)', color: 'var(--c-on-surface-variant)', opacity: 0.5, cursor: 'not-allowed', boxShadow: 'none' }}>
+                    Next
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

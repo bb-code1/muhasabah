@@ -10,9 +10,10 @@ interface TaskHistoryTableProps {
 
 export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
   const [expandedDays, setExpandedDays] = useState<Record<string, boolean>>({});
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Generate the last 30 days of history (extended from 14 for better history coverage)
-  const days = Array.from({ length: 30 }).map((_, i) => {
+  // Generate the last 30 days of history
+  const rawDays = Array.from({ length: 30 }).map((_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - i);
     d.setHours(0, 0, 0, 0);
@@ -36,15 +37,28 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
     tasksByDay[dateStr].push(task);
   });
 
+  // Filter out days that have no tasks recorded
+  const activeDays = rawDays.filter(day => {
+    const dayStr = day.toISOString().split('T')[0];
+    return (tasksByDay[dayStr] || []).length > 0;
+  });
+
+  // Pagination Logic
+  const PAGE_SIZE = 5;
+  const totalPages = Math.ceil(activeDays.length / PAGE_SIZE) || 1;
+  const activePage = currentPage > totalPages ? totalPages : currentPage;
+  const paginatedDays = activeDays.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {days.map((day, idx) => {
+      {paginatedDays.map((day) => {
         const dayStr = day.toISOString().split('T')[0];
         const dayTasks = tasksByDay[dayStr] || [];
         const displayDate = day.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
-        const isToday = idx === 0;
-
-        if (dayTasks.length === 0) return null; // Only show days that actually had tasks scheduled
+        
+        // Find if this day matches today's date
+        const todayStr = new Date().toISOString().split('T')[0];
+        const isToday = dayStr === todayStr;
 
         const completedCount = dayTasks.filter((t) => t.isCompleted).length;
         const totalCount = dayTasks.length;
@@ -169,6 +183,39 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
           </div>
         );
       })}
+
+      {activeDays.length === 0 && (
+        <div className="card" style={{ padding: '32px', textAlign: 'center', backgroundColor: 'var(--c-surface-container-low)', borderRadius: '12px', border: '1px dashed var(--c-outline)' }}>
+          <p className="text-on-surface-variant" style={{ margin: 0 }}>No daily tasks recorded in the last 30 days.</p>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
+          <button 
+            disabled={activePage <= 1}
+            onClick={() => setCurrentPage(activePage - 1)}
+            className="primary-btn" 
+            style={{ padding: '8px 16px', backgroundColor: activePage <= 1 ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)', color: activePage <= 1 ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)', opacity: activePage <= 1 ? 0.5 : 1, cursor: activePage <= 1 ? 'not-allowed' : 'pointer', boxShadow: 'none' }}
+          >
+            Previous
+          </button>
+          
+          <span className="text-body-md text-on-surface-variant" style={{ fontWeight: 600 }}>
+            Page {activePage} of {totalPages}
+          </span>
+
+          <button 
+            disabled={activePage >= totalPages}
+            onClick={() => setCurrentPage(activePage + 1)}
+            className="primary-btn" 
+            style={{ padding: '8px 16px', backgroundColor: activePage >= totalPages ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)', color: activePage >= totalPages ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)', opacity: activePage >= totalPages ? 0.5 : 1, cursor: activePage >= totalPages ? 'not-allowed' : 'pointer', boxShadow: 'none' }}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

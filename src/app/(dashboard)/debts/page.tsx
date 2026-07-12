@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { UserPlus, ArrowRight, Wallet } from 'lucide-react';
 
 
-export default async function DebtsPage() {
+export default async function DebtsPage(props: { searchParams?: Promise<{ [key: string]: string | undefined }> }) {
+  const searchParams = await props.searchParams;
   const persons = await getPersons();
 
   // Calculate Net Balances
@@ -30,6 +31,16 @@ export default async function DebtsPage() {
     });
     return { ...person, netBalance };
   });
+
+  // Pagination Logic
+  const currentPageStr = searchParams?.page || '1';
+  let currentPage = parseInt(currentPageStr, 10);
+  if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
+  const PAGE_SIZE = 6;
+  const totalPages = Math.ceil(enrichedPersons.length / PAGE_SIZE) || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const paginatedPersons = enrichedPersons.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div style={{ paddingBottom: '60px' }}>
@@ -79,7 +90,7 @@ export default async function DebtsPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-        {enrichedPersons.map(person => (
+        {paginatedPersons.map(person => (
           <Link key={person.id} href={`/debts/${person.id}`} className="card" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 className="text-title-lg" style={{ fontWeight: 600 }}>{person.name}</h3>
@@ -110,6 +121,35 @@ export default async function DebtsPage() {
           <div className="col-span-12" style={{ textAlign: 'center', padding: '40px', color: 'var(--c-on-surface-variant)' }}>
             <UserPlus size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
             <p>No people in your list yet. Add someone to start tracking credits and debits.</p>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px', gridColumn: '1 / -1' }}>
+            {currentPage > 1 ? (
+              <Link href={`?page=${currentPage - 1}`} className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-high)', color: 'var(--c-on-surface)', boxShadow: 'none' }}>
+                Previous
+              </Link>
+            ) : (
+              <button disabled className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-lowest)', color: 'var(--c-on-surface-variant)', opacity: 0.5, cursor: 'not-allowed', boxShadow: 'none' }}>
+                Previous
+              </button>
+            )}
+            
+            <span className="text-body-md text-on-surface-variant" style={{ fontWeight: 600 }}>
+              Page {currentPage} of {totalPages}
+            </span>
+
+            {currentPage < totalPages ? (
+              <Link href={`?page=${currentPage + 1}`} className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-high)', color: 'var(--c-on-surface)', boxShadow: 'none' }}>
+                Next
+              </Link>
+            ) : (
+              <button disabled className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-lowest)', color: 'var(--c-on-surface-variant)', opacity: 0.5, cursor: 'not-allowed', boxShadow: 'none' }}>
+                Next
+              </button>
+            )}
           </div>
         )}
       </div>

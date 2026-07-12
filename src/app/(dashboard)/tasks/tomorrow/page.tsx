@@ -1,7 +1,11 @@
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import Link from 'next/link';
 
-export default async function TomorrowPage() {
+export default async function TomorrowPage(props: { searchParams?: Promise<{ [key: string]: string | undefined }> }) {
+  const searchParams = await props.searchParams;
+  const pageStr = searchParams?.page || '1';
+  const page = parseInt(pageStr, 10) || 1;
+
   const now = new Date();
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -13,7 +17,7 @@ export default async function TomorrowPage() {
         <span className="material-symbols-outlined">arrow_back</span>
         <span>Back to Tasks</span>
       </Link>
-      <TasksOfTheDay dateStr={tomorrowStr} />
+      <TasksOfTheDay dateStr={tomorrowStr} page={page} />
     </div>
   );
 }

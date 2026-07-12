@@ -11,6 +11,8 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
   const [loading, setLoading] = useState(false);
   const [filterPeriod, setFilterPeriod] = useState('ALL'); // ALL, TODAY, WEEK, MONTH
 
+  const [currentPage, setCurrentPage] = useState(1);
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
@@ -23,6 +25,7 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
       
       await addJournalEntry(formData);
       setContent('');
+      setCurrentPage(1); // Reset to first page
     } catch (error) {
       console.error(error);
       alert('Failed to add entry');
@@ -35,6 +38,16 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
     if (confirm('Are you sure you want to delete this entry?')) {
       await deleteJournalEntry(id);
     }
+  };
+
+  const handleTabChange = (newTab: 'OFFICE' | 'LEARNING' | 'MISC') => {
+    setTab(newTab);
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (newPeriod: string) => {
+    setFilterPeriod(newPeriod);
+    setCurrentPage(1);
   };
 
   // Filter entries
@@ -57,6 +70,12 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
     return true;
   });
 
+  // Pagination Logic
+  const PAGE_SIZE = 5;
+  const totalPages = Math.ceil(filteredEntries.length / PAGE_SIZE) || 1;
+  const activePage = currentPage > totalPages ? totalPages : currentPage;
+  const paginatedEntries = filteredEntries.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
+
   return (
     <div>
       {/* TABS & FILTERS */}
@@ -64,15 +83,15 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
         
         <div className="flex-row gap-8 p-12 rounded-12" style={{ backgroundColor: 'var(--c-surface-container-high)' }}>
           <button 
-            onClick={() => setTab('OFFICE')}
+            onClick={() => handleTabChange('OFFICE')}
             style={{ padding: '8px 16px', borderRadius: '8px', fontWeight: 600, backgroundColor: tab === 'OFFICE' ? 'var(--c-primary)' : 'transparent', color: tab === 'OFFICE' ? 'var(--c-on-primary)' : 'var(--c-on-surface)' }}
           >Office Work</button>
           <button 
-            onClick={() => setTab('LEARNING')}
+            onClick={() => handleTabChange('LEARNING')}
             style={{ padding: '8px 16px', borderRadius: '8px', fontWeight: 600, backgroundColor: tab === 'LEARNING' ? 'var(--c-primary)' : 'transparent', color: tab === 'LEARNING' ? 'var(--c-on-primary)' : 'var(--c-on-surface)' }}
           >Learning</button>
           <button 
-            onClick={() => setTab('MISC')}
+            onClick={() => handleTabChange('MISC')}
             style={{ padding: '8px 16px', borderRadius: '8px', fontWeight: 600, backgroundColor: tab === 'MISC' ? 'var(--c-primary)' : 'transparent', color: tab === 'MISC' ? 'var(--c-on-primary)' : 'var(--c-on-surface)' }}
           >Miscellaneous</button>
         </div>
@@ -83,7 +102,7 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
             className="search-input" 
             style={{ paddingLeft: '40px' }}
             value={filterPeriod}
-            onChange={(e) => setFilterPeriod(e.target.value)}
+            onChange={(e) => handleFilterChange(e.target.value)}
           >
             <option value="ALL">All Time</option>
             <option value="TODAY">Today</option>
@@ -110,10 +129,10 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
 
       {/* ENTRIES LIST */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {filteredEntries.length === 0 ? (
+        {paginatedEntries.length === 0 ? (
           <p className="text-on-surface-variant text-body-md" style={{ textAlign: 'center', padding: '40px' }}>No entries found for this category and time period.</p>
         ) : (
-          filteredEntries.map(entry => (
+          paginatedEntries.map(entry => (
             <div key={entry.id} className="card" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ paddingRight: '24px' }}>
                 <p className="text-body-md" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{entry.content}</p>
@@ -128,6 +147,33 @@ export default function JournalDashboard({ initialEntries }: { initialEntries: J
               </button>
             </div>
           ))
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
+            <button 
+              disabled={activePage <= 1}
+              onClick={() => setCurrentPage(activePage - 1)}
+              className="primary-btn" 
+              style={{ padding: '8px 16px', backgroundColor: activePage <= 1 ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)', color: activePage <= 1 ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)', opacity: activePage <= 1 ? 0.5 : 1, cursor: activePage <= 1 ? 'not-allowed' : 'pointer', boxShadow: 'none' }}
+            >
+              Previous
+            </button>
+            
+            <span className="text-body-md text-on-surface-variant" style={{ fontWeight: 600 }}>
+              Page {activePage} of {totalPages}
+            </span>
+
+            <button 
+              disabled={activePage >= totalPages}
+              onClick={() => setCurrentPage(activePage + 1)}
+              className="primary-btn" 
+              style={{ padding: '8px 16px', backgroundColor: activePage >= totalPages ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)', color: activePage >= totalPages ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)', opacity: activePage >= totalPages ? 0.5 : 1, cursor: activePage >= totalPages ? 'not-allowed' : 'pointer', boxShadow: 'none' }}
+            >
+              Next
+            </button>
+          </div>
         )}
       </div>
     </div>

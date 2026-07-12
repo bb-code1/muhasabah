@@ -11,8 +11,29 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
   const [search, setSearch] = useState('');
   const [showArchived, setShowArchived] = useState(false);
   const [sortBy, setSortBy] = useState('priority');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const tabs = ['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY', 'LIFETIME'];
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (val: string) => {
+    setSortBy(val);
+    setCurrentPage(1);
+  };
+
+  const handleArchiveToggle = () => {
+    setShowArchived(!showArchived);
+    setCurrentPage(1);
+  };
 
   const filteredGoals = goals.filter(goal => {
     if (goal.period !== activeTab && !showArchived) return false;
@@ -38,6 +59,12 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
+  // Pagination Logic
+  const PAGE_SIZE = 5;
+  const totalPages = Math.ceil(filteredGoals.length / PAGE_SIZE) || 1;
+  const activePage = currentPage > totalPages ? totalPages : currentPage;
+  const paginatedGoals = filteredGoals.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
+
   return (
     <div>
       <AddGoalForm />
@@ -49,7 +76,7 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
             type="text" 
             placeholder="Search goals..." 
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="search-input"
             style={{ width: '100%', paddingLeft: '40px', borderRadius: '8px' }}
           />
@@ -57,7 +84,7 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
         
         <select 
           value={sortBy} 
-          onChange={(e) => setSortBy(e.target.value)}
+          onChange={(e) => handleSortChange(e.target.value)}
           className="search-input"
           style={{ borderRadius: '8px', padding: '8px 16px', width: 'auto' }}
         >
@@ -67,7 +94,7 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
         </select>
 
         <button 
-          onClick={() => setShowArchived(!showArchived)}
+          onClick={handleArchiveToggle}
           className="primary-btn"
           style={{ backgroundColor: showArchived ? 'var(--c-primary)' : 'var(--c-surface-container-high)', color: showArchived ? 'var(--c-on-primary)' : 'var(--c-on-surface)', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}
         >
@@ -79,7 +106,7 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
         {tabs.map(tab => (
           <button 
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => handleTabChange(tab)}
             style={{
               padding: '8px 16px',
               borderRadius: '24px',
@@ -97,13 +124,40 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {filteredGoals.map(goal => (
+        {paginatedGoals.map(goal => (
           <GoalItem key={goal.id} goal={goal} />
         ))}
-        {filteredGoals.length === 0 && (
+        {paginatedGoals.length === 0 && (
           <p className="text-on-surface-variant" style={{ textAlign: 'center', padding: '40px 0' }}>
             {showArchived ? "No archived goals for this period." : "No goals found. Create one above!"}
           </p>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
+            <button 
+              disabled={activePage <= 1}
+              onClick={() => setCurrentPage(activePage - 1)}
+              className="primary-btn" 
+              style={{ padding: '8px 16px', backgroundColor: activePage <= 1 ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)', color: activePage <= 1 ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)', opacity: activePage <= 1 ? 0.5 : 1, cursor: activePage <= 1 ? 'not-allowed' : 'pointer', boxShadow: 'none' }}
+            >
+              Previous
+            </button>
+            
+            <span className="text-body-md text-on-surface-variant" style={{ fontWeight: 600 }}>
+              Page {activePage} of {totalPages}
+            </span>
+
+            <button 
+              disabled={activePage >= totalPages}
+              onClick={() => setCurrentPage(activePage + 1)}
+              className="primary-btn" 
+              style={{ padding: '8px 16px', backgroundColor: activePage >= totalPages ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)', color: activePage >= totalPages ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)', opacity: activePage >= totalPages ? 0.5 : 1, cursor: activePage >= totalPages ? 'not-allowed' : 'pointer', boxShadow: 'none' }}
+            >
+              Next
+            </button>
+          </div>
         )}
       </div>
     </div>

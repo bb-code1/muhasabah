@@ -32,6 +32,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<'table' | 'manage'>('table');
+  const [currentPage, setCurrentPage] = useState(1);
   
   const weeks = generatePastWeeks(12); // Show last 12 weeks
 
@@ -42,6 +43,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
     try {
       await addWeekendTask(newTaskTitle);
       setNewTaskTitle('');
+      setCurrentPage(1); // Reset page on add
     } catch (error) {
       console.error(error);
       alert('Failed to add task');
@@ -53,12 +55,24 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to permanently delete this task?')) {
       await deleteWeekendTask(id);
+      setCurrentPage(1); // Reset page on delete
     }
   };
 
   const handleToggle = async (id: number, currentCompletedState: boolean, weekStartDateStr: string) => {
     await toggleWeekendTask(id, !currentCompletedState, weekStartDateStr);
   };
+
+  const handleViewChange = (newView: 'table' | 'manage') => {
+    setView(newView);
+    setCurrentPage(1); // Reset page when view switches
+  };
+
+  // Pagination Logic for Manage View Task List
+  const PAGE_SIZE = 5;
+  const totalPages = Math.ceil(initialTasks.length / PAGE_SIZE) || 1;
+  const activePage = currentPage > totalPages ? totalPages : currentPage;
+  const paginatedTasks = initialTasks.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
 
   return (
     <div>
@@ -71,14 +85,14 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
 
         {view === 'table' ? (
           <button 
-            onClick={() => setView('manage')} 
+            onClick={() => handleViewChange('manage')} 
             className="primary-btn" 
           >
             <List size={18} /> Manage Tasks
           </button>
         ) : (
           <button 
-            onClick={() => setView('table')} 
+            onClick={() => handleViewChange('table')} 
             className="primary-btn" 
           >
             <Calendar size={18} /> View History Table
@@ -116,7 +130,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
 
           {/* VERTICAL LIST FOR MANAGING */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {initialTasks.map(task => (
+            {paginatedTasks.map(task => (
               <div key={task.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', backgroundColor: 'var(--c-surface-container-low)', borderRadius: '8px', border: '1px solid var(--c-outline-variant)' }}>
                 <span className="text-body-md" style={{ fontWeight: 500, color: 'var(--c-on-surface)' }}>
                   {task.title}
@@ -130,8 +144,35 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                 </button>
               </div>
             ))}
-            {initialTasks.length === 0 && (
+            {paginatedTasks.length === 0 && (
               <p className="text-on-surface-variant" style={{ textAlign: 'center', padding: '24px' }}>No tasks found. Add a task above.</p>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
+                <button 
+                  disabled={activePage <= 1}
+                  onClick={() => setCurrentPage(activePage - 1)}
+                  className="primary-btn" 
+                  style={{ padding: '8px 16px', backgroundColor: activePage <= 1 ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)', color: activePage <= 1 ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)', opacity: activePage <= 1 ? 0.5 : 1, cursor: activePage <= 1 ? 'not-allowed' : 'pointer', boxShadow: 'none' }}
+                >
+                  Previous
+                </button>
+                
+                <span className="text-body-md text-on-surface-variant" style={{ fontWeight: 600 }}>
+                  Page {activePage} of {totalPages}
+                </span>
+
+                <button 
+                  disabled={activePage >= totalPages}
+                  onClick={() => setCurrentPage(activePage + 1)}
+                  className="primary-btn" 
+                  style={{ padding: '8px 16px', backgroundColor: activePage >= totalPages ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)', color: activePage >= totalPages ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)', opacity: activePage >= totalPages ? 0.5 : 1, cursor: activePage >= totalPages ? 'not-allowed' : 'pointer', boxShadow: 'none' }}
+                >
+                  Next
+                </button>
+              </div>
             )}
           </div>
         </div>

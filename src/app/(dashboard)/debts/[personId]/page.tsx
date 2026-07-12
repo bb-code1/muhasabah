@@ -4,8 +4,12 @@ import Link from 'next/link';
 import { ArrowLeft, Trash2, CheckCircle2, Circle, Wallet } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
-export default async function PersonDebtPage({ params }: { params: Promise<{ personId: string }> }) {
-  const { personId } = await params;
+export default async function PersonDebtPage(props: { 
+  params: Promise<{ personId: string }>,
+  searchParams?: Promise<{ [key: string]: string | undefined }>
+}) {
+  const { personId } = await props.params;
+  const searchParams = await props.searchParams;
   const id = Number(personId);
   const person = await getPersonById(id);
 
@@ -26,6 +30,16 @@ export default async function PersonDebtPage({ params }: { params: Promise<{ per
   });
 
   const deletePersonAction = deletePerson.bind(null, person.id);
+
+  // Pagination Logic
+  const currentPageStr = searchParams?.page || '1';
+  let currentPage = parseInt(currentPageStr, 10);
+  if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
+  const PAGE_SIZE = 5;
+  const totalPages = Math.ceil(person.debts.length / PAGE_SIZE) || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const paginatedDebts = person.debts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div style={{ paddingBottom: '80px' }}>
@@ -64,7 +78,7 @@ export default async function PersonDebtPage({ params }: { params: Promise<{ per
           <p className="text-on-surface-variant">No records found with {person.name}.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {person.debts.map(debt => {
+            {paginatedDebts.map(debt => {
               const amt = Number(debt.amount);
               const isCredit = debt.type === 'CREDIT';
               const isPaid = debt.status === 'PAID';
@@ -103,6 +117,35 @@ export default async function PersonDebtPage({ params }: { params: Promise<{ per
                 </div>
               );
             })}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
+                {currentPage > 1 ? (
+                  <Link href={`?page=${currentPage - 1}`} className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-high)', color: 'var(--c-on-surface)', boxShadow: 'none' }}>
+                    Previous
+                  </Link>
+                ) : (
+                  <button disabled className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-lowest)', color: 'var(--c-on-surface-variant)', opacity: 0.5, cursor: 'not-allowed', boxShadow: 'none' }}>
+                    Previous
+                  </button>
+                )}
+                
+                <span className="text-body-md text-on-surface-variant" style={{ fontWeight: 600 }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                {currentPage < totalPages ? (
+                  <Link href={`?page=${currentPage + 1}`} className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-high)', color: 'var(--c-on-surface)', boxShadow: 'none' }}>
+                    Next
+                  </Link>
+                ) : (
+                  <button disabled className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-lowest)', color: 'var(--c-on-surface-variant)', opacity: 0.5, cursor: 'not-allowed', boxShadow: 'none' }}>
+                    Next
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

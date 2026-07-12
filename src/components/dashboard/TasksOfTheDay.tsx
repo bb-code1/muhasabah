@@ -1,8 +1,18 @@
 import { getDailyTasks, addDailyTask, toggleDailyTask, deleteDailyTask } from '@/actions';
 import { PlusCircle, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
-
-export default async function TasksOfTheDay({ dateStr, hideTitle, readOnly }: { dateStr: string, hideTitle?: boolean, readOnly?: boolean }) {
+export default async function TasksOfTheDay({ 
+  dateStr, 
+  hideTitle, 
+  readOnly,
+  page = 1
+}: { 
+  dateStr: string, 
+  hideTitle?: boolean, 
+  readOnly?: boolean,
+  page?: number
+}) {
   const tasks = await getDailyTasks(dateStr);
   
   const currentDate = new Date(dateStr);
@@ -22,6 +32,12 @@ export default async function TasksOfTheDay({ dateStr, hideTitle, readOnly }: { 
   let titleText = "Tasks of the Day";
   if (isToday) titleText = "Today's Tasks";
   if (isTomorrow) titleText = "Tomorrow's Plan";
+
+  // Pagination Logic
+  const PAGE_SIZE = 5;
+  const totalPages = Math.ceil(tasks.length / PAGE_SIZE) || 1;
+  const currentPage = page > totalPages ? totalPages : page;
+  const paginatedTasks = tasks.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -52,7 +68,7 @@ export default async function TasksOfTheDay({ dateStr, hideTitle, readOnly }: { 
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {tasks.map(task => {
+        {paginatedTasks.map(task => {
           const toggleAction = toggleDailyTask.bind(null, task.id, task.isCompleted);
           const deleteAction = deleteDailyTask.bind(null, task.id);
           
@@ -84,7 +100,36 @@ export default async function TasksOfTheDay({ dateStr, hideTitle, readOnly }: { 
             </div>
           );
         })}
-        {tasks.length === 0 && <p className="text-on-surface-variant text-label-sm">No tasks planned for this day.</p>}
+        {paginatedTasks.length === 0 && <p className="text-on-surface-variant text-label-sm">No tasks planned for this day.</p>}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
+            {currentPage > 1 ? (
+              <Link href={`?page=${currentPage - 1}`} className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-high)', color: 'var(--c-on-surface)', boxShadow: 'none' }}>
+                Previous
+              </Link>
+            ) : (
+              <button disabled className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-lowest)', color: 'var(--c-on-surface-variant)', opacity: 0.5, cursor: 'not-allowed', boxShadow: 'none' }}>
+                Previous
+              </button>
+            )}
+            
+            <span className="text-body-md text-on-surface-variant" style={{ fontWeight: 600 }}>
+              Page {currentPage} of {totalPages}
+            </span>
+
+            {currentPage < totalPages ? (
+              <Link href={`?page=${currentPage + 1}`} className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-high)', color: 'var(--c-on-surface)', boxShadow: 'none' }}>
+                Next
+              </Link>
+            ) : (
+              <button disabled className="primary-btn" style={{ padding: '8px 16px', backgroundColor: 'var(--c-surface-container-lowest)', color: 'var(--c-on-surface-variant)', opacity: 0.5, cursor: 'not-allowed', boxShadow: 'none' }}>
+                Next
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
