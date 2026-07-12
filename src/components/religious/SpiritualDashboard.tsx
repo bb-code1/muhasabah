@@ -6,6 +6,7 @@ import { Moon, CheckCircle2, Circle, Plus, X, Settings, Users, ScrollText, Calen
 import { toggleSpiritualHabit, addSpiritualHabit, deleteSpiritualHabit, setPrayerJamaat } from '@/actions/religious';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { useToast } from '@/context/ToastContext';
+import { PRAYER_HABIT_NAMES, sortSpiritualHabits } from '@/lib/spiritualHabits';
 
 interface HabitStatus {
   id: number;
@@ -49,7 +50,7 @@ export default function SpiritualDashboard({
 
   // Toggling status state
   const [togglingId, setTogglingId] = useState<number | null>(null);
-  const prayerNames = new Set(['Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha']);
+  const sortedAllHabits = sortSpiritualHabits(allHabits);
 
   useEffect(() => {
     setMounted(true);
@@ -332,7 +333,7 @@ export default function SpiritualDashboard({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {initialTodayData.habits.map((habit) => {
                   const isToggling = togglingId === habit.id;
-                  const isPrayer = prayerNames.has(habit.name);
+                  const isPrayer = PRAYER_HABIT_NAMES.has(habit.name);
                   return (
                     <div
                       key={habit.id}
@@ -446,7 +447,7 @@ export default function SpiritualDashboard({
             {selectedRecord.habits.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {selectedRecord.habits.map((habit, i) => {
-                  const isPrayer = prayerNames.has(habit.name);
+                  const isPrayer = PRAYER_HABIT_NAMES.has(habit.name);
                   return (
                     <div
                       key={i}
@@ -562,7 +563,7 @@ export default function SpiritualDashboard({
 
             {/* List of current Habits */}
             <div style={{ borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
-              {allHabits.map((habit) => (
+              {sortedAllHabits.map((habit) => (
                 <div
                   key={habit.id}
                   style={{

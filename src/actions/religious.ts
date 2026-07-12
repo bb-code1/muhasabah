@@ -1,28 +1,19 @@
 'use server';
 
 import prisma from '@/lib/prisma';
+import { DEFAULT_HABIT_ORDER, mergeHistoryHabits, PRAYER_HABIT_NAMES, sortSpiritualHabits } from '@/lib/spiritualHabits';
 import { revalidatePath } from 'next/cache';
 
 export async function getSpiritualHabits() {
-  return await prisma.spiritualHabit.findMany({
+  const habits = await prisma.spiritualHabit.findMany({
     orderBy: { id: 'asc' },
   });
+  return sortSpiritualHabits(habits);
 }
-
-const DEFAULT_HABITS = [
-  'Fajr',
-  'Zuhur',
-  'Asr',
-  'Maghrib',
-  'Isha',
-  'Azkaar',
-];
-
-const PRAYER_HABITS = new Set(['Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha']);
 
 export async function seedDefaultSpiritualHabits() {
   await prisma.spiritualHabit.createMany({
-    data: DEFAULT_HABITS.map(name => ({ name })),
+    data: DEFAULT_HABIT_ORDER.map(name => ({ name })),
     skipDuplicates: true,
   });
 }
@@ -59,7 +50,7 @@ export async function getSpiritualTodayData(dateStr: string) {
     where: { date },
   });
 
-  const habitsWithStatus = habits.map(habit => {
+  const habitsWithStatus = sortSpiritualHabits(habits.map(habit => {
     const log = logs.find(l => l.habitId === habit.id);
     return {
       id: habit.id,
@@ -67,7 +58,7 @@ export async function getSpiritualTodayData(dateStr: string) {
       isCompleted: log ? log.isCompleted : false,
       prayedWithJamaat: log?.prayedWithJamaat ?? false,
     };
-  });
+  }));
 
   return {
     habits: habitsWithStatus,
@@ -105,7 +96,7 @@ export async function setPrayerJamaat(dateStr: string, habitId: number, prayedWi
     select: { name: true },
   });
 
-  if (!habit || !PRAYER_HABITS.has(habit.name)) {
+  if (!habit || !PRAYER_HABIT_NAMES.has(habit.name)) {
     throw new Error('Jamaat status is only available for the five daily prayers.');
   }
 
@@ -188,5 +179,17 @@ export async function getSpiritualHistory() {
     }
   });
 
-  return Object.values(historyMap).sort((a, b) => b.date.getTime() - a.date.getTime());
+  const allHabits = await prisma.spiritualHabit.findMany({ orderBy: { id: 'asc' } });
+
+  return Object.values(historyMap)
+    .map(entry => {
+      const habits = mergeHistoryHabits(entry.habits, allHabits);
+      return {
+        ...entry,
+        habits,
+        completedCount: habits.filter(habit => habit.isCompleted).length,
+        totalCount: habits.length,
+      };
+    })
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
 }
