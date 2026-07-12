@@ -119,6 +119,17 @@ model DebtRecord {
 model WeekendTask {
   id              Int       @id @default(autoincrement())
   title           String
-  lastCompletedAt DateTime? @db.Timestamptz()
   createdAt       DateTime  @default(now()) @db.Timestamptz()
+  logs            WeekendTaskLog[]
+}
+
+model WeekendTaskLog {
+  id            Int         @id @default(autoincrement())
+  weekendTaskId Int
+  date          DateTime    @default(now()) @db.Date
+  weekStartDate DateTime    @db.Date
+  
+  task          WeekendTask @relation(fields: [weekendTaskId], references: [id], onDelete: Cascade)
+  
+  @@unique([weekendTaskId, weekStartDate])
 }

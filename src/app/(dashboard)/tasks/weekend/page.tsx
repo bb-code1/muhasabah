@@ -1,4 +1,4 @@
-import { getWeekendTasks } from '@/actions';
+import { getWeekendTasks } from '@/actions/tasks';
 import WeekendTasksClient from '@/components/weekend/WeekendTasksClient';
 import { CalendarHeart } from 'lucide-react';
 import prisma from '@/lib/prisma';
@@ -40,7 +40,7 @@ export default async function WeekendPage() {
 
       <div className="w-full">
         <p className="text-body-md text-on-surface-variant mb-24">
-          These are your recurring weekly tasks. You can complete them any day from Monday to Sunday, but they are typically done on weekends. This list will automatically reset every Monday.
+          Track your recurring weekend tasks historically. Check off tasks for the current week at the top, and see your progress over the past weeks below.
         </p>
 
         <WeekendTasksClient initialTasks={uniqueTasks} />

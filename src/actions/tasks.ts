@@ -46,6 +46,7 @@ export async function deleteDailyTask(id: number) {
 export async function getWeekendTasks() {
   return await prisma.weekendTask.findMany({
     orderBy: { id: 'asc' },
+    include: { logs: true },
   });
 }
 
@@ -55,22 +56,41 @@ export async function addWeekendTask(title: string) {
   await prisma.weekendTask.create({
     data: { title },
   });
-  revalidatePath('/weekend');
+  revalidatePath('/tasks/weekend');
 }
 
 export async function deleteWeekendTask(id: number) {
   await prisma.weekendTask.delete({
     where: { id },
   });
-  revalidatePath('/weekend');
+  revalidatePath('/tasks/weekend');
 }
 
-export async function toggleWeekendTask(id: number, isCompleted: boolean) {
-  await prisma.weekendTask.update({
-    where: { id },
-    data: {
-      lastCompletedAt: isCompleted ? new Date() : null,
-    },
-  });
-  revalidatePath('/weekend');
+export async function toggleWeekendTask(id: number, isCompleted: boolean, weekStartDateStr: string) {
+  const weekStartDate = new Date(weekStartDateStr);
+
+  if (isCompleted) {
+    await prisma.weekendTaskLog.upsert({
+      where: {
+        weekendTaskId_weekStartDate: {
+          weekendTaskId: id,
+          weekStartDate: weekStartDate
+        }
+      },
+      create: {
+        weekendTaskId: id,
+        weekStartDate: weekStartDate,
+        date: new Date()
+      },
+      update: {}
+    });
+  } else {
+    await prisma.weekendTaskLog.deleteMany({
+      where: {
+        weekendTaskId: id,
+        weekStartDate: weekStartDate
+      }
+    });
+  }
+  revalidatePath('/tasks/weekend');
 }
