@@ -28,6 +28,7 @@ async function main() {
   const today = new Date();
   const getPastDate = (daysAgo: number) => {
     const d = new Date(today);
+    d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() - daysAgo);
     return d;
   };
@@ -83,7 +84,7 @@ async function main() {
   // --- SPIRITUAL HABITS & LOGS ---
   console.log('Seeding Spiritual Habits...');
   const defaultHabits = [
-    'Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha', 'Azkaar', 'Quran Memorisation'
+    'Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha', 'Azkaar', 'Quran Memorisation', 'Tahajjud'
   ];
   const seededHabits = [];
   for (const name of defaultHabits) {
@@ -93,17 +94,75 @@ async function main() {
 
   console.log('Seeding Spiritual Logs...');
   const habitLogs = [];
+  const dayLogs = [];
+
+  const sampleDeeds = [
+    'Watched video lecture on Seerah of Prophet Muhammad (PBUH)',
+    'Read 10 pages of "Patience and Gratitude" book',
+    'Gave Sadaqah to a local charity',
+    'Helped clean the local mosque area',
+    'Made extensive dua for parents and friends',
+    'Volunteered at community food kitchen',
+    'Dhuha prayer completed',
+    'Read morning and evening Azkaar with focus',
+    'Helped a family member with their work',
+    'Visited a sick friend at home',
+  ];
+
   for (let i = 0; i < 180; i++) {
     const date = getPastDate(i);
+    
+    // Determine if we write a day log (with some random probability)
+    const hasQuran = Math.random() > 0.4;
+    const hasOtherDeeds = Math.random() > 0.3;
+    
+    let quranVal = null;
+    if (hasQuran) {
+      // Pick a random surah (1 to 5)
+      const surahNum = Math.floor(Math.random() * 5) + 1;
+      const fromV = Math.floor(Math.random() * 5) + 1;
+      const toV = fromV + Math.floor(Math.random() * 10) + 1;
+      quranVal = JSON.stringify({
+        surahNumber: surahNum,
+        fromVerse: fromV,
+        toVerse: toV,
+      });
+    }
+
+    let otherVal = null;
+    if (hasOtherDeeds) {
+      const deed1 = sampleDeeds[Math.floor(Math.random() * sampleDeeds.length)];
+      const deed2 = sampleDeeds[Math.floor(Math.random() * sampleDeeds.length)];
+      otherVal = deed1 === deed2 ? deed1 : `${deed1}\n${deed2}`;
+    }
+
+    if (hasQuran || hasOtherDeeds) {
+      dayLogs.push({
+        date,
+        quranMemorization: quranVal,
+        otherActivities: otherVal,
+      });
+    }
+
+    // Seed habit logs
     for (const habit of seededHabits) {
-      const threshold = 0.2;
+      const isTahajjud = habit.name === 'Tahajjud';
+      const isQuran = habit.name === 'Quran Memorisation';
+      
+      const threshold = isTahajjud ? 0.7 : (isQuran && !hasQuran) ? 0.9 : 0.2;
+      const isCompleted = Math.random() > threshold;
+      const isCompulsoryPrayer = ['Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha'].includes(habit.name);
+      
       habitLogs.push({
         habitId: habit.id,
         date,
-        isCompleted: Math.random() > threshold,
+        isCompleted,
+        prayedWithJamaat: isCompulsoryPrayer && isCompleted ? Math.random() > 0.4 : false,
       });
     }
   }
+
+  await prisma.spiritualDayLog.createMany({ data: dayLogs });
   await prisma.spiritualHabitLog.createMany({ data: habitLogs });
 
   // --- JOURNAL ENTRIES ---
