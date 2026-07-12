@@ -83,8 +83,7 @@ async function main() {
   // --- SPIRITUAL HABITS & LOGS ---
   console.log('Seeding Spiritual Habits...');
   const defaultHabits = [
-    'Fajr (Dawn)', 'Dhuhr (Noon)', 'Asr (Afternoon)', 'Maghrib (Sunset)', 'Isha (Night)',
-    'Quran Reading', 'Morning/Evening Adhkar'
+    'Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha', 'Azkaar'
   ];
   const seededHabits = [];
   for (const name of defaultHabits) {
@@ -94,28 +93,18 @@ async function main() {
 
   console.log('Seeding Spiritual Logs...');
   const habitLogs = [];
-  const dayLogs = [];
   for (let i = 0; i < 180; i++) {
     const date = getPastDate(i);
     for (const habit of seededHabits) {
-      let threshold = 0.2;
-      if (habit.name === 'Quran Reading') threshold = 0.4;
-      if (habit.name === 'Morning/Evening Adhkar') threshold = 0.3;
+      const threshold = 0.2;
       habitLogs.push({
         habitId: habit.id,
         date,
         isCompleted: Math.random() > threshold,
       });
     }
-    if (i % 7 === 0) {
-      dayLogs.push({
-        date,
-        quranMemorization: `Memorized Surah Yaseen verses ${1 + (i % 10)}-${10 + (i % 10)}`,
-      });
-    }
   }
   await prisma.spiritualHabitLog.createMany({ data: habitLogs });
-  await prisma.spiritualDayLog.createMany({ data: dayLogs });
 
   // --- JOURNAL ENTRIES ---
   console.log('Seeding Journal Entries...');

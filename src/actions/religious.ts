@@ -11,24 +11,20 @@ export async function getSpiritualHabits() {
 
 const DEFAULT_HABITS = [
   'Fajr',
-  'Dhuhr',
+  'Zuhur',
   'Asr',
   'Maghrib',
   'Isha',
-  'Morning Adhkar',
-  'Evening Adhkar',
+  'Azkaar',
 ];
 
-export async function seedDefaultSpiritualHabits() {
-  const count = await prisma.spiritualHabit.count();
-  if (count > 0) return; // Already has habits, skip seeding
+const PRAYER_HABITS = new Set(['Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha']);
 
-  for (const name of DEFAULT_HABITS) {
-    await prisma.spiritualHabit.create({
-      data: { name },
-    });
-  }
-  revalidatePath('/religious');
+export async function seedDefaultSpiritualHabits() {
+  await prisma.spiritualHabit.createMany({
+    data: DEFAULT_HABITS.map(name => ({ name })),
+    skipDuplicates: true,
+  });
 }
 
 export async function addSpiritualHabit(name: string) {
@@ -69,6 +65,7 @@ export async function getSpiritualTodayData(dateStr: string) {
       id: habit.id,
       name: habit.name,
       isCompleted: log ? log.isCompleted : false,
+      prayedWithJamaat: log?.prayedWithJamaat ?? false,
     };
   });
 
@@ -90,12 +87,33 @@ export async function toggleSpiritualHabit(dateStr: string, habitId: number, cur
     },
     update: {
       isCompleted: !currentCompleted,
+      prayedWithJamaat: currentCompleted ? false : undefined,
     },
     create: {
       habitId,
       date,
       isCompleted: !currentCompleted,
     },
+  });
+
+  revalidatePath('/religious');
+}
+
+export async function setPrayerJamaat(dateStr: string, habitId: number, prayedWithJamaat: boolean) {
+  const habit = await prisma.spiritualHabit.findUnique({
+    where: { id: habitId },
+    select: { name: true },
+  });
+
+  if (!habit || !PRAYER_HABITS.has(habit.name)) {
+    throw new Error('Jamaat status is only available for the five daily prayers.');
+  }
+
+  const date = new Date(dateStr);
+  await prisma.spiritualHabitLog.upsert({
+    where: { habitId_date: { habitId, date } },
+    update: { isCompleted: true, prayedWithJamaat },
+    create: { habitId, date, isCompleted: true, prayedWithJamaat },
   });
 
   revalidatePath('/religious');

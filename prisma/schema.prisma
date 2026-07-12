@@ -53,6 +53,7 @@ model Goal {
 model SpiritualHabit {
   id        Int                 @id @default(autoincrement())
   name      String              @unique
+  isPrayer  Boolean             @default(false)
   createdAt DateTime            @default(now()) @db.Timestamptz()
   logs      SpiritualHabitLog[]
 }
@@ -63,6 +64,7 @@ model SpiritualHabitLog {
   habit       SpiritualHabit @relation(fields: [habitId], references: [id], onDelete: Cascade)
   date        DateTime       @db.Date
   isCompleted Boolean        @default(false)
+  prayedWithJamaat Boolean   @default(false)
   createdAt   DateTime       @default(now()) @db.Timestamptz()
 
   @@unique([habitId, date])

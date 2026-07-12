@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Moon, CheckCircle2, Circle, Plus, X, BookOpen, Settings } from 'lucide-react';
-import { toggleSpiritualHabit, addSpiritualHabit, deleteSpiritualHabit, updateQuranMemorization } from '@/actions/religious';
+import { Moon, CheckCircle2, Circle, Plus, X, Settings, Users } from 'lucide-react';
+import { toggleSpiritualHabit, addSpiritualHabit, deleteSpiritualHabit, setPrayerJamaat } from '@/actions/religious';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
 import { useToast } from '@/context/ToastContext';
 
@@ -11,13 +11,13 @@ interface HabitStatus {
   id: number;
   name: string;
   isCompleted: boolean;
+  prayedWithJamaat: boolean;
 }
 
 interface HistoryRecord {
   date: Date;
   completedCount: number;
   totalCount: number;
-  quranMemorization: string | null;
   habits: Array<{ name: string; isCompleted: boolean }>;
 }
 
@@ -25,7 +25,6 @@ interface SpiritualDashboardProps {
   dateStr: string;
   initialTodayData: {
     habits: HabitStatus[];
-    quranMemorization: string;
   };
   initialHistory: HistoryRecord[];
   allHabits: Array<{ id: number; name: string }>;
@@ -45,13 +44,9 @@ export default function SpiritualDashboard({
   const [newHabitName, setNewHabitName] = useState('');
   const [submittingHabit, setSubmittingHabit] = useState(false);
 
-  // Today Quran state
-  const [quranNote, setQuranNote] = useState(initialTodayData.quranMemorization);
-  const [savingQuran, setSavingQuran] = useState(false);
-  const [quranMessage, setQuranMessage] = useState('');
-
   // Toggling status state
   const [togglingId, setTogglingId] = useState<number | null>(null);
+  const prayerNames = new Set(['Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha']);
 
   // Pagination states for history
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,27 +75,23 @@ export default function SpiritualDashboard({
     try {
       await addSpiritualHabit(name);
       setNewHabitName('');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      showToast(error.message || 'Failed to add habit.', 'error');
+      showToast(error instanceof Error ? error.message : 'Failed to add habit.', 'error');
     } finally {
       setSubmittingHabit(false);
     }
   };
 
-  const handleSaveQuran = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingQuran(true);
-    setQuranMessage('');
+  const handleJamaatChange = async (habitId: number, prayedWithJamaat: boolean) => {
+    setTogglingId(habitId);
     try {
-      await updateQuranMemorization(dateStr, quranNote);
-      setQuranMessage('Quran notes saved successfully!');
-      setTimeout(() => setQuranMessage(''), 3000);
+      await setPrayerJamaat(dateStr, habitId, prayedWithJamaat);
     } catch (error) {
       console.error(error);
-      showToast('Failed to save Quran notes.', 'error');
+      showToast('Failed to update Jamaat status.', 'error');
     } finally {
-      setSavingQuran(false);
+      setTogglingId(null);
     }
   };
 
@@ -222,12 +213,6 @@ export default function SpiritualDashboard({
                     </div>
                   )}
 
-                  {record.quranMemorization && (
-                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed var(--c-outline-variant)' }}>
-                      <span className="text-label-sm" style={{ fontWeight: 'bold', color: 'var(--c-on-surface)' }}>Quran Reflection: </span>
-                      <span className="text-body-sm text-on-surface-variant" style={{ whiteSpace: 'pre-wrap' }}>{record.quranMemorization}</span>
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -293,10 +278,10 @@ export default function SpiritualDashboard({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {initialTodayData.habits.map((habit) => {
                   const isToggling = togglingId === habit.id;
+                  const isPrayer = prayerNames.has(habit.name);
                   return (
                     <div
                       key={habit.id}
-                      onClick={() => !isToggling && handleToggle(habit.id, habit.isCompleted)}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -306,11 +291,11 @@ export default function SpiritualDashboard({
                         backgroundColor: habit.isCompleted ? 'rgba(195, 150, 38, 0.06)' : 'var(--c-surface-container-low)',
                         border: `1px solid ${habit.isCompleted ? 'var(--c-primary)' : 'var(--c-outline-variant)'}`,
                         opacity: isToggling ? 0.7 : 1,
-                        cursor: isToggling ? 'not-allowed' : 'pointer',
                         transition: 'all 0.18s ease',
                       }}
                     >
                       <span
+                        onClick={() => !isToggling && handleToggle(habit.id, habit.isCompleted)}
                         style={{
                           border: '2px solid var(--c-primary)',
                           width: '24px',
@@ -321,45 +306,41 @@ export default function SpiritualDashboard({
                           alignItems: 'center',
                           justifyContent: 'center',
                           background: habit.isCompleted ? 'var(--c-primary)' : 'none',
+                          cursor: isToggling ? 'not-allowed' : 'pointer',
                         }}
                       >
                         {habit.isCompleted && <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--c-on-primary)', fontWeight: 'bold' }}>check</span>}
                       </span>
-                      <p className="text-body-md" style={{ fontWeight: 600, margin: 0 }}>{habit.name}</p>
+                      <p
+                        className="text-body-md"
+                        onClick={() => !isToggling && handleToggle(habit.id, habit.isCompleted)}
+                        style={{ fontWeight: 600, margin: 0, cursor: isToggling ? 'not-allowed' : 'pointer', flex: 1 }}
+                      >
+                        {habit.name}
+                      </p>
+                      {isPrayer && (
+                        <button
+                          type="button"
+                          onClick={() => !isToggling && handleJamaatChange(habit.id, !habit.prayedWithJamaat)}
+                          disabled={isToggling}
+                          aria-pressed={habit.prayedWithJamaat}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', borderRadius: '999px',
+                            border: `1px solid ${habit.prayedWithJamaat ? 'var(--c-secondary)' : 'var(--c-outline-variant)'}`,
+                            background: habit.prayedWithJamaat ? 'var(--c-secondary-container)' : 'transparent',
+                            color: habit.prayedWithJamaat ? 'var(--c-on-secondary-container)' : 'var(--c-on-surface-variant)',
+                            cursor: isToggling ? 'not-allowed' : 'pointer', fontWeight: 600,
+                          }}
+                        >
+                          <Users size={15} /> {habit.prayedWithJamaat ? 'Jamaat' : 'Jamaat?'}
+                        </button>
+                      )}
                     </div>
                   );
                 })}
               </div>
             )}
 
-            {/* Quran Memorization Section */}
-            <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid var(--c-outline-variant)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <BookOpen size={20} color="var(--c-primary)" />
-                <h3 className="text-title-md" style={{ margin: 0, fontWeight: 700 }}>Quran Memorization / Reflection</h3>
-              </div>
-
-              <form onSubmit={handleSaveQuran} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <textarea
-                  placeholder="Record your Surah memorization, reading stats, or spiritual reflections today..."
-                  value={quranNote}
-                  onChange={(e) => setQuranNote(e.target.value)}
-                  className="search-input"
-                  style={{ width: '100%', minHeight: '100px', borderRadius: '8px', padding: '12px', resize: 'vertical' }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className="text-label-sm" style={{ color: 'var(--c-secondary)', fontWeight: 600 }}>{quranMessage}</span>
-                  <button
-                    type="submit"
-                    className="primary-btn"
-                    disabled={savingQuran}
-                    style={{ padding: '8px 24px', borderRadius: '8px' }}
-                  >
-                    {savingQuran ? 'Saving...' : 'Save Quran Log'}
-                  </button>
-                </div>
-              </form>
-            </div>
           </div>
         </div>,
         document.body
