@@ -193,7 +193,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
                                 width: '24px', 
                                 height: '24px', 
                                 cursor: isCurrentWeek ? 'pointer' : 'default', 
-                                accentColor: 'var(--c-primary)', 
+                                accentColor: isCurrentWeek ? 'var(--c-primary)' : 'var(--c-outline)', 
                                 opacity: 1 
                               }}
                             />
