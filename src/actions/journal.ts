@@ -25,7 +25,9 @@ export async function addJournalEntry(formData: FormData) {
       date: new Date(),
     },
   });
-  revalidatePath('/journal');
+  revalidatePath('/journal/office');
+  revalidatePath('/journal/learning');
+  revalidatePath('/journal/misc');
   revalidatePath('/');
 }
 
@@ -33,6 +35,8 @@ export async function deleteJournalEntry(id: number) {
   await prisma.journalEntry.delete({
     where: { id },
   });
-  revalidatePath('/journal');
+  revalidatePath('/journal/office');
+  revalidatePath('/journal/learning');
+  revalidatePath('/journal/misc');
   revalidatePath('/');
 }

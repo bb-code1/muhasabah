@@ -75,10 +75,21 @@ export default function Navigation() {
             <span className="material-symbols-outlined">auto_awesome</span>
             <span className="text-body-md">Spiritual</span>
           </Link>
-          <Link href="/journal" className={`nav-item ${pathname === '/journal' ? 'active' : ''}`}>
-            <span className="material-symbols-outlined">menu_book</span>
-            <span className="text-body-md">Journal</span>
-          </Link>
+          <div style={{ paddingLeft: '8px', paddingTop: '4px', paddingBottom: '4px' }}>
+            <span className="text-label-sm text-on-surface-variant" style={{ fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', marginBottom: '4px', paddingLeft: '8px' }}>Journal</span>
+            <Link href="/journal/office" className={`nav-item ${pathname.startsWith('/journal/office') ? 'active' : ''}`} style={{ paddingLeft: '20px' }}>
+              <span className="material-symbols-outlined">work</span>
+              <span className="text-body-md">Office Work</span>
+            </Link>
+            <Link href="/journal/learning" className={`nav-item ${pathname.startsWith('/journal/learning') ? 'active' : ''}`} style={{ paddingLeft: '20px' }}>
+              <span className="material-symbols-outlined">school</span>
+              <span className="text-body-md">Learning</span>
+            </Link>
+            <Link href="/journal/misc" className={`nav-item ${pathname.startsWith('/journal/misc') ? 'active' : ''}`} style={{ paddingLeft: '20px' }}>
+              <span className="material-symbols-outlined">folder_open</span>
+              <span className="text-body-md">Miscellaneous</span>
+            </Link>
+          </div>
           <Link href="/notes" className={`nav-item ${pathname === '/notes' ? 'active' : ''}`}>
             <span className="material-symbols-outlined">sticky_note_2</span>
             <span className="text-body-md">Notes</span>
