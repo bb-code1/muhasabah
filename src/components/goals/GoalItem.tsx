@@ -62,7 +62,7 @@ export function GoalItem({ goal, onClick }: { goal: Goal; onClick: () => void })
             </div>
 
             {goal.description && (
-              <p className="text-label-sm text-on-surface-variant" style={{ margin: 0, wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: '1.4' }}>
+              <p className="text-label-sm text-on-surface-variant" style={{ margin: 0, wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: '1.4', textTransform: 'none', fontWeight: 500 }}>
                 {goal.description}
               </p>
             )}

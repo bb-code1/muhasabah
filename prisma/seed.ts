@@ -66,24 +66,82 @@ async function main() {
   // --- GOALS ---
   console.log('Seeding Goals...');
   const goals = [];
-  const goalTitles = [
-    { title: 'Read the entire Quran', category: 'RELIGIOUS' },
-    { title: 'Pray 5 daily prayers in congregation', category: 'RELIGIOUS' },
-    { title: 'Learn Next.js App Router inside out', category: 'CAREER' },
-    { title: 'Build a production SaaS application', category: 'CAREER' },
-    { title: 'Save $5,000 for emergency fund', category: 'FINANCES' },
-    { title: 'Reduce unnecessary eating out expenses', category: 'FINANCES' },
-    { title: 'Run a 5K under 25 minutes', category: 'HEALTH' },
-    { title: 'Go to the gym 3 times a week', category: 'HEALTH' },
-    { title: 'Read 12 books this year', category: 'PERSONAL' },
-    { title: 'Practice daily mindfulness for 10 min', category: 'PERSONAL' },
+  const goalSamples = [
+    // RELIGIOUS
+    { title: 'Read 1 Juz of Quran daily', description: 'Keep up with daily Quranic reading goals.', category: 'RELIGIOUS' },
+    { title: 'Pray Fajr in the mosque', description: 'Strive to pray congregational Fajr prayer.', category: 'RELIGIOUS' },
+    { title: 'Complete morning Adhkar', description: 'Read morning Azkaar right after Fajr.', category: 'RELIGIOUS' },
+    { title: 'Pray Tahajjud twice a week', description: 'Wake up before Fajr for night prayers.', category: 'RELIGIOUS' },
+    { title: 'Memorise Surah Al-Mulk', description: 'Memorise Surah Al-Mulk verse by verse.', category: 'RELIGIOUS' },
+    { title: 'Fast on Mondays and Thursdays', description: 'Revive the Sunnah of voluntary fasting.', category: 'RELIGIOUS' },
+    { title: 'Donate to charity weekly', description: 'Give regular Sadaqah to those in need.', category: 'RELIGIOUS' },
+    { title: 'Listen to one Islamic lecture', description: 'Acquire spiritual knowledge weekly.', category: 'RELIGIOUS' },
+    { title: 'Complete evening Adhkar', description: 'Read evening Azkaar right after Asr/Maghrib.', category: 'RELIGIOUS' },
+    { title: 'Read Tafsir of Surah Kahf', description: 'Understand the meanings and lessons.', category: 'RELIGIOUS' },
+    { title: 'Memorise last 10 Surahs', description: 'Memorise short surahs for daily prayers.', category: 'RELIGIOUS' },
+    { title: 'Perform Umrah this year', description: 'Plan and save for the spiritual journey.', category: 'RELIGIOUS' },
+    
+    // CAREER
+    { title: 'Learn TypeScript design patterns', description: 'Improve code architecture skills.', category: 'CAREER' },
+    { title: 'Build a Next.js side project', description: 'Apply latest framework features.', category: 'CAREER' },
+    { title: 'Read 3 technical papers', description: 'Stay updated with software engineering research.', category: 'CAREER' },
+    { title: 'Contribute to open source code', description: 'Contribute to library repositories.', category: 'CAREER' },
+    { title: 'Improve system design skills', description: 'Study microservices and scaling techniques.', category: 'CAREER' },
+    { title: 'Pass AWS Certified Cloud Architect', description: 'Earn cloud practitioner certification.', category: 'CAREER' },
+    { title: 'Write 2 technical blog posts', description: 'Share knowledge with the developer community.', category: 'CAREER' },
+    { title: 'Optimize database queries', description: 'Learn query execution plans and indexing.', category: 'CAREER' },
+    { title: 'Refactor legacy helper utilities', description: 'Clean up and standardize shared utils.', category: 'CAREER' },
+    { title: 'Practice 50 LeetCode problems', description: 'Keep data structures & algorithms sharp.', category: 'CAREER' },
+    { title: 'Mentor junior developers', description: 'Guide and teach team members.', category: 'CAREER' },
+    { title: 'Prepare for senior role review', description: 'Compile achievements and portfolio.', category: 'CAREER' },
+
+    // FINANCES
+    { title: 'Save 30% of monthly income', description: 'Put money into long-term savings account.', category: 'FINANCES' },
+    { title: 'Create a strict budget plan', description: 'Track and limit variable expenses.', category: 'FINANCES' },
+    { title: 'Invest in index funds monthly', description: 'Grow wealth through diversified stocks.', category: 'FINANCES' },
+    { title: 'Pay off outstanding credit debts', description: 'Become completely debt-free.', category: 'FINANCES' },
+    { title: 'Save for a house downpayment', description: 'Build a dedicated real estate fund.', category: 'FINANCES' },
+    { title: 'Track all daily expenses', description: 'Record every transaction in Muhasabah.', category: 'FINANCES' },
+    { title: 'Cut down dining out expenses', description: 'Cook at home more often to save money.', category: 'FINANCES' },
+    { title: 'Analyze monthly spending habits', description: 'Find areas of unnecessary spending.', category: 'FINANCES' },
+    { title: 'Create emergency cash fund', description: 'Keep 6 months of expenses in cash reserve.', category: 'FINANCES' },
+    { title: 'Read 2 personal finance books', description: 'Learn investment strategies.', category: 'FINANCES' },
+    { title: 'Establish a passive income stream', description: 'Create side income from digital assets.', category: 'FINANCES' },
+    { title: 'Review annual insurance policies', description: 'Optimize premiums and coverage.', category: 'FINANCES' },
+
+    // HEALTH
+    { title: 'Run a total of 50 km this month', description: 'Track runs using fitness tracker.', category: 'HEALTH' },
+    { title: 'Hit gym 3 times every week', description: 'Complete weightlifting and core routines.', category: 'HEALTH' },
+    { title: 'Drink 3 liters of water daily', description: 'Keep body hydrated throughout the day.', category: 'HEALTH' },
+    { title: 'Sleep 8 hours every single night', description: 'Establish a healthy sleep schedule.', category: 'HEALTH' },
+    { title: 'Limit sugar intake to weekends', description: 'Reduce consumption of processed sugars.', category: 'HEALTH' },
+    { title: 'Complete a 10K run outdoors', description: 'Build endurance and cardiovascular strength.', category: 'HEALTH' },
+    { title: 'Cook healthy meals at home', description: 'Prepare nutritious meals rich in proteins.', category: 'HEALTH' },
+    { title: 'Stretch for 10 minutes daily', description: 'Improve body flexibility and mobility.', category: 'HEALTH' },
+    { title: 'Do a full physical checkup', description: 'Schedule annual bloodwork and tests.', category: 'HEALTH' },
+    { title: 'Achieve target body weight', description: 'Monitor body composition and fitness levels.', category: 'HEALTH' },
+    { title: 'Walk 10,000 steps daily', description: 'Maintain active movement throughout the day.', category: 'HEALTH' },
+    { title: 'Reduce screen time before bed', description: 'Turn off all screens 1 hour before sleep.', category: 'HEALTH' },
+
+    // PERSONAL
+    { title: 'Read 1 non-fiction book monthly', description: 'Expand knowledge in history and psychology.', category: 'PERSONAL' },
+    { title: 'Journal every single evening', description: 'Reflect on accomplishments and emotions.', category: 'PERSONAL' },
+    { title: 'Learn basic conversational Arabic', description: 'Study vocabulary and simple dialogue.', category: 'PERSONAL' },
+    { title: 'Limit social media to 30 min', description: 'Reduce screen time on phone apps.', category: 'PERSONAL' },
+    { title: 'Declutter room and workspace', description: 'Maintain a clean and organized environment.', category: 'PERSONAL' },
+    { title: 'Practice calligraphy weekly', description: 'Develop a creative artistic hobby.', category: 'PERSONAL' },
+    { title: 'Call parents every weekend', description: 'Stay connected with family regularly.', category: 'PERSONAL' },
+    { title: 'Wake up at 5:00 AM daily', description: 'Develop a consistent early morning routine.', category: 'PERSONAL' },
+    { title: 'Plan weekly tasks on Sundays', description: 'Organize upcoming week for maximum focus.', category: 'PERSONAL' },
+    { title: 'Spend 1 hour in nature weekly', description: 'Go for walks in parks or forest trails.', category: 'PERSONAL' },
+    { title: 'Learn to cook 5 new recipes', description: 'Broaden culinary skills and kitchen knowledge.', category: 'PERSONAL' },
+    { title: 'Practice gratitude reflection', description: 'Write 3 things I am grateful for daily.', category: 'PERSONAL' }
   ];
 
-  for (let i = 0; i < 20; i++) {
-    const sample = goalTitles[i % goalTitles.length];
+  for (const sample of goalSamples) {
     goals.push({
-      title: `${sample.title} (${Math.floor(i / 10) + 1})`,
-      description: `Targeting growth in the ${sample.category.toLowerCase()} department.`,
+      title: sample.title,
+      description: sample.description,
       category: sample.category as GoalCategory,
       priority: Object.values(GoalPriority)[Math.floor(Math.random() * Object.values(GoalPriority).length)],
       progress: Math.floor(Math.random() * 100),
