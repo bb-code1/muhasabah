@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { addGoal } from '@/actions';
+import { GoalCategory } from '@prisma/client';
 
-export function AddGoalForm() {
+export function AddGoalForm({ activeCategory }: { activeCategory: GoalCategory }) {
   const [isOpen, setIsOpen] = useState(false);
 
   if (!isOpen) {
@@ -44,17 +45,21 @@ export function AddGoalForm() {
             required 
             style={{ flex: 2, minWidth: '200px', borderRadius: '8px' }}
           />
-          <select name="period" className="search-input" style={{ flex: 1, minWidth: '150px', borderRadius: '8px' }}>
-            <option value="DAILY">Daily</option>
-            <option value="WEEKLY">Weekly</option>
-            <option value="MONTHLY">Monthly</option>
-            <option value="QUARTERLY">Quarterly</option>
-            <option value="YEARLY">Yearly</option>
-            <option value="LIFETIME">Lifetime</option>
+          <select 
+            name="category" 
+            defaultValue={activeCategory} 
+            className="search-input" 
+            style={{ flex: 1, minWidth: '150px', borderRadius: '8px' }}
+          >
+            <option value="RELIGIOUS">Religious</option>
+            <option value="CAREER">Career</option>
+            <option value="FINANCES">Finances</option>
+            <option value="HEALTH">Health & Fitness</option>
+            <option value="PERSONAL">Personal</option>
           </select>
           <select name="priority" className="search-input" style={{ flex: 1, minWidth: '150px', borderRadius: '8px' }}>
             <option value="LOW">Low Priority</option>
-            <option value="MEDIUM" selected>Medium Priority</option>
+            <option value="MEDIUM" defaultValue="MEDIUM">Medium Priority</option>
             <option value="HIGH">High Priority</option>
           </select>
         </div>
@@ -67,8 +72,8 @@ export function AddGoalForm() {
           style={{ width: '100%', borderRadius: '8px' }}
         />
 
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: '200px' }}>
             <label className="text-label-sm text-on-surface-variant" style={{ marginBottom: '4px' }}>Target Date (Optional)</label>
             <input 
               type="date" 
@@ -77,11 +82,11 @@ export function AddGoalForm() {
               style={{ borderRadius: '8px' }}
             />
           </div>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ flex: 1, minWidth: '150px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <input type="checkbox" name="reminders" value="true" id="reminders" style={{ width: '20px', height: '20px', accentColor: 'var(--c-primary)' }} />
             <label htmlFor="reminders" className="text-body-md">Enable Reminders</label>
           </div>
-          <button type="submit" className="primary-btn" style={{ flex: 1, padding: '12px', borderRadius: '8px' }}>
+          <button type="submit" className="primary-btn" style={{ flex: 1, minWidth: '150px', padding: '12px', borderRadius: '8px' }}>
             Save Goal
           </button>
         </div>

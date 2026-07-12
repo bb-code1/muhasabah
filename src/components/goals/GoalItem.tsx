@@ -1,7 +1,7 @@
 'use client';
 
-import { toggleGoal, updateGoalProgress, archiveGoal } from '@/actions';
-import { Archive, ArchiveRestore, Clock } from 'lucide-react';
+import { toggleGoal, updateGoalProgress } from '@/actions';
+import { Clock } from 'lucide-react';
 import { useState } from 'react';
 import { Goal } from '@prisma/client';
 
@@ -16,8 +16,6 @@ export function GoalItem({ goal }: { goal: Goal }) {
     await updateGoalProgress(goal.id, val);
   };
 
-  const handleArchive = () => archiveGoal(goal.id, !goal.isArchived);
-
   // Overdue check
   const isOverdue = goal.targetDate && new Date(goal.targetDate) < new Date() && !goal.isCompleted;
 
@@ -30,7 +28,7 @@ export function GoalItem({ goal }: { goal: Goal }) {
   const colors = priorityColors[goal.priority as keyof typeof priorityColors] || priorityColors.MEDIUM;
 
   return (
-    <div className="habit-item p-16 rounded-8 flex-col gap-12" style={{ backgroundColor: 'var(--c-surface-container-low)', opacity: goal.isArchived ? 0.6 : 1 }}>
+    <div className="habit-item p-16 rounded-8 flex-col gap-12" style={{ backgroundColor: 'var(--c-surface-container-low)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
           <button 
@@ -69,10 +67,6 @@ export function GoalItem({ goal }: { goal: Goal }) {
             )}
           </div>
         </div>
-
-        <button onClick={handleArchive} style={{ color: 'var(--c-on-surface-variant)' }} title={goal.isArchived ? "Restore Goal" : "Archive Goal"}>
-          {goal.isArchived ? <ArchiveRestore size={20} /> : <Archive size={20} />}
-        </button>
       </div>
 
       {/* Progress Bar Area */}

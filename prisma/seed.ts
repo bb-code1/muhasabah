@@ -1,4 +1,4 @@
-import { PrismaClient, TransactionType, GoalPeriod, GoalPriority, JournalCategory, DebtType, DebtStatus } from '@prisma/client';
+import { PrismaClient, TransactionType, GoalCategory, GoalPriority, JournalCategory, DebtType, DebtStatus } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -66,16 +66,29 @@ async function main() {
   // --- GOALS ---
   console.log('Seeding Goals...');
   const goals = [];
-  for (let i = 0; i < 30; i++) {
+  const goalTitles = [
+    { title: 'Read the entire Quran', category: 'RELIGIOUS' },
+    { title: 'Pray 5 daily prayers in congregation', category: 'RELIGIOUS' },
+    { title: 'Learn Next.js App Router inside out', category: 'CAREER' },
+    { title: 'Build a production SaaS application', category: 'CAREER' },
+    { title: 'Save $5,000 for emergency fund', category: 'FINANCES' },
+    { title: 'Reduce unnecessary eating out expenses', category: 'FINANCES' },
+    { title: 'Run a 5K under 25 minutes', category: 'HEALTH' },
+    { title: 'Go to the gym 3 times a week', category: 'HEALTH' },
+    { title: 'Read 12 books this year', category: 'PERSONAL' },
+    { title: 'Practice daily mindfulness for 10 min', category: 'PERSONAL' },
+  ];
+
+  for (let i = 0; i < 20; i++) {
+    const sample = goalTitles[i % goalTitles.length];
     goals.push({
-      title: `Goal ${i}`,
-      description: `Detailed description for goal ${i}...`,
-      period: Object.values(GoalPeriod)[Math.floor(Math.random() * Object.values(GoalPeriod).length)],
+      title: `${sample.title} (${Math.floor(i / 10) + 1})`,
+      description: `Targeting growth in the ${sample.category.toLowerCase()} department.`,
+      category: sample.category as GoalCategory,
       priority: Object.values(GoalPriority)[Math.floor(Math.random() * Object.values(GoalPriority).length)],
       progress: Math.floor(Math.random() * 100),
       targetDate: Math.random() > 0.5 ? getPastDate(Math.floor(Math.random() * -100)) : null,
       isCompleted: Math.random() > 0.8,
-      isArchived: Math.random() > 0.9,
       reminders: Math.random() > 0.5,
     });
   }

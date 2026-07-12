@@ -3,25 +3,23 @@
 import { useState } from 'react';
 import { GoalItem } from './GoalItem';
 import { AddGoalForm } from './AddGoalForm';
-import { Search, Archive } from 'lucide-react';
-import { Goal, GoalPriority } from '@prisma/client';
+import { Goal, GoalCategory, GoalPriority } from '@prisma/client';
 
 export function GoalsDashboard({ goals }: { goals: Goal[] }) {
-  const [activeTab, setActiveTab] = useState('MONTHLY');
-  const [search, setSearch] = useState('');
-  const [showArchived, setShowArchived] = useState(false);
+  const [activeTab, setActiveTab] = useState<GoalCategory>('RELIGIOUS');
   const [sortBy, setSortBy] = useState('priority');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const tabs = ['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY', 'LIFETIME'];
+  const tabs: Array<{ value: GoalCategory; label: string }> = [
+    { value: 'RELIGIOUS', label: 'Religious' },
+    { value: 'CAREER', label: 'Career' },
+    { value: 'FINANCES', label: 'Finances' },
+    { value: 'HEALTH', label: 'Health & Fitness' },
+    { value: 'PERSONAL', label: 'Personal' }
+  ];
 
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = (tab: GoalCategory) => {
     setActiveTab(tab);
-    setCurrentPage(1);
-  };
-
-  const handleSearchChange = (val: string) => {
-    setSearch(val);
     setCurrentPage(1);
   };
 
@@ -30,17 +28,8 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
     setCurrentPage(1);
   };
 
-  const handleArchiveToggle = () => {
-    setShowArchived(!showArchived);
-    setCurrentPage(1);
-  };
-
   const filteredGoals = goals.filter(goal => {
-    if (goal.period !== activeTab && !showArchived) return false;
-    if (goal.period !== activeTab) return false;
-    if (goal.isArchived !== showArchived) return false;
-    if (search && !goal.title.toLowerCase().includes(search.toLowerCase()) && !goal.description?.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
+    return goal.category === activeTab;
   });
 
   filteredGoals.sort((a, b) => {
@@ -67,21 +56,9 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
 
   return (
     <div>
-      <AddGoalForm />
+      <AddGoalForm activeCategory={activeTab} />
 
-      <div className="flex-row gap-16 mb-24" style={{ flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '200px', position: 'relative' }}>
-          <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-on-surface-variant)' }} />
-          <input 
-            type="text" 
-            placeholder="Search goals..." 
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="search-input"
-            style={{ width: '100%', paddingLeft: '40px', borderRadius: '8px' }}
-          />
-        </div>
-        
+      <div className="flex-row gap-16 mb-24" style={{ justifyContent: 'flex-end', flexWrap: 'wrap' }}>
         <select 
           value={sortBy} 
           onChange={(e) => handleSortChange(e.target.value)}
@@ -92,33 +69,25 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
           <option value="progress">Sort by Progress</option>
           <option value="date">Sort by Target Date</option>
         </select>
-
-        <button 
-          onClick={handleArchiveToggle}
-          className="primary-btn"
-          style={{ backgroundColor: showArchived ? 'var(--c-primary)' : 'var(--c-surface-container-high)', color: showArchived ? 'var(--c-on-primary)' : 'var(--c-on-surface)', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px' }}
-        >
-          <Archive size={18} /> {showArchived ? 'Hide Archived' : 'Show Archived'}
-        </button>
       </div>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '8px', borderBottom: '1px solid var(--c-outline-variant)' }}>
         {tabs.map(tab => (
           <button 
-            key={tab}
-            onClick={() => handleTabChange(tab)}
+            key={tab.value}
+            onClick={() => handleTabChange(tab.value)}
             style={{
               padding: '8px 16px',
               borderRadius: '24px',
               fontWeight: 600,
-              backgroundColor: activeTab === tab ? 'var(--c-primary)' : 'transparent',
-              color: activeTab === tab ? 'var(--c-on-primary)' : 'var(--c-on-surface-variant)',
+              backgroundColor: activeTab === tab.value ? 'var(--c-primary)' : 'transparent',
+              color: activeTab === tab.value ? 'var(--c-on-primary)' : 'var(--c-on-surface-variant)',
               border: 'none',
               cursor: 'pointer',
               whiteSpace: 'nowrap'
             }}
           >
-            {tab.charAt(0) + tab.slice(1).toLowerCase()}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -128,8 +97,8 @@ export function GoalsDashboard({ goals }: { goals: Goal[] }) {
           <GoalItem key={goal.id} goal={goal} />
         ))}
         {paginatedGoals.length === 0 && (
-          <p className="text-on-surface-variant" style={{ textAlign: 'center', padding: '40px 0' }}>
-            {showArchived ? "No archived goals for this period." : "No goals found. Create one above!"}
+          <p className="text-on-surface-variant" style={{ textAlign: 'center', padding: '40px 0', fontStyle: 'italic' }}>
+            No goals found under this category. Create one above!
           </p>
         )}
 

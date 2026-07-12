@@ -3,7 +3,7 @@ import { Target } from 'lucide-react';
 import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
 
 export default async function GoalsPage() {
-  const goals = await getGoals(true); // Fetch all, including archived. The client dashboard filters them.
+  const goals = await getGoals();
 
   return (
     <div className="card">
