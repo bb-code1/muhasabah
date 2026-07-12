@@ -69,7 +69,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
   };
 
   // Pagination Logic for Manage View Task List
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 25;
   const totalPages = Math.ceil(initialTasks.length / PAGE_SIZE) || 1;
   const activePage = currentPage > totalPages ? totalPages : currentPage;
   const paginatedTasks = initialTasks.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);

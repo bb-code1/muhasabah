@@ -44,7 +44,7 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
   });
 
   // Pagination Logic
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 25;
   const totalPages = Math.ceil(activeDays.length / PAGE_SIZE) || 1;
   const activePage = currentPage > totalPages ? totalPages : currentPage;
   const paginatedDays = activeDays.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);

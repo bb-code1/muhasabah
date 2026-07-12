@@ -34,7 +34,7 @@ export default async function TasksOfTheDay({
   if (isTomorrow) titleText = "Tomorrow's Plan";
 
   // Pagination Logic
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 25;
   const totalPages = Math.ceil(tasks.length / PAGE_SIZE) || 1;
   const currentPage = page > totalPages ? totalPages : page;
   const paginatedTasks = tasks.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);

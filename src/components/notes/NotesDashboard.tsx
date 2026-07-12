@@ -91,7 +91,7 @@ export default function NotesDashboard({ initialNotes }: { initialNotes: Note[] 
   });
 
   // Pagination Logic
-  const PAGE_SIZE = 6;
+  const PAGE_SIZE = 24;
   const totalPages = Math.ceil(filteredNotes.length / PAGE_SIZE) || 1;
   const activePage = currentPage > totalPages ? totalPages : currentPage;
   const paginatedNotes = filteredNotes.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);

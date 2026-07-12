@@ -99,7 +99,7 @@ export default async function TransactionsPage(props: { searchParams?: Promise<{
   const currentPageStr = searchParams?.page || '1';
   let currentPage = parseInt(currentPageStr, 10);
   if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
-  const PAGE_SIZE = 10;
+  const PAGE_SIZE = 25;
   const totalPages = Math.ceil(displayTransactions.length / PAGE_SIZE) || 1;
   if (currentPage > totalPages) currentPage = totalPages;
 

@@ -91,7 +91,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
   };
 
   // Pagination Logic
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 25;
   const totalPages = Math.ceil(initialLogs.length / PAGE_SIZE) || 1;
   const activePage = currentPage > totalPages ? totalPages : currentPage;
   const paginatedLogs = initialLogs.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);

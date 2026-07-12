@@ -28,7 +28,7 @@ export default async function ReligiousPage(props: { searchParams?: Promise<{ [k
   const currentPageStr = searchParams?.page || '1';
   let currentPage = parseInt(currentPageStr, 10);
   if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 25;
   const totalPages = Math.ceil(history.length / PAGE_SIZE) || 1;
   if (currentPage > totalPages) currentPage = totalPages;
 

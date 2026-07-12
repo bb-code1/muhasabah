@@ -36,7 +36,7 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
   const currentPageStr = searchParams?.page || '1';
   let currentPage = parseInt(currentPageStr, 10);
   if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
-  const PAGE_SIZE = 6;
+  const PAGE_SIZE = 24;
   const totalPages = Math.ceil(enrichedPersons.length / PAGE_SIZE) || 1;
   if (currentPage > totalPages) currentPage = totalPages;
 
