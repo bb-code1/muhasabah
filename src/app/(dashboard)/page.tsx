@@ -197,6 +197,7 @@ export default async function Dashboard() {
           <div className="quote-author-line" />
           <span className="quote-author-name">Umar ibn al-Khattab</span>
           <span className="quote-author-honorific">رضي الله عنه</span>
+          <div className="quote-author-line" />
         </div>
       </div>
 
