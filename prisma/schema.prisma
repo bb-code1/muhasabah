@@ -146,6 +146,7 @@ model JournalEntry {
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   content   String          @db.Text
   category  JournalCategory
+  subject   String?
   date      DateTime        @default(now()) @db.Date
   createdAt DateTime        @default(now()) @db.Timestamptz()
 }
