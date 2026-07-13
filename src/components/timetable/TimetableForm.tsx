@@ -12,24 +12,49 @@ interface TimetableFormProps {
     sunriseTillOffice: string;
     officeDeparture: string;
     officeReturn: string;
-    gymMorningPreference: string;
-    gymEveningPreference: string;
+    gymPreference: string;
     maghribToIsha: string;
     ishaToHifz: string;
     sleepTime: string;
   };
 }
 
-const gymMorningOptions = [
-  { value: 'NONE', label: 'No Gym in Morning', desc: 'Skip morning workout', icon: '🚫' },
-  { value: 'AFTER_FAJR', label: 'Right after Fajr', desc: 'Workout immediately after Fajr prayer', icon: '🌙' },
-  { value: 'BEFORE_OFFICE', label: 'Before leaving Office', desc: 'Workout just before heading to office', icon: '🌅' },
-];
-
-const gymEveningOptions = [
-  { value: 'NONE', label: 'No Gym in Evening', desc: 'Skip evening workout', icon: '🚫' },
-  { value: 'MAGHRIB_TO_ISHA', label: 'Maghrib to Isha', desc: 'Workout between Maghrib & Isha prayers', icon: '🌆' },
-  { value: 'AFTER_ISHA', label: 'After Isha', desc: 'Workout after Isha till Hifz class', icon: '🌙' },
+const gymOptions = [
+  {
+    value: 'NONE',
+    label: 'No Gym',
+    desc: 'Skip gym for now',
+    icon: '🚫',
+    badge: '',
+  },
+  {
+    value: 'AFTER_FAJR',
+    label: 'Right after Fajr',
+    desc: 'Workout immediately after Fajr prayer',
+    icon: '🌙',
+    badge: 'Morning',
+  },
+  {
+    value: 'BEFORE_OFFICE',
+    label: 'Before leaving Office',
+    desc: 'Workout just before heading to office',
+    icon: '🌅',
+    badge: 'Morning',
+  },
+  {
+    value: 'MAGHRIB_TO_ISHA',
+    label: 'Maghrib to Isha',
+    desc: 'Workout between Maghrib & Isha prayers',
+    icon: '🌆',
+    badge: 'Evening',
+  },
+  {
+    value: 'AFTER_ISHA',
+    label: 'After Isha',
+    desc: 'Workout after Isha till Hifz class',
+    icon: '🌙',
+    badge: 'Evening',
+  },
 ];
 
 function TimeInput({ name, label, icon, defaultValue, required = true }: {
@@ -71,45 +96,72 @@ function TextAreaInput({ name, label, icon, defaultValue, placeholder }: {
   );
 }
 
-function GymOptionCards({ name, options, defaultValue }: {
-  name: string;
-  options: typeof gymMorningOptions;
-  defaultValue: string;
-}) {
-  const [selected, setSelected] = useState(defaultValue || options[0].value);
+function GymOptionCards({ defaultValue }: { defaultValue: string }) {
+  const [selected, setSelected] = useState(defaultValue || 'NONE');
+
   return (
-    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-      <input type="hidden" name={name} value={selected} />
-      {options.map((opt) => {
-        const isSelected = selected === opt.value;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => setSelected(opt.value)}
-            style={{
-              flex: '1 1 140px',
-              padding: '14px 16px',
-              borderRadius: '12px',
-              border: `2px solid ${isSelected ? 'var(--c-primary)' : 'var(--c-outline-variant)'}`,
-              backgroundColor: isSelected ? 'var(--c-primary-container)' : 'var(--c-surface-container-low)',
-              cursor: 'pointer',
-              textAlign: 'left',
-              transition: 'all 0.2s ease',
-              transform: isSelected ? 'translateY(-2px)' : 'none',
-              boxShadow: isSelected ? '0 4px 12px rgba(191,145,41,0.25)' : 'none',
-            }}
-          >
-            <div style={{ fontSize: '20px', marginBottom: '6px' }}>{opt.icon}</div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? 'var(--c-primary)' : 'var(--c-on-surface)', marginBottom: '2px' }}>
-              {opt.label}
-            </div>
-            <div style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', lineHeight: 1.4 }}>
-              {opt.desc}
-            </div>
-          </button>
-        );
-      })}
+    <div>
+      <input type="hidden" name="gymPreference" value={selected} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
+        {gymOptions.map((opt) => {
+          const isSelected = selected === opt.value;
+          const badgeColor = opt.badge === 'Morning' ? '#f97316' : opt.badge === 'Evening' ? '#8b5cf6' : 'transparent';
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setSelected(opt.value)}
+              style={{
+                padding: '16px',
+                borderRadius: '14px',
+                border: `2px solid ${isSelected ? 'var(--c-primary)' : 'var(--c-outline-variant)'}`,
+                backgroundColor: isSelected ? 'var(--c-primary-container)' : 'var(--c-surface-container-low)',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.2s ease',
+                transform: isSelected ? 'translateY(-3px)' : 'none',
+                boxShadow: isSelected ? '0 6px 20px rgba(191,145,41,0.28)' : 'none',
+                position: 'relative',
+              }}
+            >
+              {/* Morning / Evening badge */}
+              {opt.badge && (
+                <span style={{
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  fontSize: '9px',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: badgeColor,
+                  backgroundColor: `${badgeColor}18`,
+                  border: `1px solid ${badgeColor}40`,
+                  padding: '2px 7px',
+                  borderRadius: '20px',
+                }}>
+                  {opt.badge}
+                </span>
+              )}
+
+              <div style={{ fontSize: '24px', marginBottom: '8px' }}>{opt.icon}</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? 'var(--c-primary)' : 'var(--c-on-surface)', marginBottom: '4px' }}>
+                {opt.label}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', lineHeight: 1.4 }}>
+                {opt.desc}
+              </div>
+
+              {/* Selected checkmark */}
+              {isSelected && (
+                <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '18px', height: '18px', borderRadius: '50%', backgroundColor: 'var(--c-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ color: '#fff', fontSize: '11px', fontWeight: 700 }}>✓</span>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -148,7 +200,7 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-      {/* Row 1: Daily Timings */}
+      {/* Daily Timings */}
       <div className="card" style={{ padding: '24px' }}>
         {sectionHeader(<Clock size={18} />, 'Daily Timings', 'Set your key time anchors for the day')}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
@@ -159,34 +211,34 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
         </div>
       </div>
 
-      {/* Row 2: Routine Activities */}
+      {/* Routine Activities */}
       <div className="card" style={{ padding: '24px' }}>
         {sectionHeader(<BookOpen size={18} />, 'Routine Activities', 'Describe what you do in each time block')}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <TextAreaInput
             name="tillSunrise"
-            label="2. What to do till Sunrise"
+            label="What to do till Sunrise"
             icon={<Sunrise size={13} />}
             defaultValue={initialData.tillSunrise}
             placeholder="e.g., Quran recitation, Morning Adhkar, Fajr prayer, Dhikr..."
           />
           <TextAreaInput
             name="sunriseTillOffice"
-            label="3. What to do from Sunrise till leaving Office"
+            label="What to do from Sunrise till leaving Office"
             icon={<Sun size={13} />}
             defaultValue={initialData.sunriseTillOffice}
             placeholder="e.g., Reading, Quran memorisation, breakfast, getting ready..."
           />
           <TextAreaInput
             name="maghribToIsha"
-            label="7. What to do from Maghrib to Isha"
+            label="What to do from Maghrib to Isha"
             icon={<BookOpen size={13} />}
             defaultValue={initialData.maghribToIsha}
             placeholder="e.g., Quran recitation, family time, review of the day..."
           />
           <TextAreaInput
             name="ishaToHifz"
-            label="8. What to do from Isha till Quran Hifz Class"
+            label="What to do from Isha till Quran Hifz Class"
             icon={<Moon size={13} />}
             defaultValue={initialData.ishaToHifz}
             placeholder="e.g., Dinner, revising Quran portions, Hifz class preparation..."
@@ -194,29 +246,10 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
         </div>
       </div>
 
-      {/* Row 3: Gym Preferences */}
+      {/* Gym Preference — single choice from all 4 slots */}
       <div className="card" style={{ padding: '24px' }}>
-        {sectionHeader(<Dumbbell size={18} />, 'Gym Preferences', 'Choose when you want to hit the gym')}
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Morning */}
-          <div>
-            <p style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: 700, color: 'var(--c-on-surface)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              🌅 Morning Gym (Q. 5) — Right after Fajr or Before Office?
-            </p>
-            <GymOptionCards name="gymMorningPreference" options={gymMorningOptions} defaultValue={initialData.gymMorningPreference} />
-          </div>
-
-          <div style={{ height: '1px', background: 'var(--c-outline-variant)' }} />
-
-          {/* Evening */}
-          <div>
-            <p style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: 700, color: 'var(--c-on-surface)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              🌆 Evening Gym (Q. 6) — Maghrib to Isha or After Isha?
-            </p>
-            <GymOptionCards name="gymEveningPreference" options={gymEveningOptions} defaultValue={initialData.gymEveningPreference} />
-          </div>
-        </div>
+        {sectionHeader(<Dumbbell size={18} />, 'Gym Preference', 'Choose one time slot for your gym session')}
+        <GymOptionCards defaultValue={initialData.gymPreference} />
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

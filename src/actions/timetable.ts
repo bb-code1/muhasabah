@@ -32,8 +32,7 @@ export async function updateTimeTable(formData: FormData) {
   const sunriseTillOffice = formData.get('sunriseTillOffice') as string;
   const officeDeparture = formData.get('officeDeparture') as string;
   const officeReturn = formData.get('officeReturn') as string;
-  const gymMorningPreference = formData.get('gymMorningPreference') as string;
-  const gymEveningPreference = formData.get('gymEveningPreference') as string;
+  const gymPreference = formData.get('gymPreference') as string;
   const maghribToIsha = formData.get('maghribToIsha') as string;
   const ishaToHifz = formData.get('ishaToHifz') as string;
   const sleepTime = formData.get('sleepTime') as string;
@@ -46,8 +45,7 @@ export async function updateTimeTable(formData: FormData) {
       sunriseTillOffice,
       officeDeparture,
       officeReturn,
-      gymMorningPreference,
-      gymEveningPreference,
+      gymPreference,
       maghribToIsha,
       ishaToHifz,
       sleepTime
@@ -59,8 +57,7 @@ export async function updateTimeTable(formData: FormData) {
       sunriseTillOffice,
       officeDeparture,
       officeReturn,
-      gymMorningPreference,
-      gymEveningPreference,
+      gymPreference,
       maghribToIsha,
       ishaToHifz,
       sleepTime

@@ -291,8 +291,7 @@ model TimeTable {
   sunriseTillOffice     String   @default("Recitation, Study & Breakfast")
   officeDeparture       String   @default("08:30")
   officeReturn          String   @default("17:30")
-  gymMorningPreference  String   @default("AFTER_FAJR") // AFTER_FAJR, BEFORE_OFFICE, NONE
-  gymEveningPreference  String   @default("NONE") // MAGHRIB_TO_ISHA, AFTER_ISHA, NONE
+  gymPreference         String   @default("NONE") // NONE, AFTER_FAJR, BEFORE_OFFICE, MAGHRIB_TO_ISHA, AFTER_ISHA
   maghribToIsha         String   @default("Spiritual reading, family time")
   ishaToHifz            String   @default("Isha prayer and Quran review")
   sleepTime             String   @default("22:30")
