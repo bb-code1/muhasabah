@@ -147,6 +147,10 @@ model JournalEntry {
   content   String          @db.Text
   category  JournalCategory
   subject   String?
+  project   String?
+  ticketId  String?
+  workType  String?
+  duration  String?
   date      DateTime        @default(now()) @db.Date
   createdAt DateTime        @default(now()) @db.Timestamptz()
 }
