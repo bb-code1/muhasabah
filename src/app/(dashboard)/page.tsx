@@ -3,6 +3,7 @@ import { getAuthenticatedUser } from '@/actions/auth';
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import TimetableDashboardCard from '@/components/dashboard/TimetableDashboardCard';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 
 const ALL_SECTIONS = [
@@ -22,10 +23,14 @@ const ALL_SECTIONS = [
 ];
 
 export default async function Dashboard() {
+  const sessionUser = await getAuthenticatedUser();
+  if (!sessionUser) {
+    redirect('/login');
+  }
+
   const transactions = await getTransactions();
   const timetable = await getTimeTable();
-  const sessionUser = await getAuthenticatedUser();
-  const user = sessionUser ? await prisma.user.findUnique({ where: { id: sessionUser.id } }) : null;
+  const user = await prisma.user.findUnique({ where: { id: sessionUser.id } });
 
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
