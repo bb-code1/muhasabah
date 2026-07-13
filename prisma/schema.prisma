@@ -14,6 +14,7 @@ model User {
   emailVerified Boolean   @default(false)
   latitude      Float?
   longitude     Float?
+  locationName  String?
   createdAt     DateTime  @default(now()) @db.Timestamptz()
   updatedAt     DateTime  @updatedAt @db.Timestamptz()
 

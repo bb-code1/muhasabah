@@ -21,6 +21,7 @@ interface TimetableFormProps {
     hifzClassTime: string;
     latitude?: number | null;
     longitude?: number | null;
+    locationName?: string | null;
   };
 }
 
@@ -122,6 +123,7 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
   
   const [locLoading, setLocLoading] = useState(false);
   const [hasLocation, setHasLocation] = useState(!!initialData.latitude);
+  const [locationName, setLocationName] = useState<string | null>(initialData.locationName || null);
   
   const [isTimingsOpen, setIsTimingsOpen] = useState(false);
   const [timingsLoading, setTimingsLoading] = useState(false);
@@ -144,9 +146,26 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          const res = await updateUserLocation(position.coords.latitude, position.coords.longitude);
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          
+          let friendlyName: string | null = null;
+          try {
+            const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
+            const geoData = await geoRes.json();
+            if (geoData) {
+              const city = geoData.city || geoData.locality || geoData.principalSubdivision;
+              const country = geoData.countryName;
+              friendlyName = city ? `${city}, ${country}` : country || null;
+            }
+          } catch (e) {
+            console.error('Failed to reverse geocode', e);
+          }
+
+          const res = await updateUserLocation(lat, lon, friendlyName);
           if (res.success) {
             setHasLocation(true);
+            setLocationName(friendlyName);
             showToast(res.success, 'success');
             router.refresh();
           }
@@ -238,10 +257,10 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', backgroundColor: 'var(--c-surface-container-low)', padding: '16px', borderRadius: '12px', border: '1px solid var(--c-outline-variant)' }}>
           <div>
             <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 700, color: 'var(--c-on-surface)' }}>
-              {hasLocation ? '✅ Location is set' : '❌ Location not set'}
+              {hasLocation ? `✅ Location: ${locationName || 'Detected Coordinates'}` : '❌ Location not set'}
             </p>
             <p style={{ margin: 0, fontSize: '13px', color: 'var(--c-on-surface-variant)' }}>
-              {hasLocation ? 'We will automatically adjust your timetable slots based on daily prayer times.' : 'We need your location to fetch accurate prayer times.'}
+              {hasLocation ? `We will automatically adjust your timetable slots based on prayer times for ${locationName || 'your coordinates'}.` : 'We need your location to fetch accurate prayer times.'}
             </p>
           </div>
           <button 

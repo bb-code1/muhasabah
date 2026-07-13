@@ -65,13 +65,13 @@ export async function updateTimeTable(formData: FormData) {
   return { success: 'Time Table updated successfully.' };
 }
 
-export async function updateUserLocation(latitude: number, longitude: number) {
+export async function updateUserLocation(latitude: number, longitude: number, locationName: string | null) {
   const user = await getAuthenticatedUser();
   if (!user) throw new Error('Unauthorized');
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { latitude, longitude }
+    data: { latitude, longitude, locationName }
   });
 
   revalidatePath('/');

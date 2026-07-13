@@ -30,6 +30,7 @@ export default async function TimetablePage() {
     ...timetable,
     latitude: user?.latitude || null,
     longitude: user?.longitude || null,
+    locationName: user?.locationName || null,
   };
 
   return (
