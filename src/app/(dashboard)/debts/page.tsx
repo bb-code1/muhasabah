@@ -60,7 +60,7 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
           </div>
           <div>
             <span className="text-label-md text-on-surface-variant">They Owe You</span>
-            <h3 className="text-headline-md" style={{ color: 'var(--c-primary)', margin: 0 }}>${totalTheyOweMe.toFixed(2)}</h3>
+            <h3 className="text-title-md" style={{ color: 'var(--c-primary)', margin: 0 }}>${totalTheyOweMe.toFixed(2)}</h3>
           </div>
         </div>
         <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -69,7 +69,7 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
           </div>
           <div>
             <span className="text-label-md text-on-surface-variant">You Owe Them</span>
-            <h3 className="text-headline-md" style={{ color: 'var(--c-error)', margin: 0 }}>${totalIOweThem.toFixed(2)}</h3>
+            <h3 className="text-title-md" style={{ color: 'var(--c-error)', margin: 0 }}>${totalIOweThem.toFixed(2)}</h3>
           </div>
         </div>
       </div>
@@ -86,17 +86,17 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
               {person.netBalance > 0 ? (
                 <div style={{ color: 'var(--c-primary)' }}>
                   <span className="text-label-sm">THEY OWE YOU</span>
-                  <div className="text-headline-md">${person.netBalance.toFixed(2)}</div>
+                  <div className="text-title-md">${person.netBalance.toFixed(2)}</div>
                 </div>
               ) : person.netBalance < 0 ? (
                 <div style={{ color: 'var(--c-error)' }}>
                   <span className="text-label-sm">YOU OWE THEM</span>
-                  <div className="text-headline-md">${Math.abs(person.netBalance).toFixed(2)}</div>
+                  <div className="text-title-md">${Math.abs(person.netBalance).toFixed(2)}</div>
                 </div>
               ) : (
                 <div className="text-on-surface-variant">
                   <span className="text-label-sm">SETTLED</span>
-                  <div className="text-headline-md">$0.00</div>
+                  <div className="text-title-md">$0.00</div>
                 </div>
               )}
             </div>

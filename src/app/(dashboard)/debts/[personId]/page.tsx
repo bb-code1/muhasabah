@@ -68,7 +68,7 @@ export default async function PersonDebtPage(props: {
           <span className="text-label-md text-on-surface-variant">
             {netBalance > 0 ? 'THEY OWE YOU' : netBalance < 0 ? 'YOU OWE THEM' : 'SETTLED'}
           </span>
-          <h3 className="text-headline-md" style={{ color: netBalance > 0 ? 'var(--c-primary)' : netBalance < 0 ? 'var(--c-error)' : 'var(--c-on-surface)', margin: 0 }}>
+          <h3 className="text-title-md" style={{ color: netBalance > 0 ? 'var(--c-primary)' : netBalance < 0 ? 'var(--c-error)' : 'var(--c-on-surface)', margin: 0 }}>
             ${Math.abs(netBalance).toFixed(2)}
           </h3>
         </div>
