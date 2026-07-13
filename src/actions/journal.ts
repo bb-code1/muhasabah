@@ -3,51 +3,60 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { JournalCategory } from '@prisma/client';
+import { getAuthenticatedUser } from '@/actions/auth';
 
-export async function getJournalEntries(category?: JournalCategory) {
+export async function getJournalEntries(category: JournalCategory) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   return await prisma.journalEntry.findMany({
-    where: category ? { category } : undefined,
-    orderBy: { createdAt: 'desc' },
+    where: { category, userId: user.id },
+    orderBy: { date: 'desc' },
   });
 }
 
-export async function addJournalEntry(formData: FormData) {
-  const content = formData.get('content') as string;
-  const categoryStr = formData.get('category') as string;
-  const category = categoryStr as JournalCategory;
+export async function addJournalEntry(content: string, category: JournalCategory) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
 
-  if (!content || !category) throw new Error('Content and category are required.');
+  if (!content.trim()) {
+    throw new Error('Content is required.');
+  }
 
   await prisma.journalEntry.create({
     data: {
-      content,
+      content: content.trim(),
       category,
       date: new Date(),
+      userId: user.id,
     },
   });
-  revalidatePath('/journal/office');
-  revalidatePath('/journal/learning');
-  revalidatePath('/journal/misc');
-  revalidatePath('/');
+  revalidatePath(`/journal/${category.toLowerCase()}`);
 }
 
-export async function deleteJournalEntry(id: number) {
-  await prisma.journalEntry.delete({
-    where: { id },
+export async function editJournalEntry(id: number, content: string, category: JournalCategory) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  if (!content.trim()) {
+    throw new Error('Content is required.');
+  }
+
+  await prisma.journalEntry.updateMany({
+    where: { id, userId: user.id },
+    data: {
+      content: content.trim(),
+    },
   });
-  revalidatePath('/journal/office');
-  revalidatePath('/journal/learning');
-  revalidatePath('/journal/misc');
-  revalidatePath('/');
+  revalidatePath(`/journal/${category.toLowerCase()}`);
 }
 
-export async function editJournalEntry(id: number, content: string) {
-  await prisma.journalEntry.update({
-    where: { id },
-    data: { content },
+export async function deleteJournalEntry(id: number, category: JournalCategory) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.journalEntry.deleteMany({
+    where: { id, userId: user.id },
   });
-  revalidatePath('/journal/office');
-  revalidatePath('/journal/learning');
-  revalidatePath('/journal/misc');
-  revalidatePath('/');
+  revalidatePath(`/journal/${category.toLowerCase()}`);
 }

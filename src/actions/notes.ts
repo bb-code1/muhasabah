@@ -2,45 +2,60 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getAuthenticatedUser } from '@/actions/auth';
 
 export async function getNotes() {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   return await prisma.note.findMany({
-    orderBy: { createdAt: 'desc' },
+    where: { userId: user.id },
+    orderBy: { updatedAt: 'desc' },
   });
 }
 
 export async function addNote(title: string, content: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   if (!title.trim() || !content.trim()) {
     throw new Error('Title and content are required.');
   }
 
   await prisma.note.create({
     data: {
-      title,
-      content,
+      title: title.trim(),
+      content: content.trim(),
+      userId: user.id,
     },
   });
   revalidatePath('/notes');
 }
 
 export async function updateNote(id: number, title: string, content: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   if (!title.trim() || !content.trim()) {
     throw new Error('Title and content are required.');
   }
 
-  await prisma.note.update({
-    where: { id },
+  await prisma.note.updateMany({
+    where: { id, userId: user.id },
     data: {
-      title,
-      content,
+      title: title.trim(),
+      content: content.trim(),
     },
   });
   revalidatePath('/notes');
 }
 
 export async function deleteNote(id: number) {
-  await prisma.note.delete({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.note.deleteMany({
+    where: { id, userId: user.id },
   });
   revalidatePath('/notes');
 }

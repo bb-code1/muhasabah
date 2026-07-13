@@ -3,64 +3,82 @@
 import prisma from '@/lib/prisma';
 import { DEFAULT_HABIT_ORDER, isDefaultSpiritualHabit, mergeHistoryHabits, PRAYER_HABIT_NAMES, sortSpiritualHabits, OPTIONAL_HABIT_NAMES } from '@/lib/spiritualHabits';
 import { revalidatePath } from 'next/cache';
+import { getAuthenticatedUser } from '@/actions/auth';
 
 export async function getSpiritualHabits() {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const habits = await prisma.spiritualHabit.findMany({
+    where: { userId: user.id },
     orderBy: { id: 'asc' },
   });
   return sortSpiritualHabits(habits);
 }
 
 export async function seedDefaultSpiritualHabits() {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   await prisma.spiritualHabit.createMany({
-    data: DEFAULT_HABIT_ORDER.map(name => ({ name })),
+    data: DEFAULT_HABIT_ORDER.map(name => ({ name, userId: user.id })),
     skipDuplicates: true,
   });
 }
 
 export async function addSpiritualHabit(name: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const trimmed = name.trim();
   if (!trimmed) throw new Error('Habit name cannot be empty.');
 
   await prisma.spiritualHabit.create({
-    data: { name: trimmed },
+    data: { name: trimmed, userId: user.id },
   });
   revalidatePath('/religious');
 }
 
 export async function deleteSpiritualHabit(id: number) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const habit = await prisma.spiritualHabit.findUnique({
     where: { id },
-    select: { name: true },
+    select: { name: true, userId: true },
   });
 
-  if (!habit) {
-    throw new Error('Habit not found.');
+  if (!habit || habit.userId !== user.id) {
+    throw new Error('Habit not found or unauthorized.');
   }
 
   if (isDefaultSpiritualHabit(habit.name)) {
     throw new Error('Default spiritual habits cannot be deleted.');
   }
 
-  await prisma.spiritualHabit.delete({
-    where: { id },
+  await prisma.spiritualHabit.deleteMany({
+    where: { id, userId: user.id },
   });
   revalidatePath('/religious');
 }
 
 export async function getSpiritualTodayData(dateStr: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const date = new Date(dateStr);
 
   const habits = await prisma.spiritualHabit.findMany({
+    where: { userId: user.id },
     orderBy: { id: 'asc' },
   });
 
   const logs = await prisma.spiritualHabitLog.findMany({
-    where: { date },
+    where: { date, habit: { userId: user.id } },
   });
 
   const dayLog = await prisma.spiritualDayLog.findUnique({
-    where: { date },
+    where: { userId_date: { userId: user.id, date } },
   });
 
   const habitsWithStatus = sortSpiritualHabits(habits.map(habit => {
@@ -81,6 +99,14 @@ export async function getSpiritualTodayData(dateStr: string) {
 }
 
 export async function toggleSpiritualHabit(dateStr: string, habitId: number, currentCompleted: boolean) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const habit = await prisma.spiritualHabit.findFirst({
+    where: { id: habitId, userId: user.id }
+  });
+  if (!habit) throw new Error('Unauthorized');
+
   const date = new Date(dateStr);
 
   await prisma.spiritualHabitLog.upsert({
@@ -105,12 +131,15 @@ export async function toggleSpiritualHabit(dateStr: string, habitId: number, cur
 }
 
 export async function setPrayerJamaat(dateStr: string, habitId: number, prayedWithJamaat: boolean) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const habit = await prisma.spiritualHabit.findUnique({
     where: { id: habitId },
-    select: { name: true },
+    select: { name: true, userId: true },
   });
 
-  if (!habit || !PRAYER_HABIT_NAMES.has(habit.name)) {
+  if (!habit || habit.userId !== user.id || !PRAYER_HABIT_NAMES.has(habit.name)) {
     throw new Error('Jamaat status is only available for the five daily prayers.');
   }
 
@@ -125,14 +154,18 @@ export async function setPrayerJamaat(dateStr: string, habitId: number, prayedWi
 }
 
 export async function updateQuranMemorization(dateStr: string, notes: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const date = new Date(dateStr);
 
   await prisma.spiritualDayLog.upsert({
-    where: { date },
+    where: { userId_date: { userId: user.id, date } },
     update: {
       quranMemorization: notes.trim() || null,
     },
     create: {
+      userId: user.id,
       date,
       quranMemorization: notes.trim() || null,
     },
@@ -142,14 +175,18 @@ export async function updateQuranMemorization(dateStr: string, notes: string) {
 }
 
 export async function updateOtherActivities(dateStr: string, notes: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const date = new Date(dateStr);
 
   await prisma.spiritualDayLog.upsert({
-    where: { date },
+    where: { userId_date: { userId: user.id, date } },
     update: {
       otherActivities: notes.trim() || null,
     },
     create: {
+      userId: user.id,
       date,
       otherActivities: notes.trim() || null,
     },
@@ -159,12 +196,18 @@ export async function updateOtherActivities(dateStr: string, notes: string) {
 }
 
 export async function getSpiritualHistory() {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const logs = await prisma.spiritualHabitLog.findMany({
+    where: { habit: { userId: user.id } },
     include: { habit: true },
     orderBy: { date: 'desc' },
   });
 
-  const dayLogs = await prisma.spiritualDayLog.findMany();
+  const dayLogs = await prisma.spiritualDayLog.findMany({
+    where: { userId: user.id }
+  });
 
   const historyMap: Record<string, {
     date: Date;
@@ -213,7 +256,10 @@ export async function getSpiritualHistory() {
     }
   });
 
-  const allHabits = await prisma.spiritualHabit.findMany({ orderBy: { id: 'asc' } });
+  const allHabits = await prisma.spiritualHabit.findMany({ 
+    where: { userId: user.id },
+    orderBy: { id: 'asc' } 
+  });
 
   return Object.values(historyMap)
     .map(entry => {

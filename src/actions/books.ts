@@ -2,14 +2,22 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getAuthenticatedUser } from '@/actions/auth';
 
 export async function getBooks() {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   return await prisma.book.findMany({
+    where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
   });
 }
 
 export async function addBook(title: string, author: string | null, driveLink: string | null, notes: string | null) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   if (!title.trim()) {
     throw new Error('Title is required.');
   }
@@ -21,6 +29,7 @@ export async function addBook(title: string, author: string | null, driveLink: s
       driveLink: driveLink?.trim() || null,
       notes: notes?.trim() || null,
       date: new Date(),
+      userId: user.id,
     },
   });
   revalidatePath('/books');
@@ -28,12 +37,15 @@ export async function addBook(title: string, author: string | null, driveLink: s
 }
 
 export async function updateBook(id: number, title: string, author: string | null, driveLink: string | null, notes: string | null) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   if (!title.trim()) {
     throw new Error('Title is required.');
   }
 
-  await prisma.book.update({
-    where: { id },
+  await prisma.book.updateMany({
+    where: { id, userId: user.id },
     data: {
       title: title.trim(),
       author: author?.trim() || null,
@@ -46,8 +58,11 @@ export async function updateBook(id: number, title: string, author: string | nul
 }
 
 export async function deleteBook(id: number) {
-  await prisma.book.delete({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.book.deleteMany({
+    where: { id, userId: user.id },
   });
   revalidatePath('/books');
   revalidatePath('/');

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logoutAction } from '@/actions';
+import { logoutAction } from '@/actions/auth';
 import { useState, useRef, useEffect } from 'react';
 
 export default function Navigation() {
@@ -145,13 +145,15 @@ export default function Navigation() {
               zIndex: 100
             }}>
               <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--c-outline-variant)', marginBottom: '8px' }}>
-                <p className="text-body-md" style={{ fontWeight: 600 }}>Kaisar Najar</p>
+                <p className="text-body-md" style={{ fontWeight: 600 }}>Your Account</p>
                 <p className="text-label-sm text-on-surface-variant">User Profile</p>
               </div>
-              <button className="nav-item" style={{ width: '100%', textAlign: 'left', padding: '8px 16px', borderRadius: 0 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>account_circle</span>
-                <span className="text-body-md">Update Photo</span>
-              </button>
+              <Link href="/profile" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <button className="nav-item" style={{ width: '100%', textAlign: 'left', padding: '8px 16px', borderRadius: 0 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>account_circle</span>
+                  <span className="text-body-md">Profile Settings</span>
+                </button>
+              </Link>
               <button onClick={handleLogout} className="nav-item" style={{ width: '100%', textAlign: 'left', padding: '8px 16px', borderRadius: 0, color: 'var(--c-error)' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>logout</span>
                 <span className="text-body-md">Logout</span>

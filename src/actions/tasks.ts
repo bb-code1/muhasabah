@@ -2,17 +2,24 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getAuthenticatedUser } from '@/actions/auth';
 
 // --- DAILY TASKS ---
 export async function getDailyTasks(dateStr: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const targetDate = new Date(dateStr);
   return await prisma.dailyTask.findMany({
-    where: { targetDate },
+    where: { targetDate, userId: user.id },
     orderBy: { createdAt: 'desc' },
   });
 }
 
 export async function addDailyTask(formData: FormData) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const title = formData.get('title') as string;
   const dateStr = formData.get('date') as string;
 
@@ -22,51 +29,76 @@ export async function addDailyTask(formData: FormData) {
     data: {
       title,
       targetDate: new Date(dateStr),
+      userId: user.id,
     },
   });
   revalidatePath('/');
 }
 
 export async function toggleDailyTask(id: number, currentState: boolean) {
-  await prisma.dailyTask.update({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.dailyTask.updateMany({
+    where: { id, userId: user.id },
     data: { isCompleted: !currentState },
   });
   revalidatePath('/');
 }
 
 export async function deleteDailyTask(id: number) {
-  await prisma.dailyTask.delete({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.dailyTask.deleteMany({
+    where: { id, userId: user.id },
   });
   revalidatePath('/');
 }
 
 // --- WEEKEND TASKS ---
 export async function getWeekendTasks() {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   return await prisma.weekendTask.findMany({
+    where: { userId: user.id },
     orderBy: { id: 'asc' },
     include: { logs: true },
   });
 }
 
 export async function addWeekendTask(title: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   if (!title) throw new Error('Title is required.');
   
   await prisma.weekendTask.create({
-    data: { title },
+    data: { title, userId: user.id },
   });
   revalidatePath('/tasks/weekend');
 }
 
 export async function deleteWeekendTask(id: number) {
-  await prisma.weekendTask.delete({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.weekendTask.deleteMany({
+    where: { id, userId: user.id },
   });
   revalidatePath('/tasks/weekend');
 }
 
 export async function toggleWeekendTask(id: number, isCompleted: boolean, weekStartDateStr: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const weekendTask = await prisma.weekendTask.findFirst({
+    where: { id, userId: user.id }
+  });
+  if (!weekendTask) throw new Error('Unauthorized');
+
   const weekStartDate = new Date(weekStartDateStr);
 
   if (isCompleted) {
@@ -97,31 +129,44 @@ export async function toggleWeekendTask(id: number, isCompleted: boolean, weekSt
 
 // --- RECURRING TRACKERS ---
 export async function getRecurringTrackers() {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   return await prisma.recurringTracker.findMany({
+    where: { userId: user.id },
     orderBy: { title: 'asc' },
   });
 }
 
 export async function addRecurringTracker(title: string) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   if (!title.trim()) throw new Error('Title is required.');
   await prisma.recurringTracker.create({
-    data: { title: title.trim() },
+    data: { title: title.trim(), userId: user.id },
   });
   revalidatePath('/tasks');
 }
 
 export async function updateRecurringLastDone(id: number, dateValueStr: string | null) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const lastDone = dateValueStr ? new Date(dateValueStr) : null;
-  await prisma.recurringTracker.update({
-    where: { id },
+  await prisma.recurringTracker.updateMany({
+    where: { id, userId: user.id },
     data: { lastDone },
   });
   revalidatePath('/tasks');
 }
 
 export async function deleteRecurringTracker(id: number) {
-  await prisma.recurringTracker.delete({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.recurringTracker.deleteMany({
+    where: { id, userId: user.id },
   });
   revalidatePath('/tasks');
 }

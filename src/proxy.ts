@@ -1,16 +1,44 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { decrypt } from '@/lib/auth';
 
-export default function proxy(request: NextRequest) {
-  const token = request.cookies.get('auth_token');
-  const isLoginPage = request.nextUrl.pathname.startsWith('/login');
+const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'];
 
-  if (!token && !isLoginPage) {
-    return NextResponse.redirect(new URL('/login', request.url));
+export default async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  // Skip proxy for static files, API routes, and Next.js internals
+  // Although the config matcher should handle most of this, it's good as a fallback
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/favicon.ico') ||
+    pathname.includes('.') // like .png, .css
+  ) {
+    return NextResponse.next();
   }
 
-  if (token && isLoginPage) {
-    return NextResponse.redirect(new URL('/', request.url));
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+  const sessionCookie = request.cookies.get('session');
+  let session = null;
+
+  if (sessionCookie) {
+    session = await decrypt(sessionCookie.value);
+  }
+
+  // If trying to access protected route without session, redirect to login
+  if (!isPublicRoute && !session) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // If trying to access public route (like login) WITH a session, redirect to dashboard
+  if (isPublicRoute && session) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();

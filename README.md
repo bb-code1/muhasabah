@@ -89,3 +89,15 @@ src/
 - **0 TypeScript Errors:** The codebase strictly relies on `@prisma/client` types and custom interfaces. There are absolutely no `any` types rendering data.
 - **Pure CSS:** We have removed bloated CSS frameworks and replaced them with highly reusable global CSS utility classes (`flex-row`, `justify-between`, `gap-16`) to keep JSX components incredibly clean and performant.
 - **Modular Actions:** All server logic is split by domain, preventing monolithic file bottlenecks and ensuring easy maintainability as the app grows.
+
+## Test Accounts
+
+If you seeded the database using `npx prisma db seed` or `npx tsx prisma/seed.ts`, the following test accounts are available to log in and test the application data:
+
+1. **Email:** `test1@example.com`
+   **Password:** `password123`
+   *(This account contains all the seeded dummy data)*
+
+2. **Email:** `test2@example.com`
+   **Password:** `password123`
+   *(This account is fresh and empty)*

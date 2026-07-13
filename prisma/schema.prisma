@@ -6,6 +6,47 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now()) @db.Timestamptz()
+  updatedAt     DateTime  @updatedAt @db.Timestamptz()
+
+  transactions      Transaction[]
+  goals             Goal[]
+  spiritualHabits   SpiritualHabit[]
+  spiritualDayLogs  SpiritualDayLog[]
+  journalEntries    JournalEntry[]
+  dailyTasks        DailyTask[]
+  persons           Person[]
+  weekendTasks      WeekendTask[]
+  notes             Note[]
+  fitnessLogs       FitnessLog[]
+  recurringTrackers RecurringTracker[]
+  duas              Dua[]
+  books             Book[]
+  relapseLogs       RelapseLog[]
+}
+
+enum VerificationTokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model VerificationToken {
+  id         Int                   @id @default(autoincrement())
+  identifier String
+  token      String                @unique
+  expires    DateTime              @db.Timestamptz()
+  type       VerificationTokenType
+  createdAt  DateTime              @default(now()) @db.Timestamptz()
+
+  @@unique([identifier, token])
+}
+
 enum TransactionType {
   INCOME
   EXPENSE
@@ -13,6 +54,8 @@ enum TransactionType {
 
 model Transaction {
   id          Int             @id @default(autoincrement())
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   amount      Decimal         @db.Decimal(10, 2)
   description String
   category    String          @db.VarChar(50)
@@ -37,6 +80,8 @@ enum GoalPriority {
 
 model Goal {
   id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
   description String?      @db.Text
   category    GoalCategory @default(PERSONAL)
@@ -50,10 +95,14 @@ model Goal {
 
 model SpiritualHabit {
   id        Int                 @id @default(autoincrement())
-  name      String              @unique
+  userId    Int
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String              
   isPrayer  Boolean             @default(false)
   createdAt DateTime            @default(now()) @db.Timestamptz()
   logs      SpiritualHabitLog[]
+
+  @@unique([userId, name])
 }
 
 model SpiritualHabitLog {
@@ -70,10 +119,14 @@ model SpiritualHabitLog {
 
 model SpiritualDayLog {
   id                Int      @id @default(autoincrement())
-  date              DateTime @unique @db.Date
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date              DateTime @db.Date
   quranMemorization String?  @db.Text
   otherActivities   String?  @db.Text
   createdAt         DateTime @default(now()) @db.Timestamptz()
+
+  @@unique([userId, date])
 }
 
 enum JournalCategory {
@@ -84,6 +137,8 @@ enum JournalCategory {
 
 model JournalEntry {
   id        Int             @id @default(autoincrement())
+  userId    Int
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   content   String          @db.Text
   category  JournalCategory
   date      DateTime        @default(now()) @db.Date
@@ -92,6 +147,8 @@ model JournalEntry {
 
 model DailyTask {
   id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
   isCompleted Boolean  @default(false)
   targetDate  DateTime @db.Date
@@ -110,9 +167,13 @@ enum DebtStatus {
 
 model Person {
   id        Int          @id @default(autoincrement())
-  name      String       @unique
+  userId    Int
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String       
   createdAt DateTime     @default(now()) @db.Timestamptz()
   debts     DebtRecord[]
+
+  @@unique([userId, name])
 }
 
 model DebtRecord {
@@ -130,6 +191,8 @@ model DebtRecord {
 
 model WeekendTask {
   id              Int       @id @default(autoincrement())
+  userId          Int
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   title           String
   createdAt       DateTime  @default(now()) @db.Timestamptz()
   logs            WeekendTaskLog[]
@@ -148,6 +211,8 @@ model WeekendTaskLog {
 
 model Note {
   id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   content   String   @db.Text
   createdAt DateTime @default(now()) @db.Timestamptz()
@@ -156,6 +221,8 @@ model Note {
 
 model FitnessLog {
   id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity  String   // e.g., 'Running', 'Gym', 'Walking', 'Cycling', 'Yoga', 'Swimming', 'Other'
   duration  Int      // Workout duration in minutes
   distance  Decimal? @db.Decimal(5, 2) // Optional distance in kilometers
@@ -166,9 +233,13 @@ model FitnessLog {
 
 model RecurringTracker {
   id        Int      @id @default(autoincrement())
-  title     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String   
   lastDone  DateTime? @db.Date
   createdAt DateTime @default(now()) @db.Timestamptz()
+
+  @@unique([userId, title])
 }
 
 enum DuaCategory {
@@ -180,6 +251,8 @@ enum DuaCategory {
 
 model Dua {
   id          Int         @id @default(autoincrement())
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
   content     String      @db.Text
   translation String?     @db.Text
@@ -189,6 +262,8 @@ model Dua {
 
 model Book {
   id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   author    String?
   driveLink String?  @db.Text
@@ -199,10 +274,9 @@ model Book {
 
 model RelapseLog {
   id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   date      DateTime @default(now()) @db.Timestamptz()
   notes     String?  @db.Text
   createdAt DateTime @default(now()) @db.Timestamptz()
 }
-
-
-

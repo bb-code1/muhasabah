@@ -2,10 +2,15 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getAuthenticatedUser } from '@/actions/auth';
 
 // --- PERSON ACTIONS ---
 export async function getPersons() {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   return await prisma.person.findMany({
+    where: { userId: user.id },
     include: {
       debts: true,
     },
@@ -14,35 +19,49 @@ export async function getPersons() {
 }
 
 export async function addPerson(formData: FormData) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const name = formData.get('name') as string;
   if (!name) throw new Error('Name is required');
 
   await prisma.person.create({
-    data: { name },
+    data: { name, userId: user.id },
   });
   revalidatePath('/debts');
 }
 
 export async function deletePerson(id: number) {
-  await prisma.person.delete({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.person.deleteMany({
+    where: { id, userId: user.id },
   });
   revalidatePath('/debts');
 }
 
 export async function getPersonById(id: number) {
-  return await prisma.person.findUnique({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const person = await prisma.person.findFirst({
+    where: { id, userId: user.id },
     include: {
       debts: {
         orderBy: { date: 'desc' }
       }
     }
   });
+
+  return person;
 }
 
 // --- DEBT RECORD ACTIONS ---
 export async function addDebtRecord(formData: FormData) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
   const personId = Number(formData.get('personId'));
   const amount = Number(formData.get('amount'));
   const typeStr = formData.get('type') as string;
@@ -52,6 +71,13 @@ export async function addDebtRecord(formData: FormData) {
   if (!personId || !amount || !typeStr || !dateStr) {
     throw new Error('Missing required fields');
   }
+
+  // Verify person belongs to user
+  const person = await prisma.person.findFirst({
+    where: { id: personId, userId: user.id }
+  });
+  
+  if (!person) throw new Error('Person not found or unauthorized');
 
   await prisma.debtRecord.create({
     data: {
@@ -69,8 +95,18 @@ export async function addDebtRecord(formData: FormData) {
 }
 
 export async function markDebtPaid(id: number, personId: number) {
-  await prisma.debtRecord.update({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  // Ensure debt belongs to a person owned by the user
+  const person = await prisma.person.findFirst({
+    where: { id: personId, userId: user.id }
+  });
+  
+  if (!person) throw new Error('Unauthorized');
+
+  await prisma.debtRecord.updateMany({
+    where: { id, personId },
     data: { status: 'PAID' },
   });
   revalidatePath('/debts');
@@ -78,8 +114,17 @@ export async function markDebtPaid(id: number, personId: number) {
 }
 
 export async function markDebtPending(id: number, personId: number) {
-  await prisma.debtRecord.update({
-    where: { id },
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const person = await prisma.person.findFirst({
+    where: { id: personId, userId: user.id }
+  });
+  
+  if (!person) throw new Error('Unauthorized');
+
+  await prisma.debtRecord.updateMany({
+    where: { id, personId },
     data: { status: 'PENDING' },
   });
   revalidatePath('/debts');
@@ -87,8 +132,17 @@ export async function markDebtPending(id: number, personId: number) {
 }
 
 export async function deleteDebtRecord(id: number, personId: number) {
-  await prisma.debtRecord.delete({
-    where: { id }
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const person = await prisma.person.findFirst({
+    where: { id: personId, userId: user.id }
+  });
+  
+  if (!person) throw new Error('Unauthorized');
+
+  await prisma.debtRecord.deleteMany({
+    where: { id, personId }
   });
   revalidatePath('/debts');
   revalidatePath(`/debts/${personId}`);

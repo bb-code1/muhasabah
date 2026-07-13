@@ -1,27 +1,189 @@
 'use server';
 
-import { cookies } from 'next/headers';
+import prisma from '@/lib/prisma';
+import { hashPassword, comparePasswords, createSession, destroySession, getSession } from '@/lib/auth';
+import { sendVerificationEmail, sendPasswordResetEmail } from '@/lib/mailer';
 import { redirect } from 'next/navigation';
+import crypto from 'crypto';
 
-export async function loginAction(formData: FormData) {
-  const password = formData.get('password');
-  const APP_PASSWORD = process.env.APP_PASSWORD;
+function generateToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
 
-  if (password === APP_PASSWORD) {
-    const cookieStore = await cookies();
-    cookieStore.set('auth_token', 'authenticated', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-      path: '/',
-    });
-    return { success: true };
+export async function register(formData: FormData) {
+  const name = formData.get('name') as string;
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  if (!name || !email || !password) {
+    return { error: 'All fields are required.' };
   }
-  return { error: 'Invalid password' };
+
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) {
+    return { error: 'User already exists.' };
+  }
+
+  const passwordHash = await hashPassword(password);
+  
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash,
+    }
+  });
+
+  const token = generateToken();
+  await prisma.verificationToken.create({
+    data: {
+      identifier: email,
+      token,
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      type: 'EMAIL_VERIFICATION'
+    }
+  });
+
+  await sendVerificationEmail(email, token);
+
+  return { success: 'Registration successful! Please check your email to verify your account.' };
+}
+
+export async function login(formData: FormData) {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  if (!email || !password) {
+    return { error: 'Email and password are required.' };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return { error: 'Invalid email or password.' };
+  }
+
+  const isValid = await comparePasswords(password, user.passwordHash);
+  if (!isValid) {
+    return { error: 'Invalid email or password.' };
+  }
+
+  if (!user.emailVerified) {
+    return { error: 'Please verify your email before logging in.' };
+  }
+
+  await createSession({
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+  });
+
+  redirect('/');
 }
 
 export async function logoutAction() {
-  const cookieStore = await cookies();
-  cookieStore.delete('auth_token');
+  await destroySession();
   redirect('/login');
+}
+
+export async function verifyEmail(token: string) {
+  const verificationToken = await prisma.verificationToken.findUnique({
+    where: { token }
+  });
+
+  if (!verificationToken || verificationToken.type !== 'EMAIL_VERIFICATION') {
+    return { error: 'Invalid or missing token.' };
+  }
+
+  if (new Date() > verificationToken.expires) {
+    return { error: 'Token has expired.' };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email: verificationToken.identifier } });
+  if (!user) {
+    return { error: 'User does not exist.' };
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { emailVerified: true }
+  });
+
+  await prisma.verificationToken.delete({
+    where: { id: verificationToken.id }
+  });
+
+  return { success: 'Email verified successfully! You can now log in.' };
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = formData.get('email') as string;
+
+  if (!email) {
+    return { error: 'Email is required.' };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    // Return success anyway to prevent email enumeration
+    return { success: 'If an account exists, a reset link has been sent.' };
+  }
+
+  const token = generateToken();
+  await prisma.verificationToken.create({
+    data: {
+      identifier: email,
+      token,
+      expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
+      type: 'PASSWORD_RESET'
+    }
+  });
+
+  await sendPasswordResetEmail(email, token);
+
+  return { success: 'If an account exists, a reset link has been sent.' };
+}
+
+export async function resetPassword(formData: FormData) {
+  const token = formData.get('token') as string;
+  const password = formData.get('password') as string;
+
+  if (!token || !password) {
+    return { error: 'Invalid request.' };
+  }
+
+  const verificationToken = await prisma.verificationToken.findUnique({
+    where: { token }
+  });
+
+  if (!verificationToken || verificationToken.type !== 'PASSWORD_RESET') {
+    return { error: 'Invalid or missing token.' };
+  }
+
+  if (new Date() > verificationToken.expires) {
+    return { error: 'Token has expired.' };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email: verificationToken.identifier } });
+  if (!user) {
+    return { error: 'User does not exist.' };
+  }
+
+  const passwordHash = await hashPassword(password);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash }
+  });
+
+  await prisma.verificationToken.delete({
+    where: { id: verificationToken.id }
+  });
+
+  return { success: 'Password has been reset successfully. You can now log in.' };
+}
+
+export async function getAuthenticatedUser() {
+  const session = await getSession();
+  if (!session) return null;
+  return await prisma.user.findUnique({ where: { id: session.userId } });
 }
