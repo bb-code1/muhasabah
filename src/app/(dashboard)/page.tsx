@@ -177,6 +177,11 @@ export default async function Dashboard() {
         </div>
       </div>
 
+      {/* TIMETABLE SECTION */}
+      <div style={{ marginBottom: '24px' }}>
+        <TimetableDashboardCard timetable={timetable} />
+      </div>
+
       {/* SUMMARY GRIDS */}
       <div className="dashboard-summary-grid">
         
@@ -648,11 +653,8 @@ export default async function Dashboard() {
       </div>
 
       <div className="grid-container" style={{ marginTop: '24px' }}>
-        <div className="col-span-8 flex-col gap-24" style={{ alignContent: 'start' }}>
+        <div className="col-span-12 flex-col gap-24" style={{ alignContent: 'start' }}>
           <TasksOfTheDay dateStr={todayStr} />
-        </div>
-        <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column' }}>
-          <TimetableDashboardCard timetable={timetable} />
         </div>
       </div>
     </>
