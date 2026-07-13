@@ -7,7 +7,7 @@ const ALL_SECTIONS = [
   { href: '/religious',       icon: 'auto_awesome',   label: 'Spiritual',       desc: 'Daily ibadah & prayers'      },
   { href: '/dua',             icon: 'favorite',       label: 'Dua List',        desc: 'Personal supplications & prayers' },
   { href: '/books',           icon: 'menu_book',      label: 'Books',           desc: 'Reading list & references'    },
-  { href: '/relapse',         icon: 'shield_heart',   label: 'Habit Tracker',   desc: 'Addiction & recovery logs'    },
+  { href: '/relapse',         icon: 'health_and_safety',   label: 'Habit Tracker',   desc: 'Addiction & recovery logs'    },
   { href: '/goals',           icon: 'target',         label: 'Goals',           desc: 'Track your objectives'        },
   { href: '/tasks',           icon: 'checklist',      label: 'Tasks',           desc: 'Daily & recurring tasks'      },
   { href: '/journal/learning',icon: 'school',         label: 'Career Learnings', desc: 'Notes from what you learn'  },

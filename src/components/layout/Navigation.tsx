@@ -68,7 +68,7 @@ export default function Navigation() {
             <span className="text-body-md">Books</span>
           </Link>
           <Link href="/relapse" className={`nav-item ${pathname === '/relapse' ? 'active' : ''}`}>
-            <span className="material-symbols-outlined">shield_heart</span>
+            <span className="material-symbols-outlined">health_and_safety</span>
             <span className="text-body-md">Habit Tracker</span>
           </Link>
           <Link href="/goals" className={`nav-item ${pathname === '/goals' ? 'active' : ''}`}>
