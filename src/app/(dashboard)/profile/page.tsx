@@ -28,7 +28,7 @@ export default async function Profile() {
             <span className="text-label-sm text-on-surface-variant">EMAIL ADDRESS</span>
             <div className="text-body-lg" style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               {user.email}
-              {user.emailVerified && <ShieldCheck size={18} color="var(--c-primary)" title="Email Verified" />}
+              {user.emailVerified && <ShieldCheck size={18} color="var(--c-primary)" />}
             </div>
           </div>
           <div>
