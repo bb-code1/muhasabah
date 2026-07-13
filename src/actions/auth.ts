@@ -277,3 +277,37 @@ export async function updateProfile(formData: FormData) {
 
   return { success: 'Profile updated successfully.' };
 }
+
+export async function resendVerificationEmailAction() {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    return { error: 'Unauthorized' };
+  }
+
+  if (user.emailVerified) {
+    return { error: 'Email is already verified.' };
+  }
+
+  await prisma.verificationToken.deleteMany({
+    where: {
+      identifier: user.email,
+      type: 'EMAIL_VERIFICATION'
+    }
+  });
+
+  const crypto = await import('crypto');
+  const token = crypto.randomBytes(32).toString('hex');
+  await prisma.verificationToken.create({
+    data: {
+      identifier: user.email,
+      token,
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      type: 'EMAIL_VERIFICATION'
+    }
+  });
+
+  const { sendVerificationEmail } = await import('@/lib/mailer');
+  await sendVerificationEmail(user.email, token);
+
+  return { success: 'Verification link has been sent! Check your server console/logs.' };
+}

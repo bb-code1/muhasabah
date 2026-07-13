@@ -2,6 +2,7 @@ import { getAuthenticatedUser } from '@/actions/auth';
 import { User, Mail, ShieldCheck, LogOut } from 'lucide-react';
 import ChangePasswordForm from '@/components/profile/ChangePasswordForm';
 import UpdateProfileForm from '@/components/profile/UpdateProfileForm';
+import ResendVerificationButton from '@/components/profile/ResendVerificationButton';
 
 export default async function Profile() {
   const user = await getAuthenticatedUser();
@@ -25,14 +26,17 @@ export default async function Profile() {
           
           <div style={{ marginTop: '24px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px' }}>
             <span className="text-label-sm text-on-surface-variant">EMAIL STATUS</span>
-            <div className="text-body-lg" style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {user.emailVerified ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--c-primary)', fontWeight: 600 }}>
-                  <ShieldCheck size={18} /> Verified
-                </span>
-              ) : (
-                <span style={{ color: 'var(--c-error)', fontWeight: 600 }}>Unverified</span>
-              )}
+            <div className="text-body-lg" style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {user.emailVerified ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--c-primary)', fontWeight: 600 }}>
+                    <ShieldCheck size={18} /> Verified
+                  </span>
+                ) : (
+                  <span style={{ color: 'var(--c-error)', fontWeight: 600 }}>Unverified</span>
+                )}
+              </div>
+              {!user.emailVerified && <ResendVerificationButton />}
             </div>
           </div>
 
