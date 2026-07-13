@@ -646,48 +646,6 @@ export default async function Dashboard() {
 
       </div>
 
-      {/* SECTION NAVIGATION */}
-      <div style={{ marginBottom: '32px' }}>
-        <h3 className="text-title-md" style={{ marginBottom: '16px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Sections</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
-          {ALL_SECTIONS.map((section, i) => (
-            <Link
-              key={i}
-              href={section.href}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-                padding: '16px',
-                backgroundColor: 'var(--c-surface-container-high)',
-                border: '1px solid var(--c-outline-variant)',
-                borderRadius: '16px',
-                textDecoration: 'none',
-                transition: 'transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease',
-              }}
-              className="section-nav-card"
-            >
-              <span style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(195, 150, 38, 0.12)',
-                color: 'var(--c-primary)',
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>{section.icon}</span>
-              </span>
-              <div>
-                <p className="text-body-md" style={{ fontWeight: 700, marginBottom: '2px', color: 'var(--c-on-surface)' }}>{section.label}</p>
-                <p className="text-label-sm" style={{ color: 'var(--c-on-surface-variant)', lineHeight: 1.4 }}>{section.desc}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
       <div className="grid-container">
         <div className="col-span-12 flex-col gap-24" style={{ alignContent: 'start' }}>
           <TasksOfTheDay dateStr={todayStr} />
