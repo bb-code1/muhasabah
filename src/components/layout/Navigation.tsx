@@ -80,7 +80,7 @@ export default function Navigation() {
             <span className="text-body-md">Tasks</span>
           </Link>
           <Link href="/timetable" className={`nav-item ${pathname === '/timetable' ? 'active' : ''}`}>
-            <span className="material-symbols-outlined">calendar_range</span>
+            <span className="material-symbols-outlined">calendar_today</span>
             <span className="text-body-md">Time Table</span>
           </Link>
           <Link href="/journal/learning" className={`nav-item ${pathname.startsWith('/journal/learning') ? 'active' : ''}`}>
