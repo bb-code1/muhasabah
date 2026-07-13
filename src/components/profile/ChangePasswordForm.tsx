@@ -46,7 +46,7 @@ export default function ChangePasswordForm() {
         name="currentPassword"
         placeholder="Current Password"
         className="search-input"
-        style={{ width: '100%', paddingLeft: '16px' }}
+        style={{ width: '100%', paddingLeft: '16px', borderRadius: '8px' }}
         required
       />
       <input
@@ -54,7 +54,7 @@ export default function ChangePasswordForm() {
         name="newPassword"
         placeholder="New Password (min 6 chars)"
         className="search-input"
-        style={{ width: '100%', paddingLeft: '16px' }}
+        style={{ width: '100%', paddingLeft: '16px', borderRadius: '8px' }}
         minLength={6}
         required
       />

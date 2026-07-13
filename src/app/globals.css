@@ -337,6 +337,29 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
   transform: translateY(1px) scale(0.98);
 }
 
+.secondary-btn {
+  background-color: transparent;
+  color: var(--c-on-surface-variant);
+  border: 1px solid var(--c-outline-variant);
+  padding: 12px 28px;
+  border-radius: 16px;
+  font-weight: 600;
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.secondary-btn:hover {
+  background-color: var(--c-surface-container-high);
+  border-color: var(--c-outline);
+  color: var(--c-on-surface);
+}
+.secondary-btn:active {
+  transform: translateY(1px);
+}
+
 .search-input {
   width: 100%;
   padding: 14px 20px;

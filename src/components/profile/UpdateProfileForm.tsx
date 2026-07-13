@@ -75,7 +75,7 @@ export default function UpdateProfileForm({ initialName, initialEmail }: UpdateP
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="search-input"
-          style={{ width: '100%', paddingLeft: '16px' }}
+          style={{ width: '100%', paddingLeft: '16px', borderRadius: '8px' }}
           required
         />
       </div>
@@ -90,7 +90,7 @@ export default function UpdateProfileForm({ initialName, initialEmail }: UpdateP
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="search-input"
-          style={{ width: '100%', paddingLeft: '16px' }}
+          style={{ width: '100%', paddingLeft: '16px', borderRadius: '8px' }}
           required
         />
       </div>
