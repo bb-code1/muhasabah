@@ -65,12 +65,25 @@ function getWorkTypeStyle(type: string) {
   }
 }
 
+const PREDEFINED_TOPICS = [
+  'Android Development',
+  'Backend Development',
+  'Frontend Development',
+  'Java',
+  'C++',
+  'DSA',
+  'Machine Learning',
+  'AI & ML',
+  'AI Engineering'
+];
+
 export default function JournalDashboard({ category, initialEntries }: Props) {
   const { showToast } = useToast();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [content, setContent] = useState('');
   
   // Custom fields
+  const [selectedTopicOption, setSelectedTopicOption] = useState('');
   const [subject, setSubject] = useState('');
   const [project, setProject] = useState('');
   const [ticketId, setTicketId] = useState('');
@@ -86,6 +99,7 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
   
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editContent, setEditContent] = useState('');
+  const [editSelectedTopicOption, setEditSelectedTopicOption] = useState('');
   const [editSubject, setEditSubject] = useState('');
   const [editProject, setEditProject] = useState('');
   const [editTicketId, setEditTicketId] = useState('');
@@ -107,8 +121,11 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
       formData.append('content', content);
       formData.append('category', category);
       
-      if (category === 'LEARNING' && subject.trim()) {
-        formData.append('subject', subject.trim());
+      if (category === 'LEARNING') {
+        const finalSubject = selectedTopicOption === 'OTHER' ? subject.trim() : selectedTopicOption;
+        if (finalSubject) {
+          formData.append('subject', finalSubject);
+        }
       }
       
       if (category === 'OFFICE') {
@@ -121,6 +138,7 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
       await addJournalEntry(formData);
       setContent('');
       setSubject('');
+      setSelectedTopicOption('');
       setProject('');
       setTicketId('');
       setWorkType('Feature');
@@ -460,18 +478,40 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
             </div>
             
             {category === 'LEARNING' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Subject / Topic (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Next.js, System Design, Communication"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  className="search-input"
-                  style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }}
-                />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Subject / Topic (Optional)
+                  </label>
+                  <select
+                    value={selectedTopicOption}
+                    onChange={(e) => setSelectedTopicOption(e.target.value)}
+                    className="search-input"
+                    style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+                  >
+                    <option value="">Select a topic (Optional)</option>
+                    {PREDEFINED_TOPICS.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                    <option value="OTHER">Other...</option>
+                  </select>
+                </div>
+                
+                {selectedTopicOption === 'OTHER' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Enter Custom Topic
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Next.js, System Design, Communication"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      className="search-input"
+                      style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -634,7 +674,15 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
               <button
                 onClick={() => {
                   setEditContent(selectedEntry.content);
-                  setEditSubject(selectedEntry.subject || '');
+                  const subj = selectedEntry.subject || '';
+                  setEditSubject(subj);
+                  if (PREDEFINED_TOPICS.includes(subj)) {
+                    setEditSelectedTopicOption(subj);
+                  } else if (subj) {
+                    setEditSelectedTopicOption('OTHER');
+                  } else {
+                    setEditSelectedTopicOption('');
+                  }
                   setEditProject(selectedEntry.project || '');
                   setEditTicketId(selectedEntry.ticketId || '');
                   setEditWorkType(selectedEntry.workType || 'Feature');
@@ -678,18 +726,40 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
             </div>
 
             {category === 'LEARNING' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Subject / Topic (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Next.js, System Design, Communication"
-                  value={editSubject}
-                  onChange={(e) => setEditSubject(e.target.value)}
-                  className="search-input"
-                  style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }}
-                />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Subject / Topic (Optional)
+                  </label>
+                  <select
+                    value={editSelectedTopicOption}
+                    onChange={(e) => setEditSelectedTopicOption(e.target.value)}
+                    className="search-input"
+                    style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+                  >
+                    <option value="">Select a topic (Optional)</option>
+                    {PREDEFINED_TOPICS.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                    <option value="OTHER">Other...</option>
+                  </select>
+                </div>
+                
+                {editSelectedTopicOption === 'OTHER' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Enter Custom Topic
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Next.js, System Design, Communication"
+                      value={editSubject}
+                      onChange={(e) => setEditSubject(e.target.value)}
+                      className="search-input"
+                      style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -774,7 +844,9 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
               <button type="button" onClick={() => setIsEditOpen(false)} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--c-on-surface-variant)', border: '1px solid var(--c-outline-variant)', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
               <button
                 onClick={async () => {
-                  const subjectValue = category === 'LEARNING' ? editSubject.trim() || null : null;
+                  const subjectValue = category === 'LEARNING'
+                    ? (editSelectedTopicOption === 'OTHER' ? editSubject.trim() || null : editSelectedTopicOption || null)
+                    : null;
                   const projectValue = category === 'OFFICE' ? editProject.trim() || null : null;
                   const ticketValue = category === 'OFFICE' ? editTicketId.trim() || null : null;
                   const typeValue = category === 'OFFICE' ? editWorkType : null;
