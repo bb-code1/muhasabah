@@ -187,3 +187,35 @@ export async function getAuthenticatedUser() {
   if (!session) return null;
   return await prisma.user.findUnique({ where: { id: session.userId } });
 }
+
+export async function changePassword(formData: FormData) {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    return { error: 'Unauthorized' };
+  }
+
+  const currentPassword = formData.get('currentPassword') as string;
+  const newPassword = formData.get('newPassword') as string;
+
+  if (!currentPassword || !newPassword) {
+    return { error: 'Both current and new password are required.' };
+  }
+
+  if (newPassword.length < 6) {
+    return { error: 'New password must be at least 6 characters long.' };
+  }
+
+  const isValid = await comparePasswords(currentPassword, user.passwordHash);
+  if (!isValid) {
+    return { error: 'Incorrect current password.' };
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash }
+  });
+
+  return { success: 'Password changed successfully.' };
+}

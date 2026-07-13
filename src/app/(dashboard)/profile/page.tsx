@@ -1,6 +1,6 @@
 import { getAuthenticatedUser } from '@/actions/auth';
 import { User, Mail, ShieldCheck, LogOut } from 'lucide-react';
-import Link from 'next/link';
+import ChangePasswordForm from '@/components/profile/ChangePasswordForm';
 
 export default async function Profile() {
   const user = await getAuthenticatedUser();
@@ -48,13 +48,9 @@ export default async function Profile() {
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <p className="text-body-md text-on-surface-variant">
-            To change your password, you can request a password reset link to your email.
+            To change your password, input your current password and your new password.
           </p>
-          <Link href="/forgot-password" style={{ display: 'inline-block', width: 'fit-content' }}>
-            <button className="secondary-btn" style={{ padding: '8px 16px' }}>
-              Change Password
-            </button>
-          </Link>
+          <ChangePasswordForm />
         </div>
       </div>
     </div>

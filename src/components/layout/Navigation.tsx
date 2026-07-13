@@ -116,20 +116,13 @@ export default function Navigation() {
              <span className="material-symbols-outlined">menu</span>
            </button>
          </div>
-         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', position: 'relative' }} ref={menuRef}>
-           <button style={{ color: 'var(--c-on-surface-variant)', position: 'relative', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-             <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>notifications</span>
-             <span style={{ position: 'absolute', top: '2px', right: '2px', width: '6px', height: '6px', backgroundColor: 'var(--c-primary)', borderRadius: '50%' }}></span>
-           </button>
-           <button style={{ color: 'var(--c-on-surface-variant)', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-             <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>settings</span>
-           </button>
-           <button 
-             onClick={() => setShowProfileMenu(!showProfileMenu)}
-             style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--c-outline-variant)', backgroundColor: 'var(--c-surface-container-high)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-           >
-             <span className="text-label-sm text-primary" style={{ fontWeight: 700, fontSize: '12px', letterSpacing: '0px' }}>KN</span>
-           </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', position: 'relative' }} ref={menuRef}>
+            <button 
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--c-outline-variant)', backgroundColor: 'var(--c-surface-container-high)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <span className="text-label-sm text-primary" style={{ fontWeight: 700, fontSize: '12px', letterSpacing: '0px' }}>KN</span>
+            </button>
 
           {showProfileMenu && (
             <div style={{
