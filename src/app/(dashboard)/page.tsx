@@ -1,5 +1,6 @@
-import { getTransactions } from '@/actions';
+import { getTransactions, getTimeTable } from '@/actions';
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
+import TimetableDashboardCard from '@/components/dashboard/TimetableDashboardCard';
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
 
@@ -21,6 +22,7 @@ const ALL_SECTIONS = [
 
 export default async function Dashboard() {
   const transactions = await getTransactions();
+  const timetable = await getTimeTable();
 
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
@@ -645,9 +647,12 @@ export default async function Dashboard() {
 
       </div>
 
-      <div className="grid-container">
-        <div className="col-span-12 flex-col gap-24" style={{ alignContent: 'start' }}>
+      <div className="grid-container" style={{ marginTop: '24px' }}>
+        <div className="col-span-8 flex-col gap-24" style={{ alignContent: 'start' }}>
           <TasksOfTheDay dateStr={todayStr} />
+        </div>
+        <div className="col-span-4" style={{ display: 'flex', flexDirection: 'column' }}>
+          <TimetableDashboardCard timetable={timetable} />
         </div>
       </div>
     </>
