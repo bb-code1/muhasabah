@@ -44,7 +44,7 @@ export default async function TasksOfTheDay({
       {!hideTitle && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h3 className="text-headline-md">{titleText}</h3>
+            <h3 className="text-title-md">{titleText}</h3>
             <p className="text-label-sm text-primary" style={{ textTransform: 'uppercase', fontWeight: 700 }}>{displayDate}</p>
           </div>
         </div>

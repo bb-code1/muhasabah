@@ -129,7 +129,7 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '24px', opacity: isPending ? 0.7 : 1, transition: 'opacity 0.2s' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h3 className="text-headline-md" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
+          <h3 className="text-title-md" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
             <CalendarRange size={24} style={{ color: 'var(--c-primary)' }} />
             Periodic Tracker (Last Done)
           </h3>

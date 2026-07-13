@@ -48,7 +48,7 @@ export default async function PersonDebtPage(props: {
         <Link href="/debts" className="primary-btn" style={{ padding: '8px', borderRadius: '50%', background: 'var(--c-surface-container-high)', color: 'var(--c-on-surface)' }}>
           <ArrowLeft size={20} />
         </Link>
-        <h2 className="text-display-sm" style={{ margin: 0 }}>{person.name}</h2>
+        <h2 className="text-headline-md" style={{ margin: 0 }}>{person.name}</h2>
         
         <div style={{ marginLeft: 'auto' }}>
           <DeleteConfirmButton 
@@ -68,7 +68,7 @@ export default async function PersonDebtPage(props: {
           <span className="text-label-md text-on-surface-variant">
             {netBalance > 0 ? 'THEY OWE YOU' : netBalance < 0 ? 'YOU OWE THEM' : 'SETTLED'}
           </span>
-          <h3 className="text-display-sm" style={{ color: netBalance > 0 ? 'var(--c-primary)' : netBalance < 0 ? 'var(--c-error)' : 'var(--c-on-surface)', margin: 0 }}>
+          <h3 className="text-headline-md" style={{ color: netBalance > 0 ? 'var(--c-primary)' : netBalance < 0 ? 'var(--c-error)' : 'var(--c-on-surface)', margin: 0 }}>
             ${Math.abs(netBalance).toFixed(2)}
           </h3>
         </div>
@@ -77,7 +77,7 @@ export default async function PersonDebtPage(props: {
       <AddDebtRecordForm personId={person.id} />
 
       <div>
-        <h3 className="text-title-lg" style={{ marginBottom: '16px' }}>Transaction History</h3>
+        <h3 className="text-title-md" style={{ marginBottom: '16px' }}>Transaction History</h3>
         {person.debts.length === 0 ? (
           <p className="text-on-surface-variant">No records found with {person.name}.</p>
         ) : (

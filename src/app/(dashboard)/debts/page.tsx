@@ -47,7 +47,7 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
     <div style={{ paddingBottom: '60px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h2 className="text-display-sm">Ledger</h2>
+          <h2 className="text-headline-md">Ledger</h2>
           <p className="text-body-md text-on-surface-variant">Manage your contacts and financial relationships</p>
         </div>
         <AddPersonDialog />
@@ -60,7 +60,7 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
           </div>
           <div>
             <span className="text-label-md text-on-surface-variant">They Owe You</span>
-            <h3 className="text-display-sm" style={{ color: 'var(--c-primary)', margin: 0 }}>${totalTheyOweMe.toFixed(2)}</h3>
+            <h3 className="text-headline-md" style={{ color: 'var(--c-primary)', margin: 0 }}>${totalTheyOweMe.toFixed(2)}</h3>
           </div>
         </div>
         <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -69,7 +69,7 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
           </div>
           <div>
             <span className="text-label-md text-on-surface-variant">You Owe Them</span>
-            <h3 className="text-display-sm" style={{ color: 'var(--c-error)', margin: 0 }}>${totalIOweThem.toFixed(2)}</h3>
+            <h3 className="text-headline-md" style={{ color: 'var(--c-error)', margin: 0 }}>${totalIOweThem.toFixed(2)}</h3>
           </div>
         </div>
       </div>
@@ -78,7 +78,7 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
         {paginatedPersons.map(person => (
           <Link key={person.id} href={`/debts/${person.id}`} className="card" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 className="text-title-lg" style={{ fontWeight: 600 }}>{person.name}</h3>
+              <h3 className="text-title-md" style={{ fontWeight: 600 }}>{person.name}</h3>
               <ArrowRight size={20} className="text-on-surface-variant" />
             </div>
             
