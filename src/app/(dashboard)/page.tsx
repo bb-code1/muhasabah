@@ -213,7 +213,7 @@ export default async function Dashboard() {
         {/* SPENDING SUMMARY */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h4 className="text-title-sm" style={{ fontWeight: 700, color: 'var(--c-on-surface-variant)', margin: 0 }}>Finance Expenses</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridTemplateRows: 'repeat(2, 1fr)', gap: '12px', flexGrow: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px', flexGrow: 1 }}>
             {[
               { label: 'TODAY', value: `$${dailySpending.toFixed(2)}` },
               { label: 'THIS WEEK', value: `$${weeklySpending.toFixed(2)}` },
