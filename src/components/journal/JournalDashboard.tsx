@@ -111,15 +111,50 @@ function getMiscActivityStyle(activity: string) {
 }
 
 const PREDEFINED_TOPICS = [
+  // Mobile
   'Android Development',
-  'Backend Development',
+  'iOS Development',
+  'React Native',
+  'Flutter',
+  // Web
   'Frontend Development',
+  'Backend Development',
+  'Full Stack Development',
+  'Next.js',
+  'React',
+  'Node.js',
+  'TypeScript',
+  // Languages
   'Java',
+  'Kotlin',
+  'Python',
   'C++',
+  'C#',
+  'Go',
+  'Rust',
+  // CS Fundamentals
   'DSA',
+  'System Design',
+  'Computer Networks',
+  'Operating Systems',
+  'Database / SQL',
+  // AI / ML
   'Machine Learning',
+  'Deep Learning',
   'AI & ML',
-  'AI Engineering'
+  'AI Engineering',
+  'LLMs & Prompt Engineering',
+  // DevOps & Cloud
+  'DevOps',
+  'Docker & Kubernetes',
+  'Cloud (AWS / GCP / Azure)',
+  'CI/CD',
+  // Other
+  'Cybersecurity',
+  'Blockchain',
+  'Open Source',
+  'Competitive Programming',
+  'Soft Skills',
 ];
 
 export default function JournalDashboard({ category, initialEntries }: Props) {
