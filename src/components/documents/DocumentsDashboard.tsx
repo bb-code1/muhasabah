@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Plus, X, Edit, Trash2, FileText, ExternalLink, Search } from 'lucide-react';
 import { addDocument, updateDocument, deleteDocument } from '@/actions/documents';
 import { useToast } from '@/context/ToastContext';
+import CustomDateRangeDialog from '@/components/layout/CustomDateRangeDialog';
 import { Document } from '@prisma/client';
 
 export default function DocumentsDashboard({ initialDocuments }: { initialDocuments: Document[] }) {
@@ -15,6 +16,7 @@ export default function DocumentsDashboard({ initialDocuments }: { initialDocume
   const [customEnd, setCustomEnd] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [mounted, setMounted] = useState(false);
+  const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
 
   // Modals state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -86,6 +88,10 @@ export default function DocumentsDashboard({ initialDocuments }: { initialDocume
   };
 
   const handleFilterChange = (newPeriod: string) => {
+    if (newPeriod === 'CUSTOM') {
+      setIsCustomRangeOpen(true);
+      return;
+    }
     setFilterPeriod(newPeriod);
     setCurrentPage(1);
   };
@@ -189,12 +195,19 @@ export default function DocumentsDashboard({ initialDocuments }: { initialDocume
         ))}
       </div>
 
-      {filterPeriod === 'CUSTOM' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-          <input type="date" value={customStart} onChange={(e) => { setCustomStart(e.target.value); setCurrentPage(1); }} className="search-input" style={{ borderRadius: '10px' }} />
-          <span className="text-on-surface-variant" style={{ fontWeight: 600 }}>to</span>
-          <input type="date" value={customEnd} onChange={(e) => { setCustomEnd(e.target.value); setCurrentPage(1); }} className="search-input" style={{ borderRadius: '10px' }} />
-        </div>
+      {isCustomRangeOpen && (
+        <CustomDateRangeDialog
+          initialStartDate={customStart}
+          initialEndDate={customEnd}
+          onClose={() => setIsCustomRangeOpen(false)}
+          onApply={(startDate, endDate) => {
+            setCustomStart(startDate);
+            setCustomEnd(endDate);
+            setFilterPeriod('CUSTOM');
+            setCurrentPage(1);
+            setIsCustomRangeOpen(false);
+          }}
+        />
       )}
 
       {/* Grid of Documents */}

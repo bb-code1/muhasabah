@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Moon, CheckCircle2, Circle, Plus, X, Settings, Users, ScrollText, Calendar } from 'lucide-react';
 import { toggleSpiritualHabit, addSpiritualHabit, deleteSpiritualHabit, setPrayerJamaat, updateQuranMemorization, updateOtherActivities } from '@/actions/religious';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
+import CustomDateRangeDialog from '@/components/layout/CustomDateRangeDialog';
 import { useToast } from '@/context/ToastContext';
 import { isDefaultSpiritualHabit, PRAYER_HABIT_NAMES, sortSpiritualHabits, OPTIONAL_HABIT_NAMES } from '@/lib/spiritualHabits';
 import { QURAN_SURAHS } from '@/lib/quranData';
@@ -150,12 +151,14 @@ export default function SpiritualDashboard({
   const [statsFilter, setStatsFilter] = useState<'day' | 'week' | 'month' | 'year' | 'all' | 'custom'>('month');
   const [statsCustomStart, setStatsCustomStart] = useState<string>('');
   const [statsCustomEnd, setStatsCustomEnd] = useState<string>('');
+  const [isStatsCustomRangeOpen, setIsStatsCustomRangeOpen] = useState(false);
   const [activeStatsDetail, setActiveStatsDetail] = useState<{ type: 'prayer' | 'quran' | 'deeds'; title: string; prayerName?: string } | null>(null);
 
   // Register Filter States
   const [registerFilter, setRegisterFilter] = useState<'day' | 'week' | 'month' | 'year' | 'all' | 'custom'>('all');
   const [registerCustomStart, setRegisterCustomStart] = useState<string>('');
   const [registerCustomEnd, setRegisterCustomEnd] = useState<string>('');
+  const [isRegisterCustomRangeOpen, setIsRegisterCustomRangeOpen] = useState(false);
 
   const completedCount = initialTodayData.habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name) && h.isCompleted).length;
   const totalCount = initialTodayData.habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name)).length;
@@ -845,7 +848,13 @@ export default function SpiritualDashboard({
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setStatsFilter(tab.id as any)}
+              onClick={() => {
+                if (tab.id === 'custom') {
+                  setIsStatsCustomRangeOpen(true);
+                  return;
+                }
+                setStatsFilter(tab.id as typeof statsFilter);
+              }}
               style={{
                 padding: '6px 14px',
                 borderRadius: '20px',
@@ -863,25 +872,18 @@ export default function SpiritualDashboard({
           ))}
         </div>
 
-        {/* Custom date range inputs */}
-        {statsFilter === 'custom' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-            <input
-              type="date"
-              value={statsCustomStart}
-              onChange={(e) => setStatsCustomStart(e.target.value)}
-              className="search-input"
-              style={{ borderRadius: '8px', padding: '6px 12px', backgroundColor: 'var(--c-surface)', fontSize: '13px', color: 'var(--c-on-surface)' }}
-            />
-            <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)' }}>to</span>
-            <input
-              type="date"
-              value={statsCustomEnd}
-              onChange={(e) => setStatsCustomEnd(e.target.value)}
-              className="search-input"
-              style={{ borderRadius: '8px', padding: '6px 12px', backgroundColor: 'var(--c-surface)', fontSize: '13px', color: 'var(--c-on-surface)' }}
-            />
-          </div>
+        {isStatsCustomRangeOpen && (
+          <CustomDateRangeDialog
+            initialStartDate={statsCustomStart}
+            initialEndDate={statsCustomEnd}
+            onClose={() => setIsStatsCustomRangeOpen(false)}
+            onApply={(startDate, endDate) => {
+              setStatsCustomStart(startDate);
+              setStatsCustomEnd(endDate);
+              setStatsFilter('custom');
+              setIsStatsCustomRangeOpen(false);
+            }}
+          />
         )}
 
         <div style={{
@@ -1139,7 +1141,11 @@ export default function SpiritualDashboard({
                 <button
                   key={tab.id}
                   onClick={() => {
-                    setRegisterFilter(tab.id as any);
+                    if (tab.id === 'custom') {
+                      setIsRegisterCustomRangeOpen(true);
+                      return;
+                    }
+                    setRegisterFilter(tab.id as typeof registerFilter);
                     setCurrentPage(1);
                   }}
                   style={{
@@ -1159,31 +1165,19 @@ export default function SpiritualDashboard({
               ))}
             </div>
 
-            {/* Custom Range Inputs */}
-            {registerFilter === 'custom' && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                <input
-                  type="date"
-                  value={registerCustomStart}
-                  onChange={(e) => {
-                    setRegisterCustomStart(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="search-input"
-                  style={{ borderRadius: '8px' }}
-                />
-                <span className="text-on-surface-variant" style={{ fontWeight: 600 }}>to</span>
-                <input
-                  type="date"
-                  value={registerCustomEnd}
-                  onChange={(e) => {
-                    setRegisterCustomEnd(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="search-input"
-                  style={{ borderRadius: '8px' }}
-                />
-              </div>
+            {isRegisterCustomRangeOpen && (
+              <CustomDateRangeDialog
+                initialStartDate={registerCustomStart}
+                initialEndDate={registerCustomEnd}
+                onClose={() => setIsRegisterCustomRangeOpen(false)}
+                onApply={(startDate, endDate) => {
+                  setRegisterCustomStart(startDate);
+                  setRegisterCustomEnd(endDate);
+                  setRegisterFilter('custom');
+                  setCurrentPage(1);
+                  setIsRegisterCustomRangeOpen(false);
+                }}
+              />
             )}
 
             {filteredHistory.length === 0 ? (

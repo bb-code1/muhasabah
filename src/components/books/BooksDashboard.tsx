@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Plus, X, Edit, Trash2, BookOpen, ExternalLink, Search } from 'lucide-react';
 import { addBook, updateBook, deleteBook } from '@/actions/books';
 import { useToast } from '@/context/ToastContext';
+import CustomDateRangeDialog from '@/components/layout/CustomDateRangeDialog';
 import { Book } from '@prisma/client';
 
 export default function BooksDashboard({ initialBooks }: { initialBooks: Book[] }) {
@@ -15,6 +16,7 @@ export default function BooksDashboard({ initialBooks }: { initialBooks: Book[] 
   const [customEnd, setCustomEnd] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [mounted, setMounted] = useState(false);
+  const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
 
   // Modals state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -88,6 +90,10 @@ export default function BooksDashboard({ initialBooks }: { initialBooks: Book[] 
   };
 
   const handleFilterChange = (newPeriod: string) => {
+    if (newPeriod === 'CUSTOM') {
+      setIsCustomRangeOpen(true);
+      return;
+    }
     setFilterPeriod(newPeriod);
     setCurrentPage(1);
   };
@@ -188,13 +194,19 @@ export default function BooksDashboard({ initialBooks }: { initialBooks: Book[] 
         ))}
       </div>
 
-      {/* Custom Range date inputs */}
-      {filterPeriod === 'CUSTOM' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-          <input type="date" value={customStart} onChange={(e) => { setCustomStart(e.target.value); setCurrentPage(1); }} className="search-input" style={{ borderRadius: '8px' }} />
-          <span className="text-on-surface-variant" style={{ fontWeight: 600 }}>to</span>
-          <input type="date" value={customEnd} onChange={(e) => { setCustomEnd(e.target.value); setCurrentPage(1); }} className="search-input" style={{ borderRadius: '8px' }} />
-        </div>
+      {isCustomRangeOpen && (
+        <CustomDateRangeDialog
+          initialStartDate={customStart}
+          initialEndDate={customEnd}
+          onClose={() => setIsCustomRangeOpen(false)}
+          onApply={(startDate, endDate) => {
+            setCustomStart(startDate);
+            setCustomEnd(endDate);
+            setFilterPeriod('CUSTOM');
+            setCurrentPage(1);
+            setIsCustomRangeOpen(false);
+          }}
+        />
       )}
 
       {/* Grid of Books */}

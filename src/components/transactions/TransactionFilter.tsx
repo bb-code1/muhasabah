@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { Calendar } from 'lucide-react';
+import CustomDateRangeDialog from '@/components/layout/CustomDateRangeDialog';
 
 const FILTER_TABS = [
   { id: 'day', label: 'Current Day' },
@@ -27,6 +28,7 @@ export default function TransactionFilter() {
   const [dateValue, setDateValue] = useState(currentDate);
   const [startDate, setStartDate] = useState(currentStart);
   const [endDate, setEndDate] = useState(currentEnd);
+  const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
 
   // Sync state when URL changes externally
   useEffect(() => {
@@ -54,6 +56,10 @@ export default function TransactionFilter() {
   }, [router]);
 
   const handleFilterChange = (newType: string) => {
+    if (newType === 'custom') {
+      setIsCustomRangeOpen(true);
+      return;
+    }
     setFilterType(newType);
     
     // Set some sensible defaults when switching types (reset to current)
@@ -73,22 +79,6 @@ export default function TransactionFilter() {
     
     setDateValue(newDate);
     applyFilter(newType, newDate, startDate, endDate);
-  };
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const newDate = e.target.value;
-    setDateValue(newDate);
-    applyFilter(filterType, newDate, startDate, endDate);
-  };
-
-  const handleCustomChange = (field: 'start' | 'end', val: string) => {
-    if (field === 'start') {
-      setStartDate(val);
-      applyFilter('custom', dateValue, val, endDate);
-    } else {
-      setEndDate(val);
-      applyFilter('custom', dateValue, startDate, val);
-    }
   };
 
   return (
@@ -121,27 +111,19 @@ export default function TransactionFilter() {
         ))}
       </div>
 
-      {/* DATE PICKERS (Only for custom range) */}
-      {filterType === 'custom' && (
-        <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center' }}>
-          <div className="flex-row gap-8">
-            <input 
-              type="date" 
-              value={startDate}
-              onChange={(e) => handleCustomChange('start', e.target.value)}
-              className="search-input"
-              style={{ borderRadius: '8px', padding: '8px 16px', backgroundColor: 'var(--c-surface)' }}
-            />
-            <span className="text-on-surface-variant">to</span>
-            <input 
-              type="date" 
-              value={endDate}
-              onChange={(e) => handleCustomChange('end', e.target.value)}
-              className="search-input"
-              style={{ borderRadius: '8px', padding: '8px 16px', backgroundColor: 'var(--c-surface)' }}
-            />
-          </div>
-        </div>
+      {isCustomRangeOpen && (
+        <CustomDateRangeDialog
+          initialStartDate={startDate}
+          initialEndDate={endDate}
+          onClose={() => setIsCustomRangeOpen(false)}
+          onApply={(newStartDate, newEndDate) => {
+            setStartDate(newStartDate);
+            setEndDate(newEndDate);
+            setFilterType('custom');
+            applyFilter('custom', dateValue, newStartDate, newEndDate);
+            setIsCustomRangeOpen(false);
+          }}
+        />
       )}
     </div>
   );

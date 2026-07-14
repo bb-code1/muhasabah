@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Calendar, Clock, X, Dumbbell, Flame, Compass, Activity, Sparkles, MessageSquare, TrendingUp } from 'lucide-react';
 import { addFitnessLog, deleteFitnessLog } from '@/actions/fitness';
 import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
+import CustomDateRangeDialog from '@/components/layout/CustomDateRangeDialog';
 import { useToast } from '@/context/ToastContext';
 import { FitnessLog } from '@prisma/client';
 
@@ -47,6 +48,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
   const [filterPeriod, setFilterPeriod] = useState('WEEK');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
+  const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
 
   // Form states
   const [activity, setActivity] = useState('Gym');
@@ -105,6 +107,10 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
   };
 
   const handleFilterChange = (newPeriod: string) => {
+    if (newPeriod === 'CUSTOM') {
+      setIsCustomRangeOpen(true);
+      return;
+    }
     setFilterPeriod(newPeriod);
     setCurrentPage(1);
   };
@@ -225,13 +231,19 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
         ))}
       </div>
 
-      {/* Custom Range date inputs */}
-      {filterPeriod === 'CUSTOM' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-          <input type="date" value={customStart} onChange={(e) => { setCustomStart(e.target.value); setCurrentPage(1); }} className="search-input" style={{ borderRadius: '10px' }} />
-          <span className="text-on-surface-variant" style={{ fontWeight: 600 }}>to</span>
-          <input type="date" value={customEnd} onChange={(e) => { setCustomEnd(e.target.value); setCurrentPage(1); }} className="search-input" style={{ borderRadius: '10px' }} />
-        </div>
+      {isCustomRangeOpen && (
+        <CustomDateRangeDialog
+          initialStartDate={customStart}
+          initialEndDate={customEnd}
+          onClose={() => setIsCustomRangeOpen(false)}
+          onApply={(startDate, endDate) => {
+            setCustomStart(startDate);
+            setCustomEnd(endDate);
+            setFilterPeriod('CUSTOM');
+            setCurrentPage(1);
+            setIsCustomRangeOpen(false);
+          }}
+        />
       )}
 
       {/* Summary Cards */}

@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Plus, X, Edit, Trash2, Calendar, BookOpen, GraduationCap, Briefcase, Clock, MapPin, Tag } from 'lucide-react';
 import { addJournalEntry, deleteJournalEntry, editJournalEntry } from '@/actions';
 import { useToast } from '@/context/ToastContext';
+import CustomDateRangeDialog from '@/components/layout/CustomDateRangeDialog';
 import { JournalEntry, JournalCategory } from '@prisma/client';
 
 const CATEGORY_LABELS: Record<JournalCategory, string> = {
@@ -141,6 +142,7 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
   const [filterPeriod, setFilterPeriod] = useState('ALL');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
+  const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
   
@@ -214,6 +216,10 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
   };
 
   const handleFilterChange = (newPeriod: string) => {
+    if (newPeriod === 'CUSTOM') {
+      setIsCustomRangeOpen(true);
+      return;
+    }
     setFilterPeriod(newPeriod);
     setCurrentPage(1);
   };
@@ -507,13 +513,19 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
         ))}
       </div>
 
-      {/* Custom Range date inputs */}
-      {filterPeriod === 'CUSTOM' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-          <input type="date" value={customStart} onChange={(e) => { setCustomStart(e.target.value); setCurrentPage(1); }} className="search-input" style={{ borderRadius: '10px' }} />
-          <span className="text-on-surface-variant" style={{ fontWeight: 600 }}>to</span>
-          <input type="date" value={customEnd} onChange={(e) => { setCustomEnd(e.target.value); setCurrentPage(1); }} className="search-input" style={{ borderRadius: '10px' }} />
-        </div>
+      {isCustomRangeOpen && (
+        <CustomDateRangeDialog
+          initialStartDate={customStart}
+          initialEndDate={customEnd}
+          onClose={() => setIsCustomRangeOpen(false)}
+          onApply={(startDate, endDate) => {
+            setCustomStart(startDate);
+            setCustomEnd(endDate);
+            setFilterPeriod('CUSTOM');
+            setCurrentPage(1);
+            setIsCustomRangeOpen(false);
+          }}
+        />
       )}
 
       {/* ENTRIES GRID */}
