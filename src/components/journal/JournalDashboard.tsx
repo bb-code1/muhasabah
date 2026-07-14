@@ -31,6 +31,10 @@ const MISC_ACTIVITIES = [
   'Health',
   'Thoughts',
   'Entertainment',
+  'Family',
+  'Spiritual',
+  'Finance',
+  'Hobby',
   'Other'
 ];
 
@@ -92,6 +96,14 @@ function getMiscActivityStyle(activity: string) {
       return { bg: '#e2fbf7', text: '#0f766e', border: '#99f6e4' }; // Teal
     case 'Entertainment':
       return { bg: '#e0e7ff', text: '#4338ca', border: '#c7d2fe' }; // Indigo
+    case 'Family':
+      return { bg: '#fef2f2', text: '#b91c1c', border: '#fecaca' }; // Red
+    case 'Spiritual':
+      return { bg: '#e6fffa', text: '#0d9488', border: '#b2f5ea' }; // Emerald/Teal-ish
+    case 'Finance':
+      return { bg: '#ecfeff', text: '#0891b2', border: '#c5f2f7' }; // Cyan
+    case 'Hobby':
+      return { bg: '#fff7ed', text: '#ea580c', border: '#ffedd5' }; // Light Orange
     default:
       return { bg: '#f3f4f6', text: '#374151', border: '#e5e7eb' }; // Gray
   }
