@@ -41,6 +41,7 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
   const [mounted, setMounted] = useState(false);
   const [customWeeks, setCustomWeeks] = useState<string[]>([]);
   const [isAddWeekOpen, setIsAddWeekOpen] = useState(false);
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -84,7 +85,8 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
     try {
       await addWeekendTask(newTaskTitle);
       setNewTaskTitle('');
-      setCurrentPage(1); // Reset page on add
+      setIsAddTaskOpen(false);
+      setCurrentPage(1);
     } catch (error) {
       console.error(error);
       showToast('Failed to add task', 'error');
@@ -159,21 +161,16 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
         <div className="card" style={{ padding: '24px' }}>
           <h3 className="text-title-md" style={{ margin: '0 0 20px 0', fontWeight: 600 }}>Manage Weekend Tasks</h3>
 
-          {/* ADD TASK FORM */}
-          <form onSubmit={handleAdd} style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-            <input 
-              type="text" 
-              placeholder="Add a new weekend task..."
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              className="search-input"
-              style={{ flex: 1, borderRadius: '8px' }}
-              required
-            />
-            <button type="submit" className="primary-btn" disabled={loading} style={{ padding: '0 24px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Plus size={18} /> Add
+          {/* ADD TASK BUTTON */}
+          <div style={{ marginBottom: '24px' }}>
+            <button
+              onClick={() => { setNewTaskTitle(''); setIsAddTaskOpen(true); }}
+              className="primary-btn"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '10px', fontWeight: 700 }}
+            >
+              <Plus size={18} /> Add Task
             </button>
-          </form>
+          </div>
 
           {/* VERTICAL LIST FOR MANAGING */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -595,6 +592,53 @@ export default function WeekendTasksClient({ initialTasks }: { initialTasks: Tas
               </button>
             </div>
           </form>
+        </div>,
+        document.body
+      )}
+      {isAddTaskOpen && mounted && createPortal(
+        <div
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100, padding: '16px', backdropFilter: 'blur(6px)' }}
+          onClick={() => setIsAddTaskOpen(false)}
+        >
+          <div
+            className="card"
+            style={{ maxWidth: '420px', width: '100%', position: 'relative', padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--c-outline-variant)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsAddTaskOpen(false)}
+              style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-on-surface-variant)' }}
+            >
+              <X size={20} />
+            </button>
+
+            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 700 }}>Add New Task</h3>
+
+            <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Task Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Room Cleaning, Laundry..."
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  className="search-input"
+                  style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }}
+                  autoFocus
+                  required
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px', marginTop: '8px' }}>
+                <button type="button" onClick={() => setIsAddTaskOpen(false)} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--c-on-surface-variant)', border: '1px solid var(--c-outline-variant)', fontWeight: 600, cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button type="submit" className="primary-btn" style={{ padding: '10px 24px', borderRadius: '8px' }} disabled={loading}>
+                  {loading ? 'Adding…' : 'Add Task'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>,
         document.body
       )}
