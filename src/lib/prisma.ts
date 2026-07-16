@@ -33,7 +33,11 @@ const getConnectionString = () => {
 const connectionString = getConnectionString();
 
 const prismaClientSingleton = () => {
-  const pool = new Pool({ connectionString })
+  const isProd = process.env.NODE_ENV === 'production';
+  const pool = new Pool({ 
+    connectionString,
+    ssl: isProd ? { rejectUnauthorized: false } : false
+  })
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })
 }
