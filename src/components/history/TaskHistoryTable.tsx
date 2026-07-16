@@ -32,6 +32,7 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
   const activeDayStrings: string[] = [];
 
   tasks.forEach((task) => {
+    if (!task.targetDate) return;
     const dateStr = new Date(task.targetDate).toISOString().split('T')[0];
     if (!tasksByDay[dateStr]) {
       tasksByDay[dateStr] = [];

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import RecurringTrackers from '@/components/dashboard/RecurringTrackers';
-import { getRecurringTrackers } from '@/actions/tasks';
+import FlexibleTasksDashboard from '@/components/tasks/FlexibleTasksDashboard';
+import { getRecurringTrackers, getFlexibleTasks } from '@/actions/tasks';
 
 const TASK_SECTIONS = [
   { href: '/tasks/today', icon: 'today', label: 'Today\'s Task List', bg: 'var(--c-primary-container)', color: 'var(--c-primary)' },
@@ -20,6 +21,7 @@ export default async function TasksPage(props: { searchParams?: Promise<{ [key: 
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
   const trackers = await getRecurringTrackers();
+  const flexibleTasks = await getFlexibleTasks();
 
   return (
     <>
@@ -40,6 +42,8 @@ export default async function TasksPage(props: { searchParams?: Promise<{ [key: 
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         <TasksOfTheDay dateStr={tomorrowStr} page={page} />
+        
+        <FlexibleTasksDashboard initialTasks={flexibleTasks} />
         
         <RecurringTrackers initialTrackers={trackers} />
       </div>

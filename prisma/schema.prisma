@@ -163,13 +163,14 @@ model JournalEntry {
 }
 
 model DailyTask {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
-  isCompleted Boolean  @default(false)
-  targetDate  DateTime @db.Date
-  createdAt   DateTime @default(now()) @db.Timestamptz()
+  isCompleted Boolean   @default(false)
+  targetDate  DateTime? @db.Date
+  category    String    @default("TODAY")
+  createdAt   DateTime  @default(now()) @db.Timestamptz()
 }
 
 enum DebtType {

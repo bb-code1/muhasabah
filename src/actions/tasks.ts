@@ -16,23 +16,62 @@ export async function getDailyTasks(dateStr: string) {
   });
 }
 
+export async function getFlexibleTasks() {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  return await prisma.dailyTask.findMany({
+    where: {
+      userId: user.id,
+      OR: [
+        { category: { in: ['UPCOMING', 'LATER', 'SOMEDAY', 'UNDATED'] } },
+        { targetDate: null },
+        { targetDate: { gt: tomorrow } }
+      ]
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
 export async function addDailyTask(formData: FormData) {
   const user = await getAuthenticatedUser();
   if (!user) throw new Error('Unauthorized');
 
   const title = formData.get('title') as string;
   const dateStr = formData.get('date') as string;
+  const category = (formData.get('category') as string) || 'TODAY';
 
-  if (!title || !dateStr) throw new Error('Title and date are required.');
+  if (!title) throw new Error('Title is required.');
+
+  let targetDate: Date | null = null;
+  if (dateStr && dateStr.trim() !== '') {
+    targetDate = new Date(dateStr);
+  } else if (category === 'TODAY') {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    targetDate = today;
+  } else if (category === 'TOMORROW') {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    targetDate = tomorrow;
+  }
 
   await prisma.dailyTask.create({
     data: {
       title,
-      targetDate: new Date(dateStr),
+      targetDate,
+      category,
       userId: user.id,
     },
   });
   revalidatePath('/');
+  revalidatePath('/tasks');
 }
 
 export async function toggleDailyTask(id: number, currentState: boolean) {
