@@ -139,7 +139,8 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
   const [hasLocation, setHasLocation] = useState(!!initialData.latitude);
   const [locationName, setLocationName] = useState<string | null>(initialData.locationName || null);
   
-  const [editingTiming, setEditingTiming] = useState<{ key: string; label: string; icon: React.ReactNode; value: string } | null>(null);
+  const [editingTiming, setEditingTiming] = useState<{ key: string; label: string; icon: React.ReactNode; value: string | number } | null>(null);
+  const [tempAsrVal, setTempAsrVal] = useState<number>(0);
   const [timingsLoading, setTimingsLoading] = useState(false);
   
   const [activitiesLoading, setActivitiesLoading] = useState(false);
@@ -151,6 +152,12 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
     setMounted(true);
     return () => setMounted(false);
   }, []);
+
+  useEffect(() => {
+    if (editingTiming?.key === 'asrTiming') {
+      setTempAsrVal(typeof editingTiming.value === 'number' ? editingTiming.value : Number(editingTiming.value) || 0);
+    }
+  }, [editingTiming]);
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
@@ -211,6 +218,21 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
       showToast(message, 'error');
+    } finally {
+      setTimingsLoading(false);
+    }
+  };
+
+  const handleAsrSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setTimingsLoading(true);
+    try {
+      await updateAsrTiming(tempAsrVal);
+      showToast('Asr timing preference updated successfully.', 'success');
+      setEditingTiming(null);
+      router.refresh();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to update Asr timing', 'error');
     } finally {
       setTimingsLoading(false);
     }
@@ -324,65 +346,7 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
               ))}
             </select>
           </div>
-
           {/* Asr Timing Preference */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px' }}>
-            <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              <Sun size={13} /> Asr Prayer Timing
-            </label>
-            <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-on-surface-variant)', lineHeight: 1.5 }}>
-              Choose when Asr begins — earlier uses a shadow length of 1× the object, later uses 2×.
-            </p>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              {[
-                { value: 0, label: 'Earlier Asr', desc: 'Shadow factor 1× — earlier in the afternoon', icon: '🌤️' },
-                { value: 1, label: 'Later Asr',   desc: 'Shadow factor 2× — later in the afternoon', icon: '🌥️' },
-              ].map(opt => {
-                const isSelected = (initialData.asrTiming ?? 0) === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={async () => {
-                      try {
-                        await updateAsrTiming(opt.value);
-                        showToast('Asr timing preference updated successfully.', 'success');
-                        router.refresh();
-                      } catch (err: any) {
-                        showToast(err.message || 'Failed to update Asr timing', 'error');
-                      }
-                    }}
-                    style={{
-                      flex: '1 1 160px',
-                      padding: '14px 16px',
-                      borderRadius: '12px',
-                      border: `2px solid ${isSelected ? 'var(--c-primary)' : 'var(--c-outline-variant)'}`,
-                      backgroundColor: isSelected ? 'var(--c-primary-container)' : 'var(--c-surface-container-low)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.2s ease',
-                      transform: isSelected ? 'translateY(-2px)' : 'none',
-                      boxShadow: isSelected ? '0 4px 16px rgba(191,145,41,0.22)' : 'none',
-                      position: 'relative',
-                    }}
-                  >
-                    <div style={{ fontSize: '20px', marginBottom: '6px' }}>{opt.icon}</div>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? 'var(--c-primary)' : 'var(--c-on-surface)', marginBottom: '3px' }}>
-                      {opt.label}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', lineHeight: 1.4 }}>
-                      {opt.desc}
-                    </div>
-                    {isSelected && (
-                      <div style={{ position: 'absolute', top: '10px', right: '10px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--c-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ color: '#fff', fontSize: '10px', fontWeight: 700 }}>✓</span>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -391,7 +355,7 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
         {sectionHeader(
           <Clock size={18} />, 
           'Daily Timings', 
-          'Key time anchors for the day (Click the pencil to edit one)'
+          'Key time anchors for the day (Click a card to edit)'
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
@@ -399,12 +363,13 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
             { key: 'wakeUpTime',       label: 'Wake Up Time',         val: initialData.wakeUpTime,       icon: <Sun size={15} color="#f59e0b" /> },
             { key: 'officeDeparture',  label: 'Leave for Office',     val: initialData.officeDeparture,  icon: <Briefcase size={15} color="#6366f1" /> },
             { key: 'officeReturn',     label: 'Return from Office',   val: initialData.officeReturn,     icon: <Home size={15} color="#0ea5e9" /> },
+            { key: 'asrTiming',        label: 'Asr Prayer Timing',    val: initialData.asrTiming === 1 ? 'Later Asr' : 'Earlier Asr', icon: <Sun size={15} color="#f97316" />, rawVal: initialData.asrTiming ?? 0 },
             { key: 'hifzClassTime',    label: 'Hifz Class Time',      val: initialData.hifzClassTime,    icon: <BookOpen size={15} color="#a855f7" /> },
             { key: 'sleepTime',        label: 'Sleep Time',           val: initialData.sleepTime,        icon: <Moon size={15} color="#10b981" /> }
           ].map((item, idx) => (
             <div
               key={idx}
-              onClick={() => setEditingTiming({ key: item.key, label: item.label, icon: item.icon, value: item.val })}
+              onClick={() => setEditingTiming({ key: item.key, label: item.label, icon: item.icon, value: item.key === 'asrTiming' ? (item as any).rawVal : item.val })}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -437,7 +402,7 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
                   {item.label}
                 </span>
                 <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--c-on-surface)' }}>
-                  {formatTime(item.val)}
+                  {item.key === 'asrTiming' ? item.val : formatTime(item.val)}
                 </span>
               </div>
             </div>
@@ -569,7 +534,7 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
           onClick={() => setEditingTiming(null)}
         >
           <form
-            onSubmit={handleTimingsSubmit}
+            onSubmit={editingTiming.key === 'asrTiming' ? handleAsrSubmit : handleTimingsSubmit}
             className="card"
             style={{ position: 'relative', width: '100%', maxWidth: '380px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--c-outline-variant)' }}
             onClick={(e) => e.stopPropagation()}
@@ -586,12 +551,63 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
               Edit — {editingTiming.label}
             </h3>
 
-            <TimeInput
-              name={editingTiming.key}
-              label={editingTiming.label}
-              icon={editingTiming.icon}
-              defaultValue={editingTiming.value}
-            />
+            {editingTiming.key === 'asrTiming' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-on-surface-variant)', lineHeight: 1.5 }}>
+                  Choose when Asr begins — earlier uses a shadow length of 1× the object, later uses 2×.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {[
+                    { value: 0, label: 'Earlier Asr', desc: 'Shadow factor 1× (earlier)', icon: '🌤️' },
+                    { value: 1, label: 'Later Asr',   desc: 'Shadow factor 2× (later)', icon: '🌥️' }
+                  ].map(opt => {
+                    const isSel = tempAsrVal === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setTempAsrVal(opt.value)}
+                        style={{
+                          padding: '14px 16px',
+                          borderRadius: '12px',
+                          border: `2px solid ${isSel ? 'var(--c-primary)' : 'var(--c-outline-variant)'}`,
+                          backgroundColor: isSel ? 'var(--c-primary-container)' : 'var(--c-surface-container-low)',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'all 0.2s ease',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '2px',
+                          position: 'relative'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '18px' }}>{opt.icon}</span>
+                          <span style={{ fontSize: '13px', fontWeight: 700, color: isSel ? 'var(--c-primary)' : 'var(--c-on-surface)' }}>
+                            {opt.label}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', paddingLeft: '26px' }}>
+                          {opt.desc}
+                        </span>
+                        {isSel && (
+                          <div style={{ position: 'absolute', top: '12px', right: '12px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--c-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ color: '#fff', fontSize: '10px', fontWeight: 700 }}>✓</span>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <TimeInput
+                name={editingTiming.key}
+                label={editingTiming.label}
+                icon={editingTiming.icon}
+                defaultValue={editingTiming.value as string}
+              />
+            )}
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px' }}>
               <button
