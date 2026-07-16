@@ -45,7 +45,7 @@ export default async function TimetablePage() {
         <h2 className="text-headline-md" style={{ margin: 0 }}>Daily Time Table</h2>
       </div>
 
-      <HijriDateDisplay initialOffset={user?.hijriOffset ?? 0} />
+      <HijriDateDisplay initialOffset={user?.hijriOffset ?? 0} showControls={true} />
 
       <div className="w-full" style={{ marginBottom: '12px' }}>
         <TimetableDashboardCard timetable={initialData} prayerTimes={prayerTimes} />

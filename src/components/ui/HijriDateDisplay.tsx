@@ -5,15 +5,18 @@ import { CalendarRange, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-reac
 import { updateHijriOffset } from '@/features/timetable/actions';
 import { getHijriDateString } from '@/lib/hijri';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/context/ToastContext';
 
 interface Props {
   initialOffset: number;
+  showControls?: boolean;
 }
 
-export default function HijriDateDisplay({ initialOffset }: Props) {
+export default function HijriDateDisplay({ initialOffset, showControls = false }: Props) {
   const [offset, setOffset] = useState(initialOffset);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { showToast } = useToast();
 
   const today = new Date();
   const hijriStr = getHijriDateString(today, offset);
@@ -30,9 +33,11 @@ export default function HijriDateDisplay({ initialOffset }: Props) {
     startTransition(async () => {
       try {
         await updateHijriOffset(newOffset);
+        showToast(`Hijri date adjusted by ${newOffset > 0 ? `+${newOffset}` : newOffset} ${Math.abs(newOffset) === 1 ? 'day' : 'days'}.`, 'success');
         router.refresh();
       } catch (error) {
         console.error('Failed to update Hijri offset:', error);
+        showToast('Failed to adjust Hijri date offset.', 'error');
       }
     });
   };
@@ -42,9 +47,11 @@ export default function HijriDateDisplay({ initialOffset }: Props) {
     startTransition(async () => {
       try {
         await updateHijriOffset(0);
+        showToast('Hijri date reset to default.', 'success');
         router.refresh();
       } catch (error) {
         console.error('Failed to reset Hijri offset:', error);
+        showToast('Failed to reset Hijri date offset.', 'error');
       }
     });
   };
@@ -105,60 +112,36 @@ export default function HijriDateDisplay({ initialOffset }: Props) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '4px' }}>
-          <span 
-            className="text-label-sm" 
-            style={{ 
-              fontWeight: 700, 
-              fontSize: '11px', 
-              color: 'var(--c-on-surface-variant)',
-              backgroundColor: 'var(--c-surface-container-high)',
-              padding: '4px 10px',
-              borderRadius: '20px',
-              border: '1px solid var(--c-outline-variant)'
-            }}
-          >
-            Offset: {offset > 0 ? `+${offset}` : offset} {Math.abs(offset) === 1 ? 'Day' : 'Days'}
-          </span>
-        </div>
+      {showControls && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '4px' }}>
+            <span 
+              className="text-label-sm" 
+              style={{ 
+                fontWeight: 700, 
+                fontSize: '11px', 
+                color: 'var(--c-on-surface-variant)',
+                backgroundColor: 'var(--c-surface-container-high)',
+                padding: '4px 10px',
+                borderRadius: '20px',
+                border: '1px solid var(--c-outline-variant)'
+              }}
+            >
+              Offset: {offset > 0 ? `+${offset}` : offset} {Math.abs(offset) === 1 ? 'Day' : 'Days'}
+            </span>
+          </div>
 
-        <div style={{ display: 'flex', gap: '6px' }}>
-          <button
-            onClick={() => handleAdjust(-1)}
-            disabled={isPending}
-            className="primary-btn"
-            style={{
-              padding: '6px 12px',
-              borderRadius: '8px',
-              backgroundColor: 'var(--c-surface-container-high)',
-              color: 'var(--c-on-surface)',
-              border: '1px solid var(--c-outline-variant)',
-              boxShadow: 'none',
-              fontWeight: 700,
-              fontSize: '13px',
-              cursor: isPending ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              opacity: isPending ? 0.6 : 1
-            }}
-            title="Subtract 1 Day"
-          >
-            <ChevronLeft size={14} /> -1 Day
-          </button>
-
-          {offset !== 0 && (
+          <div style={{ display: 'flex', gap: '6px' }}>
             <button
-              onClick={handleReset}
+              onClick={() => handleAdjust(-1)}
               disabled={isPending}
               className="primary-btn"
               style={{
                 padding: '6px 12px',
                 borderRadius: '8px',
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                color: '#ef4444',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                backgroundColor: 'var(--c-surface-container-high)',
+                color: 'var(--c-on-surface)',
+                border: '1px solid var(--c-outline-variant)',
                 boxShadow: 'none',
                 fontWeight: 700,
                 fontSize: '13px',
@@ -168,37 +151,63 @@ export default function HijriDateDisplay({ initialOffset }: Props) {
                 gap: '4px',
                 opacity: isPending ? 0.6 : 1
               }}
-              title="Reset to Default"
+              title="Subtract 1 Day"
             >
-              <RotateCcw size={13} /> Reset
+              <ChevronLeft size={14} /> -1 Day
             </button>
-          )}
 
-          <button
-            onClick={() => handleAdjust(1)}
-            disabled={isPending}
-            className="primary-btn"
-            style={{
-              padding: '6px 12px',
-              borderRadius: '8px',
-              backgroundColor: 'var(--c-surface-container-high)',
-              color: 'var(--c-on-surface)',
-              border: '1px solid var(--c-outline-variant)',
-              boxShadow: 'none',
-              fontWeight: 700,
-              fontSize: '13px',
-              cursor: isPending ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              opacity: isPending ? 0.6 : 1
-            }}
-            title="Add 1 Day"
-          >
-            +1 Day <ChevronRight size={14} />
-          </button>
+            {offset !== 0 && (
+              <button
+                onClick={handleReset}
+                disabled={isPending}
+                className="primary-btn"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  boxShadow: 'none',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  cursor: isPending ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  opacity: isPending ? 0.6 : 1
+                }}
+                title="Reset to Default"
+              >
+                <RotateCcw size={13} /> Reset
+              </button>
+            )}
+
+            <button
+              onClick={() => handleAdjust(1)}
+              disabled={isPending}
+              className="primary-btn"
+              style={{
+                padding: '6px 12px',
+                borderRadius: '8px',
+                backgroundColor: 'var(--c-surface-container-high)',
+                color: 'var(--c-on-surface)',
+                border: '1px solid var(--c-outline-variant)',
+                boxShadow: 'none',
+                fontWeight: 700,
+                fontSize: '13px',
+                cursor: isPending ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                opacity: isPending ? 0.6 : 1
+              }}
+              title="Add 1 Day"
+            >
+              +1 Day <ChevronRight size={14} />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
