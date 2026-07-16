@@ -10,6 +10,10 @@ function generateToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
+const ALLOWED_EMAILS = [
+  'kaisarnajar11114@gmail.com'
+];
+
 export async function register(formData: FormData) {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
@@ -17,6 +21,16 @@ export async function register(formData: FormData) {
 
   if (!name || !email || !password) {
     return { error: 'All fields are required.' };
+  }
+
+  const emailLower = email.trim().toLowerCase();
+  const envAllowed = process.env.ALLOWED_REGISTRATION_EMAILS;
+  const allowedList = envAllowed 
+    ? envAllowed.split(',').map(e => e.trim().toLowerCase())
+    : ALLOWED_EMAILS.map(e => e.toLowerCase());
+
+  if (!allowedList.includes(emailLower)) {
+    return { error: 'Registration is currently restricted. This application is not yet open for public registration.' };
   }
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
