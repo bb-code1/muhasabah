@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
-import { login } from '@/actions/auth';
+import { login } from '@/features/auth/actions';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 

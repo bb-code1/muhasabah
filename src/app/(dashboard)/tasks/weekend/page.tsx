@@ -1,8 +1,8 @@
-import { getWeekendTasks } from '@/actions/tasks';
-import WeekendTasksClient from '@/components/weekend/WeekendTasksClient';
+import { getWeekendTasks } from '@/features/tasks/actions';
+import WeekendTasksClient from '@/features/tasks/components/WeekendTasksClient';
 import { CalendarHeart } from 'lucide-react';
 import prisma from '@/lib/prisma';
-import { getAuthenticatedUser } from '@/actions/auth';
+import { getAuthenticatedUser } from '@/features/auth/actions';
 
 import Link from 'next/link';
 

@@ -1,5 +1,5 @@
-import { getSpiritualTodayData, getSpiritualHistory, getSpiritualHabits, seedDefaultSpiritualHabits } from '@/actions/religious';
-import SpiritualDashboard from '@/components/religious/SpiritualDashboard';
+import { getSpiritualTodayData, getSpiritualHistory, getSpiritualHabits, seedDefaultSpiritualHabits } from '@/features/religious/actions';
+import SpiritualDashboard from "@/features/religious/components/SpiritualDashboard";
 
 export default async function ReligiousPage() {
   // Seed default habits (5 prayers + Adhkar) if none exist

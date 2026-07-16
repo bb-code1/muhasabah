@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { UserPlus } from 'lucide-react';
-import { register } from '@/actions/auth';
+import { register } from '@/features/auth/actions';
 import Link from 'next/link';
 
 export default function Register() {

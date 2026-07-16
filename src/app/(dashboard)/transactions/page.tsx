@@ -1,8 +1,8 @@
-import { getTransactions } from '@/actions';
+import { getTransactions } from '@/actions/index';
 import { Receipt, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
-import AddTransactionForm from '@/components/transactions/AddTransactionForm';
-import TransactionFilter from '@/components/transactions/TransactionFilter';
-import ExportButton from '@/components/transactions/ExportButton';
+import AddTransactionForm from "@/features/transactions/components/AddTransactionForm";
+import TransactionFilter from "@/features/transactions/components/TransactionFilter";
+import ExportButton from "@/features/transactions/components/ExportButton";
 import Link from 'next/link';
 
 export default async function TransactionsPage(props: { searchParams?: Promise<{ [key: string]: string | undefined }> }) {

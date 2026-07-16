@@ -1,6 +1,6 @@
-import { getDuas } from '@/actions/dua';
+import { getDuas } from '@/features/dua/actions';
 import { Heart } from 'lucide-react';
-import DuaDashboard from '@/components/dua/DuaDashboard';
+import DuaDashboard from "@/features/dua/components/DuaDashboard";
 
 export default async function DuaPage() {
   const duas = await getDuas();

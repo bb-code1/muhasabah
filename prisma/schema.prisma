@@ -17,6 +17,7 @@ model User {
   locationName      String?
   calculationMethod Int       @default(1)
   asrTiming         Int       @default(0) // 0 = Earlier Asr, 1 = Later Asr
+  hijriOffset       Int       @default(0)
   createdAt         DateTime  @default(now()) @db.Timestamptz()
   updatedAt     DateTime  @updatedAt @db.Timestamptz()
 
@@ -35,6 +36,8 @@ model User {
   books             Book[]
   relapseLogs       RelapseLog[]
   documents         Document[]
+  bookFolders       BookFolder[]
+  documentFolders   DocumentFolder[]
   timeTable         TimeTable?
 }
 
@@ -161,13 +164,14 @@ model JournalEntry {
 }
 
 model DailyTask {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
-  isCompleted Boolean  @default(false)
-  targetDate  DateTime @db.Date
-  createdAt   DateTime @default(now()) @db.Timestamptz()
+  isCompleted Boolean   @default(false)
+  targetDate  DateTime? @db.Date
+  category    String    @default("TODAY")
+  createdAt   DateTime  @default(now()) @db.Timestamptz()
 }
 
 enum DebtType {
@@ -276,27 +280,53 @@ model Dua {
   createdAt   DateTime    @default(now()) @db.Timestamptz()
 }
 
-model Book {
+model BookFolder {
   id        Int      @id @default(autoincrement())
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  books     Book[]
+
+  @@unique([userId, name])
+}
+
+model Book {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folderId  Int?
+  folder    BookFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
   title     String
   author    String?
-  driveLink String?  @db.Text
-  notes     String?  @db.Text
-  date      DateTime @default(now()) @db.Date
-  createdAt DateTime @default(now()) @db.Timestamptz()
+  driveLink String?     @db.Text
+  notes     String?     @db.Text
+  date      DateTime    @default(now()) @db.Date
+  createdAt DateTime    @default(now()) @db.Timestamptz()
+}
+
+model DocumentFolder {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime   @default(now()) @db.Timestamptz()
+  documents Document[]
+
+  @@unique([userId, name])
 }
 
 model Document {
-  id        Int      @id @default(autoincrement())
+  id        Int             @id @default(autoincrement())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folderId  Int?
+  folder    DocumentFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
   title     String
-  link      String   @db.Text
-  notes     String?  @db.Text
-  date      DateTime @default(now()) @db.Date
-  createdAt DateTime @default(now()) @db.Timestamptz()
+  link      String          @db.Text
+  notes     String?         @db.Text
+  date      DateTime        @default(now()) @db.Date
+  createdAt DateTime        @default(now()) @db.Timestamptz()
 }
 
 model RelapseLog {

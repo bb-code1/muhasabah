@@ -20,7 +20,7 @@ export async function comparePasswords(password: string, hash: string): Promise<
 }
 
 export async function encrypt(payload: SessionPayload) {
-  return await new SignJWT(payload as any)
+  return await new SignJWT(payload as unknown as import('jose').JWTPayload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')

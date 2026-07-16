@@ -1,6 +1,6 @@
-import { getJournalEntries } from '@/actions';
+import { getJournalEntries } from '@/actions/index';
 import { Briefcase } from 'lucide-react';
-import JournalDashboard from '@/components/journal/JournalDashboard';
+import JournalDashboard from "@/features/journal/components/JournalDashboard";
 
 export default async function OfficeJournalPage() {
   const entries = await getJournalEntries('OFFICE');

@@ -1,9 +1,9 @@
-import { getPersonById, markDebtPaid, deleteDebtRecord, deletePerson, markDebtPending } from '@/actions/debts';
-import AddDebtRecordForm from '@/components/debts/AddDebtRecordForm';
+import { getPersonById, markDebtPaid, deleteDebtRecord, deletePerson, markDebtPending } from '@/features/debts/actions';
+import AddDebtRecordForm from "@/features/debts/components/AddDebtRecordForm";
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Circle, Wallet } from 'lucide-react';
 import { redirect } from 'next/navigation';
-import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
+import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 
 export default async function PersonDebtPage(props: { 
   params: Promise<{ personId: string }>,

@@ -1,6 +1,6 @@
-import { getDailyTasks, addDailyTask, toggleDailyTask, deleteDailyTask } from '@/actions';
+import { getDailyTasks, addDailyTask, toggleDailyTask, deleteDailyTask } from '@/actions/index';
 import Link from 'next/link';
-import DeleteConfirmButton from '@/components/layout/DeleteConfirmButton';
+import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 
 export default async function TasksOfTheDay({ 
   dateStr, 

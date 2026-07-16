@@ -1,8 +1,9 @@
-import { getTimeTable } from '@/actions/timetable';
-import { getAuthenticatedUser } from '@/actions/auth';
+import { getTimeTable } from '@/features/timetable/actions';
+import { getAuthenticatedUser } from '@/features/auth/actions';
 import prisma from '@/lib/prisma';
-import TimetableForm from '@/components/timetable/TimetableForm';
+import TimetableForm from "@/features/timetable/components/TimetableForm";
 import TimetableDashboardCard from '@/components/dashboard/TimetableDashboardCard';
+import HijriDateDisplay from '@/components/ui/HijriDateDisplay';
 import { CalendarRange } from 'lucide-react';
 
 export default async function TimetablePage() {
@@ -43,6 +44,8 @@ export default async function TimetablePage() {
         <CalendarRange color="var(--c-primary)" size={28} />
         <h2 className="text-headline-md" style={{ margin: 0 }}>Daily Time Table</h2>
       </div>
+
+      <HijriDateDisplay initialOffset={user?.hijriOffset ?? 0} showControls={true} />
 
       <div className="w-full" style={{ marginBottom: '12px' }}>
         <TimetableDashboardCard timetable={initialData} prayerTimes={prayerTimes} />

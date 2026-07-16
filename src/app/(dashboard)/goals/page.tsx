@@ -1,6 +1,6 @@
-import { getGoals } from '@/actions';
+import { getGoals } from '@/actions/index';
 import { Target } from 'lucide-react';
-import { GoalsDashboard } from '@/components/goals/GoalsDashboard';
+import { GoalsDashboard } from "@/features/goals/components/GoalsDashboard";
 
 export default async function GoalsPage() {
   const goals = await getGoals();

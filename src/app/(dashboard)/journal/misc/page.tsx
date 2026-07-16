@@ -1,6 +1,6 @@
-import { getJournalEntries } from '@/actions';
+import { getJournalEntries } from '@/actions/index';
 import { FolderOpen } from 'lucide-react';
-import JournalDashboard from '@/components/journal/JournalDashboard';
+import JournalDashboard from "@/features/journal/components/JournalDashboard";
 
 export default async function MiscJournalPage() {
   const entries = await getJournalEntries('MISC');
