@@ -55,12 +55,12 @@ export default function Navigation() {
               />
               <defs>
                 <linearGradient id="navGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="var(--c-primary)" />
-                  <stop offset="100%" stop-color="#d4af37" />
+                  <stop offset="0%" stopColor="var(--c-primary)" />
+                  <stop offset="100%" stopColor="#d4af37" />
                 </linearGradient>
                 <linearGradient id="navGoldGradientLight" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#d4af37" />
-                  <stop offset="100%" stop-color="#f3e5ab" />
+                  <stop offset="0%" stopColor="#d4af37" />
+                  <stop offset="100%" stopColor="#f3e5ab" />
                 </linearGradient>
               </defs>
             </svg>
