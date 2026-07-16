@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { MailCheck, XCircle } from 'lucide-react';
-import { verifyEmail } from '@/actions/auth';
+import { verifyEmail } from '@/features/auth/actions';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 

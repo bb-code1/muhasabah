@@ -1,7 +1,7 @@
-import { getTimeTable } from '@/actions/timetable';
-import { getAuthenticatedUser } from '@/actions/auth';
+import { getTimeTable } from '@/features/timetable/actions';
+import { getAuthenticatedUser } from '@/features/auth/actions';
 import prisma from '@/lib/prisma';
-import TimetableForm from '@/components/timetable/TimetableForm';
+import TimetableForm from "@/features/timetable/components/TimetableForm";
 import TimetableDashboardCard from '@/components/dashboard/TimetableDashboardCard';
 import { CalendarRange } from 'lucide-react';
 

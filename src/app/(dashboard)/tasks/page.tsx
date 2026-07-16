@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import RecurringTrackers from '@/components/dashboard/RecurringTrackers';
-import FlexibleTasksDashboard from '@/components/tasks/FlexibleTasksDashboard';
-import { getRecurringTrackers, getFlexibleTasks } from '@/actions/tasks';
+import FlexibleTasksDashboard from "@/features/tasks/components/FlexibleTasksDashboard";
+import { getRecurringTrackers, getFlexibleTasks } from '@/features/tasks/actions';
 
 const TASK_SECTIONS = [
   { href: '/tasks/today', icon: 'today', label: 'Today\'s Task List', bg: 'var(--c-primary-container)', color: 'var(--c-primary)' },

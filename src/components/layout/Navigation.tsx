@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logoutAction } from '@/actions/auth';
+import { logoutAction } from '@/features/auth/actions';
 import { useState, useRef, useEffect } from 'react';
 
 export default function Navigation() {

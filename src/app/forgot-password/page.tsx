@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { MailQuestion } from 'lucide-react';
-import { requestPasswordReset } from '@/actions/auth';
+import { requestPasswordReset } from '@/features/auth/actions';
 import Link from 'next/link';
 
 export default function ForgotPassword() {

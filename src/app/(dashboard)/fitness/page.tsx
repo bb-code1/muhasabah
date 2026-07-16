@@ -1,5 +1,5 @@
-import { getFitnessLogs } from '@/actions/fitness';
-import FitnessDashboard from '@/components/fitness/FitnessDashboard';
+import { getFitnessLogs } from '@/features/fitness/actions';
+import FitnessDashboard from "@/features/fitness/components/FitnessDashboard";
 import { Dumbbell } from 'lucide-react';
 
 export default async function FitnessPage() {

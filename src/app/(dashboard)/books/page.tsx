@@ -1,6 +1,6 @@
-import { getBooks, getBookFolders } from '@/actions/books';
+import { getBooks, getBookFolders } from '@/features/books/actions';
 import { BookOpen } from 'lucide-react';
-import BooksDashboard from '@/components/books/BooksDashboard';
+import BooksDashboard from "@/features/books/components/BooksDashboard";
 
 export default async function BooksPage() {
   const [books, folders] = await Promise.all([getBooks(), getBookFolders()]);

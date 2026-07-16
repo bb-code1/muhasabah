@@ -1,5 +1,5 @@
 import Navigation from '@/components/layout/Navigation';
-import { getAuthenticatedUser } from '@/actions/auth';
+import { getAuthenticatedUser } from '@/features/auth/actions';
 import { redirect } from 'next/navigation';
 
 export default async function DashboardLayout({

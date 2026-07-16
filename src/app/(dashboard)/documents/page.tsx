@@ -1,6 +1,6 @@
-import { getDocuments, getDocumentFolders } from '@/actions/documents';
+import { getDocuments, getDocumentFolders } from '@/features/documents/actions';
 import { FileText } from 'lucide-react';
-import DocumentsDashboard from '@/components/documents/DocumentsDashboard';
+import DocumentsDashboard from "@/features/documents/components/DocumentsDashboard";
 
 export default async function DocumentsPage() {
   const [documents, folders] = await Promise.all([getDocuments(), getDocumentFolders()]);

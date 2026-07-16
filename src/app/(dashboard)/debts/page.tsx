@@ -1,7 +1,7 @@
-import { getPersons } from '@/actions/debts';
+import { getPersons } from '@/features/debts/actions';
 import Link from 'next/link';
 import { UserPlus, ArrowRight, Wallet } from 'lucide-react';
-import AddPersonDialog from '@/components/debts/AddPersonDialog';
+import AddPersonDialog from "@/features/debts/components/AddPersonDialog";
 
 
 export default async function DebtsPage(props: { searchParams?: Promise<{ [key: string]: string | undefined }> }) {

@@ -1,8 +1,8 @@
-import { getAuthenticatedUser } from '@/actions/auth';
+import { getAuthenticatedUser } from '@/features/auth/actions';
 import { User, Mail, ShieldCheck, LogOut } from 'lucide-react';
-import ChangePasswordForm from '@/components/profile/ChangePasswordForm';
-import UpdateProfileForm from '@/components/profile/UpdateProfileForm';
-import ResendVerificationButton from '@/components/profile/ResendVerificationButton';
+import ChangePasswordForm from "@/features/profile/components/ChangePasswordForm";
+import UpdateProfileForm from "@/features/profile/components/UpdateProfileForm";
+import ResendVerificationButton from "@/features/profile/components/ResendVerificationButton";
 
 export default async function Profile() {
   const user = await getAuthenticatedUser();

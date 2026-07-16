@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { KeyRound } from 'lucide-react';
-import { resetPassword } from '@/actions/auth';
+import { resetPassword } from '@/features/auth/actions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 

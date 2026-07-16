@@ -1,5 +1,5 @@
-import { getTransactions, getTimeTable } from '@/actions';
-import { getAuthenticatedUser } from '@/actions/auth';
+import { getTransactions, getTimeTable } from '@/actions/index';
+import { getAuthenticatedUser } from '@/features/auth/actions';
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import TimetableDashboardCard from '@/components/dashboard/TimetableDashboardCard';
 import Link from 'next/link';

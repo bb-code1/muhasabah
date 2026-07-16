@@ -1,6 +1,6 @@
-import { getRelapseLogs } from '@/actions/relapse';
+import { getRelapseLogs } from '@/features/relapse/actions';
 import { Shield } from 'lucide-react';
-import RelapseDashboard from '@/components/relapse/RelapseDashboard';
+import RelapseDashboard from "@/features/relapse/components/RelapseDashboard";
 
 export default async function RelapsePage() {
   const logs = await getRelapseLogs();

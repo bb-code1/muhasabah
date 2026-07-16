@@ -1,5 +1,5 @@
-import { getNotes } from '@/actions/notes';
-import NotesDashboard from '@/components/notes/NotesDashboard';
+import { getNotes } from '@/features/notes/actions';
+import NotesDashboard from "@/features/notes/components/NotesDashboard";
 import { StickyNote } from 'lucide-react';
 
 export default async function NotesPage() {

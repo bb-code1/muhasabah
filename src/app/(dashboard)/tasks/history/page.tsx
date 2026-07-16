@@ -1,4 +1,4 @@
-import TaskHistoryTable from '@/components/history/TaskHistoryTable';
+import TaskHistoryTable from '@/features/tasks/components/TaskHistoryTable';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
