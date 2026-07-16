@@ -213,7 +213,7 @@ export default async function Dashboard() {
         {/* SPENDING SUMMARY */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h4 className="text-title-sm" style={{ fontWeight: 700, color: 'var(--c-on-surface-variant)', margin: 0 }}>Finance Expenses</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px', flexGrow: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px' }}>
             {[
               { label: 'TODAY', value: `$${dailySpending.toFixed(2)}` },
               { label: 'THIS WEEK', value: `$${weeklySpending.toFixed(2)}` },
@@ -223,11 +223,11 @@ export default async function Dashboard() {
               <Link 
                 key={i} 
                 href="/transactions"
-                className={`card flex-col justify-center p-16 ${item.highlight ? 'highlight-card' : ''}`}
+                className={`card flex-col justify-center ${item.highlight ? 'highlight-card' : ''}`}
                 style={{ 
                   backgroundColor: 'var(--c-surface-container-high)',
                   borderTop: item.highlight ? '3px solid var(--c-primary)' : '1px solid var(--c-outline-variant)',
-                  padding: '16px',
+                  padding: '12px 16px',
                   borderRadius: '12px',
                   display: 'flex',
                   flexDirection: 'column',

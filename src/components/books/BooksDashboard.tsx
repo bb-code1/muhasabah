@@ -350,3 +350,68 @@ export default function BooksDashboard({ initialBooks, initialFolders }: Props) 
           </div>
         </div>
       )}
+
+      {/* ── Add / Edit Book Modal (shared form) ── */}
+      {(isFormOpen || isEditOpen) && mounted && createPortal(
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100, padding: '16px', backdropFilter: 'blur(6px)' }}
+          onClick={() => { setIsFormOpen(false); setIsEditOpen(false); }}>
+          <div className="card" style={{ width: '100%', maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '20px', padding: '24px', position: 'relative', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--c-outline-variant)' }}
+            onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => { setIsFormOpen(false); setIsEditOpen(false); }} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-on-surface-variant)' }}><X size={20} /></button>
+            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 700 }}>{isEditOpen ? 'Edit Book' : 'Add New Book'}</h3>
+            <form onSubmit={isEditOpen ? handleUpdate : handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Book Title</label>
+                <input type="text" placeholder="e.g., Atomic Habits" value={title} onChange={(e) => setTitle(e.target.value)} className="search-input" style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }} required />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Author</label>
+                <input type="text" placeholder="e.g., James Clear" value={author} onChange={(e) => setAuthor(e.target.value)} className="search-input" style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Google Drive Link</label>
+                <input type="url" placeholder="https://drive.google.com/…" value={driveLink} onChange={(e) => setDriveLink(e.target.value)} className="search-input" style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Folder</label>
+                <select value={formFolderId ?? ''} onChange={(e) => setFormFolderId(e.target.value ? Number(e.target.value) : null)} className="search-input" style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }}>
+                  <option value="">— Unfiled —</option>
+                  {initialFolders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Notes / Reflections</label>
+                <textarea placeholder="Your notes or reflections (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} className="search-input" style={{ width: '100%', minHeight: '90px', borderRadius: '10px', resize: 'vertical', fontSize: '14px', lineHeight: 1.6 }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px', marginTop: '8px' }}>
+                <button type="button" onClick={() => { setIsFormOpen(false); setIsEditOpen(false); }} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--c-on-surface-variant)', border: '1px solid var(--c-outline-variant)', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" className="primary-btn" style={{ padding: '10px 24px', borderRadius: '8px' }} disabled={loading}>{loading ? 'Saving…' : isEditOpen ? 'Save Changes' : 'Add Book'}</button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── Folder Form Modal ── */}
+      {isFolderFormOpen && mounted && createPortal(
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100, padding: '16px', backdropFilter: 'blur(6px)' }}
+          onClick={() => setIsFolderFormOpen(false)}>
+          <div className="card" style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '20px', padding: '24px', position: 'relative', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--c-outline-variant)' }}
+            onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setIsFolderFormOpen(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-on-surface-variant)' }}><X size={20} /></button>
+            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 700 }}>{editingFolder ? 'Rename Folder' : 'New Folder'}</h3>
+            <form onSubmit={handleFolderSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <input type="text" placeholder="Folder name…" value={folderName} onChange={(e) => setFolderName(e.target.value)} className="search-input" style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }} autoFocus required />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '16px' }}>
+                <button type="button" onClick={() => setIsFolderFormOpen(false)} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--c-on-surface-variant)', border: '1px solid var(--c-outline-variant)', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" className="primary-btn" style={{ padding: '10px 24px', borderRadius: '8px' }} disabled={folderLoading}>{folderLoading ? 'Saving…' : editingFolder ? 'Rename' : 'Create'}</button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+}
