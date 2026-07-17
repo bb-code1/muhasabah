@@ -129,9 +129,16 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
   const tasksByDay: Record<string, DailyTask[]> = {};
   const activeDayStrings: string[] = [];
 
+  const getLocalDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   filteredTasks.forEach((task) => {
     if (!task.targetDate) return;
-    const dateStr = new Date(task.targetDate).toISOString().split('T')[0];
+    const dateStr = getLocalDateString(new Date(task.targetDate));
     if (!tasksByDay[dateStr]) {
       tasksByDay[dateStr] = [];
       activeDayStrings.push(dateStr);
@@ -288,12 +295,12 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
       {/* TASK HISTORY GRID */}
       <div className="task-history-grid">
         {paginatedDays.map((day) => {
-          const dayStr = day.toISOString().split('T')[0];
+          const dayStr = getLocalDateString(day);
           const dayTasks = tasksByDay[dayStr] || [];
           // Display format with year included
           const displayDate = day.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
           
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = getLocalDateString(new Date());
           const isToday = dayStr === todayStr;
 
           const completedCount = dayTasks.filter((t) => t.isCompleted).length;
