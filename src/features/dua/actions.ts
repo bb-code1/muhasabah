@@ -74,12 +74,31 @@ export interface AuthenticDua {
   reference: string;
 }
 
+function cleanBraces(text: string): string {
+  if (!text) return '';
+  let cleaned = text.trim();
+  // Strip outer double or single parentheses/braces: e.g. ((...)) or (...) optionally followed by a period
+  cleaned = cleaned.replace(/^(\(\(|\()/, ''); // remove leading (( or (
+  cleaned = cleaned.replace(/(\)\)|\))\.?$/, ''); // remove trailing )) or ) optionally followed by a dot
+  return cleaned.trim();
+}
+
 export async function searchAuthenticDuas(query: string): Promise<AuthenticDua[]> {
   const user = await getAuthenticatedUser();
   if (!user) throw new Error('Unauthorized');
 
   const trimmedQuery = query.trim().toLowerCase();
   if (trimmedQuery.length < 2) return [];
+
+  // Fetch user's existing Duas
+  const existingDuas = await prisma.dua.findMany({
+    where: { userId: user.id },
+    select: { content: true }
+  });
+
+  const existingContents = new Set(
+    existingDuas.map(d => cleanBraces(d.content).replace(/\s+/g, ''))
+  );
 
   const results: { item: AuthenticDua; score: number }[] = [];
 
@@ -89,6 +108,16 @@ export async function searchAuthenticDuas(query: string): Promise<AuthenticDua[]
 
     for (const supplication of chapter.TEXT) {
       const supp = supplication as any;
+      
+      const rawArabic = supp.ARABIC_TEXT || supp.Text || '';
+      const arabicText = cleanBraces(rawArabic);
+      const normalizedArabic = arabicText.replace(/\s+/g, '');
+
+      // Exclude if already added
+      if (existingContents.has(normalizedArabic)) {
+        continue;
+      }
+
       let score = 0;
 
       if (isChapterMatch) {
@@ -97,12 +126,12 @@ export async function searchAuthenticDuas(query: string): Promise<AuthenticDua[]
         score += 3;
       }
 
-      const translationLower = (supp.TRANSLATED_TEXT || '').toLowerCase();
+      const translationText = cleanBraces(supp.TRANSLATED_TEXT || '');
+      const translationLower = translationText.toLowerCase();
       if (translationLower.includes(trimmedQuery)) {
         score += 5;
       }
 
-      const arabicText = supp.ARABIC_TEXT || supp.Text || '';
       const arabicLower = arabicText.toLowerCase();
       if (arabicLower.includes(trimmedQuery)) {
         score += 2;
@@ -111,9 +140,9 @@ export async function searchAuthenticDuas(query: string): Promise<AuthenticDua[]
       if (score > 0) {
         results.push({
           item: {
-            title: chapter.TITLE,
+            title: cleanBraces(chapter.TITLE),
             content: arabicText,
-            translation: supp.TRANSLATED_TEXT || null,
+            translation: translationText || null,
             reference: `Hisn al-Muslim (Hadith/Source)`
           },
           score

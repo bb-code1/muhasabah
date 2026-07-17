@@ -31,6 +31,7 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
   const [webResults, setWebResults] = useState<AuthenticDua[]>([]);
   const [isSearchingWeb, setIsSearchingWeb] = useState(false);
   const [hasSearchedWeb, setHasSearchedWeb] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   // Modals state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -158,6 +159,10 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
               type="text" 
               placeholder="Search Duas by title, content or translation..." 
               value={search}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => {
+                setTimeout(() => setIsInputFocused(false), 200);
+              }}
               onChange={(e) => {
                 setSearch(e.target.value);
                 setCurrentPage(1);
@@ -165,10 +170,17 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
                 setHasSearchedWeb(false);
               }}
               className="search-input"
-              style={{ width: '100%', paddingLeft: '40px', borderRadius: '8px' }}
+              style={{ 
+                width: '100%', 
+                paddingLeft: '40px', 
+                borderRadius: '16px',
+                border: isInputFocused ? '2px solid var(--c-primary)' : '2px solid rgba(191, 145, 41, 0.4)',
+                boxShadow: isInputFocused ? '0 0 0 4px var(--c-primary-container)' : 'none',
+                transition: 'all 0.3s ease'
+              }}
             />
           </div>
-          {search.trim().length >= 2 && (
+          {!isInputFocused && search.trim().length >= 2 && (
             <button
               onClick={handleWebSearch}
               disabled={isSearchingWeb}
