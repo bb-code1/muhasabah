@@ -22,7 +22,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🧹 Cleaning up existing data...');
 
-  await prisma.verificationToken.deleteMany();
+
   await prisma.transaction.deleteMany();
   await prisma.goal.deleteMany();
   await prisma.spiritualHabitLog.deleteMany();
@@ -75,7 +75,6 @@ async function main() {
       name: 'Test User 1',
       email: 'test1@example.com',
       passwordHash,
-      emailVerified: true,
       latitude: 12.9716,
       longitude: 77.5946,
       locationName: 'Bengaluru, India',
@@ -88,7 +87,6 @@ async function main() {
       name: 'Test User 2',
       email: 'test2@example.com',
       passwordHash,
-      emailVerified: true,
     },
   });
 

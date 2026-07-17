@@ -1,9 +1,9 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { hashPassword, comparePasswords, createSession, destroySession, getSession } from '@/lib/auth';
-import { sendPasswordResetEmail } from '@/lib/mailer';
+import { hashPassword, createSession, destroySession, getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { isEmailAuthorized } from './authorization';
 import crypto from 'crypto';
 
 function generateToken() {
@@ -13,9 +13,8 @@ function generateToken() {
 export async function register(formData: FormData) {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
 
-  if (!name || !email || !password) {
+  if (!name || !email) {
     return { error: 'All fields are required.' };
   }
 
@@ -35,14 +34,14 @@ export async function register(formData: FormData) {
     return { error: 'User already exists.' };
   }
 
-  const passwordHash = await hashPassword(password);
+  const globalPassword = process.env.GLOBAL_PASSWORD || 'password123';
+  const passwordHash = await hashPassword(globalPassword);
   
   const user = await prisma.user.create({
     data: {
       name,
       email,
       passwordHash,
-      emailVerified: true,
     }
   });
 
@@ -57,17 +56,19 @@ export async function login(formData: FormData) {
     return { error: 'Email and password are required.' };
   }
 
+  const globalPassword = process.env.GLOBAL_PASSWORD || 'password123';
+  if (password !== globalPassword) {
+    return { error: 'Invalid email or password.' };
+  }
+
+  if (!isEmailAuthorized(email)) {
+    return { error: 'Access denied. This email is not authorized.' };
+  }
+
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     return { error: 'Invalid email or password.' };
   }
-
-  const isValid = await comparePasswords(password, user.passwordHash);
-  if (!isValid) {
-    return { error: 'Invalid email or password.' };
-  }
-
-  // Email verification is disabled
 
   await createSession({
     userId: user.id,
@@ -83,139 +84,10 @@ export async function logoutAction() {
   redirect('/login');
 }
 
-export async function verifyEmail(token: string) {
-  const verificationToken = await prisma.verificationToken.findUnique({
-    where: { token }
-  });
-
-  if (!verificationToken || verificationToken.type !== 'EMAIL_VERIFICATION') {
-    return { error: 'Invalid or missing token.' };
-  }
-
-  if (new Date() > verificationToken.expires) {
-    return { error: 'Token has expired.' };
-  }
-
-  const user = await prisma.user.findUnique({ where: { email: verificationToken.identifier } });
-  if (!user) {
-    return { error: 'User does not exist.' };
-  }
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { emailVerified: true }
-  });
-
-  await prisma.verificationToken.delete({
-    where: { id: verificationToken.id }
-  });
-
-  return { success: 'Email verified successfully! You can now log in.' };
-}
-
-export async function requestPasswordReset(formData: FormData) {
-  const email = formData.get('email') as string;
-
-  if (!email) {
-    return { error: 'Email is required.' };
-  }
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    // Return success anyway to prevent email enumeration
-    return { success: 'If an account exists, a reset link has been sent.' };
-  }
-
-  const token = generateToken();
-  await prisma.verificationToken.create({
-    data: {
-      identifier: email,
-      token,
-      expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
-      type: 'PASSWORD_RESET'
-    }
-  });
-
-  await sendPasswordResetEmail(email, token);
-
-  return { success: 'If an account exists, a reset link has been sent.' };
-}
-
-export async function resetPassword(formData: FormData) {
-  const token = formData.get('token') as string;
-  const password = formData.get('password') as string;
-
-  if (!token || !password) {
-    return { error: 'Invalid request.' };
-  }
-
-  const verificationToken = await prisma.verificationToken.findUnique({
-    where: { token }
-  });
-
-  if (!verificationToken || verificationToken.type !== 'PASSWORD_RESET') {
-    return { error: 'Invalid or missing token.' };
-  }
-
-  if (new Date() > verificationToken.expires) {
-    return { error: 'Token has expired.' };
-  }
-
-  const user = await prisma.user.findUnique({ where: { email: verificationToken.identifier } });
-  if (!user) {
-    return { error: 'User does not exist.' };
-  }
-
-  const passwordHash = await hashPassword(password);
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { passwordHash }
-  });
-
-  await prisma.verificationToken.delete({
-    where: { id: verificationToken.id }
-  });
-
-  return { success: 'Password has been reset successfully. You can now log in.' };
-}
-
 export async function getAuthenticatedUser() {
   const session = await getSession();
   if (!session) return null;
   return await prisma.user.findUnique({ where: { id: session.userId } });
-}
-
-export async function changePassword(formData: FormData) {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    return { error: 'Unauthorized' };
-  }
-
-  const currentPassword = formData.get('currentPassword') as string;
-  const newPassword = formData.get('newPassword') as string;
-
-  if (!currentPassword || !newPassword) {
-    return { error: 'Both current and new password are required.' };
-  }
-
-  if (newPassword.length < 6) {
-    return { error: 'New password must be at least 6 characters long.' };
-  }
-
-  const isValid = await comparePasswords(currentPassword, user.passwordHash);
-  if (!isValid) {
-    return { error: 'Incorrect current password.' };
-  }
-
-  const passwordHash = await hashPassword(newPassword);
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { passwordHash }
-  });
-
-  return { success: 'Password changed successfully.' };
 }
 
 export async function updateProfile(formData: FormData) {

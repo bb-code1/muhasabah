@@ -1,4 +1,3 @@
-import { getTransactions, getTimeTable } from '@/actions/index';
 import { getAuthenticatedUser } from '@/features/auth/actions';
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import TimetableDashboardCard from '@/components/dashboard/TimetableDashboardCard';
@@ -30,30 +29,89 @@ export default async function Dashboard() {
     redirect('/login');
   }
 
-  const transactions = await getTransactions();
-  const timetable = await getTimeTable();
-  const user = await prisma.user.findUnique({ where: { id: sessionUser.id } });
-
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+  const [
+    transactions,
+    timetable,
+    user,
+    habitLogs,
+    monthlyDayLogs,
+    absoluteLatestGoal,
+    latestDua,
+    latestBook,
+    latestRelapse,
+    persons
+  ] = await Promise.all([
+    prisma.transaction.findMany({
+      where: { userId: sessionUser.id },
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+    }),
+    prisma.timeTable.findUnique({
+      where: { userId: sessionUser.id }
+    }).then(async (t) => {
+      if (!t) {
+        return await prisma.timeTable.create({
+          data: { userId: sessionUser.id }
+        });
+      }
+      return t;
+    }),
+    prisma.user.findUnique({ where: { id: sessionUser.id } }),
+    prisma.spiritualHabitLog.findMany({
+      where: {
+        habit: { userId: sessionUser.id },
+        date: { gte: startOfYear },
+      },
+      include: {
+        habit: true,
+      },
+    }),
+    prisma.spiritualDayLog.findMany({
+      where: {
+        userId: sessionUser.id,
+        date: { gte: startOfMonth },
+      },
+    }),
+    prisma.goal.findFirst({
+      where: { userId: sessionUser.id },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.dua.findFirst({
+      where: { userId: sessionUser.id },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.book.findFirst({
+      where: { userId: sessionUser.id },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.relapseLog.findFirst({
+      where: { userId: sessionUser.id },
+      orderBy: { date: 'desc' },
+    }),
+    prisma.person.findMany({
+      where: { userId: sessionUser.id },
+      include: { debts: true }
+    })
+  ]);
 
   let prayerTimes = null;
   if (user?.latitude && user?.longitude) {
     try {
-      // method is dynamic, school=0 is Shafi
       const method = user.calculationMethod ?? 1;
       const res = await fetch(`https://api.aladhan.com/v1/timings/${todayStr}?latitude=${user.latitude}&longitude=${user.longitude}&method=${method}&school=0`, { next: { revalidate: 3600 } });
       const data = await res.json();
       if (data && data.data && data.data.timings) {
-        prayerTimes = data.data.timings; // { Fajr: "05:00", Sunrise: "06:30", Dhuhr: "12:00", Asr: "15:00", Sunset: "18:00", Maghrib: "18:00", Isha: "19:30" ... }
+        prayerTimes = data.data.timings;
       }
     } catch (e) {
       console.error('Failed to fetch prayer times', e);
     }
   }
 
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
   const todayStart = new Date(now);
   todayStart.setHours(0, 0, 0, 0);
   const weekStart = new Date(todayStart);
@@ -75,19 +133,6 @@ export default async function Dashboard() {
     .filter(t => new Date(t.date) >= startOfYear && t.type === 'EXPENSE')
     .reduce((acc, t) => acc + Number(t.amount), 0);
 
-  // Fetch spiritual habit logs for the current year
-  const habitLogs = await prisma.spiritualHabitLog.findMany({
-    where: {
-      date: {
-        gte: startOfYear,
-      },
-    },
-    include: {
-      habit: true,
-    },
-  });
-
-  // 1. Calculate monthly prayer stats
   const monthlyLogs = habitLogs.filter(l => new Date(l.date) >= startOfMonth);
   const prayers = ['Fajr', 'Zuhur', 'Asr', 'Maghrib', 'Isha', 'Tahajjud'];
   const monthlyPrayerStats = prayers.map(p => {
@@ -98,16 +143,6 @@ export default async function Dashboard() {
     return { name: p, rate };
   });
 
-  // 2. Fetch spiritual day logs for the current month
-  const monthlyDayLogs = await prisma.spiritualDayLog.findMany({
-    where: {
-      date: {
-        gte: startOfMonth,
-      },
-    },
-  });
-
-  // 3. Calculate Quran Memorisation insights for current month
   let monthlyQuranVerses = 0;
   const monthlyQuranSurahs = new Set<number>();
   
@@ -124,7 +159,6 @@ export default async function Dashboard() {
     }
   });
 
-  // 4. Extract recent good deeds logs for current month
   const recentGoodDeeds = monthlyDayLogs
     .filter(l => l.otherActivities && l.otherActivities.trim())
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -136,26 +170,6 @@ export default async function Dashboard() {
         text: text.length > 50 ? text.substring(0, 47) + '...' : text,
       };
     });
-
-  // Fetch latest Goal
-  const absoluteLatestGoal = await prisma.goal.findFirst({
-    orderBy: { createdAt: 'desc' },
-  });
-
-  // Fetch latest Dua
-  const latestDua = await prisma.dua.findFirst({
-    orderBy: { createdAt: 'desc' },
-  });
-
-  // Fetch latest Book
-  const latestBook = await prisma.book.findFirst({
-    orderBy: { createdAt: 'desc' },
-  });
-
-  // Fetch latest Relapse log
-  const latestRelapse = await prisma.relapseLog.findFirst({
-    orderBy: { date: 'desc' },
-  });
 
   // Calculate recovery streak
   let streakDays = 0;
@@ -173,6 +187,23 @@ export default async function Dashboard() {
       streakText = 'Keep going!';
     }
   }
+
+  // Calculate Net Balances for Ledger
+  let totalTheyOweMe = 0;
+  let totalIOweThem = 0;
+
+  persons.forEach(person => {
+    person.debts.forEach(debt => {
+      if (debt.status === 'PENDING') {
+        const amt = Number(debt.amount);
+        if (debt.type === 'CREDIT') {
+          totalTheyOweMe += amt;
+        } else {
+          totalIOweThem += amt;
+        }
+      }
+    });
+  });
 
   return (
     <>
@@ -678,6 +709,84 @@ export default async function Dashboard() {
                   </span>
                 </div>
               )}
+            </div>
+          </Link>
+        </div>
+
+        {/* LEDGER SUMMARY */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <h4 className="text-title-sm" style={{ fontWeight: 700, color: 'var(--c-on-surface-variant)', margin: 0 }}>Ledger</h4>
+          <Link 
+            href="/debts"
+            className="card" 
+            style={{ 
+              padding: '16px', 
+              borderRadius: '12px', 
+              backgroundColor: 'var(--c-surface-container-high)',
+              border: '1px solid var(--c-outline-variant)',
+              textDecoration: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              flexGrow: 1,
+              justifyContent: 'center',
+              transition: 'transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease'
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-secondary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                  NET BALANCE STATUS
+                </span>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--c-on-surface-variant)' }}>arrow_forward</span>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '4px' }}>
+                <div style={{ 
+                  padding: '10px 12px', 
+                  borderRadius: '8px', 
+                  backgroundColor: 'var(--c-surface)', 
+                  borderLeft: '4px solid var(--c-primary)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px'
+                }}>
+                  <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>THEY OWE YOU</span>
+                  <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--c-primary)' }}>
+                    ${totalTheyOweMe.toFixed(2)}
+                  </span>
+                </div>
+
+                <div style={{ 
+                  padding: '10px 12px', 
+                  borderRadius: '8px', 
+                  backgroundColor: 'var(--c-surface)', 
+                  borderLeft: '4px solid var(--c-error)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px'
+                }}>
+                  <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>YOU OWE THEM</span>
+                  <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--c-error)' }}>
+                    ${totalIOweThem.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--c-on-surface-variant)', fontStyle: 'italic', marginTop: '6px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>info</span>
+                {totalTheyOweMe === 0 && totalIOweThem === 0 ? (
+                  <span>All debts are currently settled.</span>
+                ) : (
+                  <span>
+                    Net Position: {totalTheyOweMe >= totalIOweThem ? (
+                      <strong style={{ color: 'var(--c-primary)' }}>+${(totalTheyOweMe - totalIOweThem).toFixed(2)}</strong>
+                    ) : (
+                      <strong style={{ color: 'var(--c-error)' }}>-${(totalIOweThem - totalTheyOweMe).toFixed(2)}</strong>
+                    )}
+                  </span>
+                )}
+              </div>
             </div>
           </Link>
         </div>

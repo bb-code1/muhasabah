@@ -55,12 +55,7 @@ export default function Login() {
             style={{ width: '100%', paddingLeft: '16px' }}
             required
           />
-          
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Link href="/forgot-password" style={{ color: 'var(--c-primary)', fontSize: '13px', textDecoration: 'none' }}>
-              Forgot password?
-            </Link>
-          </div>
+
 
           {error && <p className="text-label-sm" style={{ color: 'var(--c-error)', textAlign: 'left', margin: 0 }}>{error}</p>}
           

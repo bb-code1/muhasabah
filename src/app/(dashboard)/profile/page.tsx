@@ -1,6 +1,5 @@
 import { getAuthenticatedUser } from '@/features/auth/actions';
-import { User, Mail, LogOut } from 'lucide-react';
-import ChangePasswordForm from "@/features/profile/components/ChangePasswordForm";
+import { User } from 'lucide-react';
 import UpdateProfileForm from "@/features/profile/components/UpdateProfileForm";
 
 export default async function Profile() {
@@ -15,7 +14,7 @@ export default async function Profile() {
       </div>
 
       <div className="grid-container">
-        <div className="card col-span-8" style={{ padding: '24px' }}>
+        <div className="card col-span-12" style={{ padding: '24px' }}>
           <h2 className="text-title-lg" style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--c-primary)' }}>
             <User size={24} />
             Personal Details
@@ -29,18 +28,6 @@ export default async function Profile() {
               {new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
           </div>
-        </div>
-
-        <div className="card col-span-4" style={{ padding: '24px' }}>
-          <h2 className="text-title-lg" style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--c-primary)' }}>
-            <Mail size={24} />
-            Security Settings
-          </h2>
-          
-          <p className="text-body-md text-on-surface-variant" style={{ marginBottom: '16px' }}>
-            To change your password, input your current password and your new password.
-          </p>
-          <ChangePasswordForm />
         </div>
       </div>
     </div>

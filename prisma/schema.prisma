@@ -11,7 +11,6 @@ model User {
   name          String
   email         String    @unique
   passwordHash  String
-  emailVerified Boolean   @default(false)
   latitude          Float?
   longitude         Float?
   locationName      String?
@@ -41,21 +40,6 @@ model User {
   timeTable         TimeTable?
 }
 
-enum VerificationTokenType {
-  EMAIL_VERIFICATION
-  PASSWORD_RESET
-}
-
-model VerificationToken {
-  id         Int                   @id @default(autoincrement())
-  identifier String
-  token      String                @unique
-  expires    DateTime              @db.Timestamptz()
-  type       VerificationTokenType
-  createdAt  DateTime              @default(now()) @db.Timestamptz()
-
-  @@unique([identifier, token])
-}
 
 enum TransactionType {
   INCOME
