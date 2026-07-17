@@ -65,15 +65,7 @@ export default function Register() {
               style={{ width: '100%', paddingLeft: '16px' }}
               required
             />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              className="search-input"
-              style={{ width: '100%', paddingLeft: '16px' }}
-              minLength={6}
-              required
-            />
+
 
             {error && <p className="text-label-sm" style={{ color: 'var(--c-error)', textAlign: 'left', margin: 0 }}>{error}</p>}
             

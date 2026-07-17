@@ -8,15 +8,9 @@ import { isEmailAuthorized } from './authorization';
 export async function register(formData: FormData) {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
 
-  if (!name || !email || !password) {
+  if (!name || !email) {
     return { error: 'All fields are required.' };
-  }
-
-  const globalPassword = process.env.GLOBAL_PASSWORD || 'password123';
-  if (password !== globalPassword) {
-    return { error: 'Invalid password. All accounts must use the configured global password.' };
   }
 
   if (!isEmailAuthorized(email)) {
@@ -28,7 +22,8 @@ export async function register(formData: FormData) {
     return { error: 'User already exists.' };
   }
 
-  const passwordHash = await hashPassword(password);
+  const globalPassword = process.env.GLOBAL_PASSWORD || 'password123';
+  const passwordHash = await hashPassword(globalPassword);
   
   const user = await prisma.user.create({
     data: {
