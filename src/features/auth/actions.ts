@@ -5,14 +5,11 @@ import { hashPassword, comparePasswords, createSession, destroySession, getSessi
 import { sendPasswordResetEmail } from '@/lib/mailer';
 import { redirect } from 'next/navigation';
 import crypto from 'crypto';
+import { isEmailAuthorized } from './authorization';
 
 function generateToken() {
   return crypto.randomBytes(32).toString('hex');
 }
-
-const ALLOWED_EMAILS = [
-  'kaisarnajar11114@gmail.com'
-];
 
 export async function register(formData: FormData) {
   const name = formData.get('name') as string;
@@ -23,14 +20,8 @@ export async function register(formData: FormData) {
     return { error: 'All fields are required.' };
   }
 
-  const emailLower = email.trim().toLowerCase();
-  const envAllowed = process.env.ALLOWED_REGISTRATION_EMAILS;
-  const allowedList = envAllowed 
-    ? envAllowed.split(',').map(e => e.trim().toLowerCase())
-    : ALLOWED_EMAILS.map(e => e.toLowerCase());
-
-  if (!allowedList.includes(emailLower)) {
-    return { error: 'Registration is currently restricted. This application is not yet open for public registration.' };
+  if (!isEmailAuthorized(email)) {
+    return { error: 'Registration is currently restricted. This email is not authorized.' };
   }
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -58,6 +49,10 @@ export async function login(formData: FormData) {
 
   if (!email || !password) {
     return { error: 'Email and password are required.' };
+  }
+
+  if (!isEmailAuthorized(email)) {
+    return { error: 'Access denied. This email is not authorized.' };
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
@@ -121,6 +116,10 @@ export async function requestPasswordReset(formData: FormData) {
 
   if (!email) {
     return { error: 'Email is required.' };
+  }
+
+  if (!isEmailAuthorized(email)) {
+    return { error: 'This email is not authorized.' };
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
