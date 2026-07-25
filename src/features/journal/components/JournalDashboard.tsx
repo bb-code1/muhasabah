@@ -6,6 +6,8 @@ import { JournalEntry, JournalCategory } from '@prisma/client';
 import CustomDateRangeDialog from '@/components/ui/CustomDateRangeDialog';
 import SearchInput from '@/components/ui/SearchInput';
 
+import { getLocalDateString, getTodayDateString } from '@/lib/dateUtils';
+
 import JournalFilterTabs from './JournalFilterTabs';
 import JournalEntryCard from './JournalEntryCard';
 import JournalPagination from './JournalPagination';
@@ -52,7 +54,7 @@ export default function JournalDashboard({ category, initialEntries }: Props) {
 
     if (filterPeriod === 'ALL') return true;
     if (filterPeriod === 'TODAY') {
-      return d.toISOString().split('T')[0] === now.toISOString().split('T')[0];
+      return getLocalDateString(d, 'UTC') === getTodayDateString();
     }
     if (filterPeriod === 'WEEK') {
       const weekStart = new Date(now);

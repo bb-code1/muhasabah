@@ -7,6 +7,7 @@ import IbadahDetailModal from './IbadahDetailModal';
 import TodayTrackerModal from './TodayTrackerModal';
 import { getSpiritualTodayData } from '@/features/religious/actions';
 import { QURAN_SURAHS } from '@/lib/quranData';
+import { getTodayDateString, getLocalDateString } from '@/lib/dateUtils';
 
 interface HistoryRecord {
   date: Date;
@@ -159,7 +160,7 @@ export default function IbadahRegister({ initialHistory }: IbadahRegisterProps) 
               setIsAddingPastDay(true);
               const yesterday = new Date();
               yesterday.setDate(yesterday.getDate() - 1);
-              setPastDayDate(yesterday.toISOString().split('T')[0]);
+              setPastDayDate(getLocalDateString(yesterday));
             }}
             className="primary-btn"
             style={{ 
@@ -217,7 +218,7 @@ export default function IbadahRegister({ initialHistory }: IbadahRegisterProps) 
                   type="date" 
                   value={pastDayDate}
                   onChange={(e) => setPastDayDate(e.target.value)}
-                  max={new Date().toISOString().split('T')[0]}
+                  max={getTodayDateString()}
                   style={{ 
                     width: '100%',
                     padding: '10px 14px', 
@@ -365,8 +366,8 @@ export default function IbadahRegister({ initialHistory }: IbadahRegisterProps) 
                 {paginatedHistory.map((record, index) => {
                   const globalIndex = (activePage - 1) * PAGE_SIZE + index;
                   const recordDate = new Date(record.date);
-                  const dateStrLocal = recordDate.toISOString().split('T')[0];
-                  const todayStrLocal = new Date().toISOString().split('T')[0];
+                  const dateStrLocal = getLocalDateString(record.date, 'UTC');
+                  const todayStrLocal = getTodayDateString();
                   const isToday = dateStrLocal === todayStrLocal;
                   const shortDate = recordDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
                   const completionRate = record.totalCount > 0 ? (record.completedCount / record.totalCount) * 100 : 0;

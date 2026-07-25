@@ -10,6 +10,8 @@ const TASK_SECTIONS = [
   { href: '/tasks/history', icon: 'history', label: 'Task History', bg: 'var(--c-surface-variant)', color: 'var(--c-on-surface-variant)' },
 ];
 
+import { getLocalDateString } from '@/lib/dateUtils';
+
 export default async function TasksPage(props: { searchParams?: Promise<{ [key: string]: string | undefined }> }) {
   const searchParams = await props.searchParams;
   const pageStr = searchParams?.page || '1';
@@ -18,7 +20,7 @@ export default async function TasksPage(props: { searchParams?: Promise<{ [key: 
   const now = new Date();
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  const tomorrowStr = getLocalDateString(tomorrow);
 
   const [trackers, flexibleTasks] = await Promise.all([
     getRecurringTrackers(),

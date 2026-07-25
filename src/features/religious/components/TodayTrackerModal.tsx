@@ -26,15 +26,13 @@ interface TodayTrackerModalProps {
   };
 }
 
+import { getTodayDateString, formatDateForDisplay } from '@/lib/dateUtils';
+
 export default function TodayTrackerModal({ isOpen, onClose, dateStr, initialTodayData }: TodayTrackerModalProps) {
   const { showToast } = useToast();
   
-  const isToday = new Date().toISOString().split('T')[0] === dateStr;
-  const displayDate = new Date(dateStr);
-  // adjust timezone offset to show correct local day if needed, 
-  // or simply use UTC to parse the YYYY-MM-DD correctly.
-  const displayDateOffset = displayDate.getTimezoneOffset() * 60000;
-  const localDisplayDate = new Date(displayDate.getTime() + displayDateOffset);
+  const isToday = getTodayDateString() === dateStr;
+  const formattedDisplayDate = formatDateForDisplay(dateStr);
 
   const [selectedSurahNum, setSelectedSurahNum] = useState<number>(() => {
     if (initialTodayData.quranMemorization) {
@@ -150,7 +148,7 @@ export default function TodayTrackerModal({ isOpen, onClose, dateStr, initialTod
         </div>
 
         <p className="text-body-md text-on-surface-variant mb-24" style={{ fontWeight: 500 }}>
-          {localDisplayDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          {formattedDisplayDate}
         </p>
 
         {initialTodayData.habits.length === 0 ? (

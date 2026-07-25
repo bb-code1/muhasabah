@@ -3,16 +3,14 @@ import SpiritualDashboard from "@/features/religious/components/SpiritualDashboa
 import { getAuthenticatedUser } from '@/features/auth/actions';
 import { getPrayerTimesAndMaghribStatus } from '@/features/timetable/actions';
 
+import { getTodayDateString } from '@/lib/dateUtils';
+
 export default async function ReligiousPage() {
   // Seed default habits (5 prayers + Adhkar) if none exist
   await seedDefaultSpiritualHabits();
 
   const user = await getAuthenticatedUser();
-  const today = new Date();
-  // Adjust for local timezone to ensure 'today' is the user's today
-  const offset = today.getTimezoneOffset() * 60000;
-  const localToday = new Date(today.getTime() - offset);
-  const dateStr = localToday.toISOString().split('T')[0];
+  const dateStr = getTodayDateString();
 
   const [todayData, history, allHabits, prayerTimesData] = await Promise.all([
     getSpiritualTodayData(dateStr),

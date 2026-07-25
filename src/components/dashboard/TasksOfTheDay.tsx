@@ -1,6 +1,7 @@
 import { getDailyTasks, addDailyTask, toggleDailyTask, deleteDailyTask } from '@/actions/index';
 import Link from 'next/link';
 import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
+import { getTodayDateString, getLocalDateString, formatDateForDisplay } from '@/lib/dateUtils';
 
 export default async function TasksOfTheDay({ 
   dateStr, 
@@ -21,13 +22,14 @@ export default async function TasksOfTheDay({
   const yesterday = new Date(currentDate);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  const formatDate = (d: Date) => d.toISOString().split('T')[0];
-  const displayDate = currentDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+  const displayDate = formatDateForDisplay(dateStr, { weekday: 'long', month: 'short', day: 'numeric' });
 
   // Determine if it's "Today", "Tomorrow", or "Yesterday"
-  const realToday = new Date().toISOString().split('T')[0];
+  const realToday = getTodayDateString();
   const isToday = dateStr === realToday;
-  const isTomorrow = dateStr === formatDate(new Date(new Date().setDate(new Date().getDate() + 1)));
+  const tomorrowDateObj = new Date();
+  tomorrowDateObj.setDate(tomorrowDateObj.getDate() + 1);
+  const isTomorrow = dateStr === getLocalDateString(tomorrowDateObj);
 
   let titleText = "Tasks of the Day";
   if (isToday) titleText = "Today's Tasks";

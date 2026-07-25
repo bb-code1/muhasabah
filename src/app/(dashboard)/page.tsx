@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { getUpcomingIslamicEvents } from '@/lib/islamicEvents';
 import { getPrayerTimesAndMaghribStatus } from '@/features/timetable/actions';
+import { getTodayDateString } from '@/lib/dateUtils';
 
 const ALL_SECTIONS = [
   { href: '/religious',       icon: 'auto_awesome',   label: 'Spiritual',       desc: 'Daily ibadah & prayers'      },
@@ -32,7 +33,7 @@ export default async function Dashboard() {
   }
 
   const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
+  const todayStr = getTodayDateString();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfYear = new Date(now.getFullYear(), 0, 1);
 

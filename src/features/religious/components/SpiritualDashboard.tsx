@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Moon, CheckCircle2, Circle, Settings, ScrollText, Plus, Calendar } from 'lucide-react';
 import { OPTIONAL_HABIT_NAMES } from '@/lib/spiritualHabits';
 import { QURAN_SURAHS } from '@/lib/quranData';
+import { getLocalDateString } from '@/lib/dateUtils';
 
 // Subcomponents
 import TodayTrackerModal from './TodayTrackerModal';
@@ -151,7 +152,7 @@ export default function SpiritualDashboard({
       if (startLimit && recDate < startLimit) return;
       if (endLimit && recDate > endLimit) return;
 
-      const recStr = recDate.toISOString().split('T')[0];
+      const recStr = getLocalDateString(record.date, 'UTC');
       if (recStr === todayStr) {
         return;
       }
@@ -277,7 +278,7 @@ export default function SpiritualDashboard({
       if (startLimit && recDate < startLimit) return;
       if (endLimit && recDate > endLimit) return;
 
-      const recStr = recDate.toISOString().split('T')[0];
+      const recStr = getLocalDateString(record.date, 'UTC');
       if (recStr === todayStr) {
         return;
       }
@@ -378,7 +379,7 @@ export default function SpiritualDashboard({
       if (startLimit && recDate < startLimit) return;
       if (endLimit && recDate > endLimit) return;
 
-      const recStr = recDate.toISOString().split('T')[0];
+      const recStr = getLocalDateString(record.date, 'UTC');
       if (recStr === todayStr) return;
 
       const habit = record.habits.find(h => h.name === prayer);
@@ -486,7 +487,7 @@ export default function SpiritualDashboard({
       if (startLimit && recDate < startLimit) return;
       if (endLimit && recDate > endLimit) return;
 
-      const recStr = recDate.toISOString().split('T')[0];
+      const recStr = getLocalDateString(record.date, 'UTC');
       if (recStr === todayStr) return;
 
       processQuran(record.quranMemorization, recDate);

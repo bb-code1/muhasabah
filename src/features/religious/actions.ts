@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { DEFAULT_HABIT_ORDER, isDefaultSpiritualHabit, mergeHistoryHabits, PRAYER_HABIT_NAMES, sortSpiritualHabits, OPTIONAL_HABIT_NAMES } from '@/lib/spiritualHabits';
 import { revalidatePath } from 'next/cache';
 import { getAuthenticatedUser } from '@/features/auth/actions';
+import { parseLocalDate, getLocalDateString } from '@/lib/dateUtils';
 
 export async function getSpiritualHabits() {
   const user = await getAuthenticatedUser();
@@ -66,7 +67,7 @@ export async function getSpiritualTodayData(dateStr: string) {
   const user = await getAuthenticatedUser();
   if (!user) throw new Error('Unauthorized');
 
-  const date = new Date(dateStr);
+  const date = parseLocalDate(dateStr);
 
   const habits = await prisma.spiritualHabit.findMany({
     where: { userId: user.id },
@@ -107,7 +108,7 @@ export async function toggleSpiritualHabit(dateStr: string, habitId: number, cur
   });
   if (!habit) throw new Error('Unauthorized');
 
-  const date = new Date(dateStr);
+  const date = parseLocalDate(dateStr);
 
   await prisma.spiritualHabitLog.upsert({
     where: {
@@ -143,7 +144,7 @@ export async function setPrayerJamaat(dateStr: string, habitId: number, prayedWi
     throw new Error('Jamaat status is only available for the five daily prayers.');
   }
 
-  const date = new Date(dateStr);
+  const date = parseLocalDate(dateStr);
   await prisma.spiritualHabitLog.upsert({
     where: { habitId_date: { habitId, date } },
     update: { isCompleted: true, prayedWithJamaat },
@@ -157,7 +158,7 @@ export async function updateQuranMemorization(dateStr: string, notes: string) {
   const user = await getAuthenticatedUser();
   if (!user) throw new Error('Unauthorized');
 
-  const date = new Date(dateStr);
+  const date = parseLocalDate(dateStr);
 
   await prisma.spiritualDayLog.upsert({
     where: { userId_date: { userId: user.id, date } },
@@ -178,7 +179,7 @@ export async function updateOtherActivities(dateStr: string, notes: string) {
   const user = await getAuthenticatedUser();
   if (!user) throw new Error('Unauthorized');
 
-  const date = new Date(dateStr);
+  const date = parseLocalDate(dateStr);
 
   await prisma.spiritualDayLog.upsert({
     where: { userId_date: { userId: user.id, date } },
@@ -219,9 +220,9 @@ export async function getSpiritualHistory() {
   }> = {};
 
   logs.forEach(log => {
-    const dateStr = log.date.toISOString().split('T')[0];
+    const dateStr = getLocalDateString(log.date, 'UTC');
     if (!historyMap[dateStr]) {
-      const dayNote = dayLogs.find(dl => dl.date.toISOString().split('T')[0] === dateStr);
+      const dayNote = dayLogs.find(dl => getLocalDateString(dl.date, 'UTC') === dateStr);
       historyMap[dateStr] = {
         date: log.date,
         completedCount: 0,
@@ -243,7 +244,7 @@ export async function getSpiritualHistory() {
   });
 
   dayLogs.forEach(dl => {
-    const dateStr = dl.date.toISOString().split('T')[0];
+    const dateStr = getLocalDateString(dl.date, 'UTC');
     if (!historyMap[dateStr]) {
       historyMap[dateStr] = {
         date: dl.date,

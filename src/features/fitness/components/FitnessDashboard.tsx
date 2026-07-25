@@ -7,6 +7,7 @@ import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 import CustomDateRangeDialog from '@/components/ui/CustomDateRangeDialog';
 import { useToast } from '@/context/ToastContext';
 import { FitnessLog } from '@prisma/client';
+import { getTodayDateString, getLocalDateString } from '@/lib/dateUtils';
 
 function getActivityStyle(activity: string) {
   switch (activity) {
@@ -57,7 +58,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
   const [distance, setDistance] = useState('');
   const [muscleGroup, setMuscleGroup] = useState('Chest');
   const [notes, setNotes] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(getTodayDateString());
 
   const openModal = () => {
     setActivity('Gym');
@@ -65,7 +66,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
     setDistance('');
     setMuscleGroup('Chest');
     setNotes('');
-    setDate(new Date().toISOString().split('T')[0]);
+    setDate(getTodayDateString());
     setIsModalOpen(true);
   };
 
@@ -138,7 +139,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
 
     if (filterPeriod === 'ALL') return true;
     if (filterPeriod === 'TODAY') {
-      return d.toISOString().split('T')[0] === now.toISOString().split('T')[0];
+      return getLocalDateString(d, 'UTC') === getTodayDateString();
     }
     if (filterPeriod === 'WEEK') {
       const weekStart = new Date(now);

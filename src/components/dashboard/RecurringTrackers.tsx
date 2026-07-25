@@ -7,6 +7,7 @@ import { CalendarRange, Check, Calendar, Plus, X, CalendarCheck, Edit2 } from 'l
 import { addRecurringTracker, updateRecurringLastDone, deleteRecurringTracker } from '@/features/tasks/actions';
 import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 import { useToast } from '@/context/ToastContext';
+import { getTodayDateString, getLocalDateString } from '@/lib/dateUtils';
 
 interface RecurringTracker {
   id: number;
@@ -49,7 +50,7 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
   };
 
   const handleMarkDoneToday = async (id: number, title: string) => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getTodayDateString();
     startTransition(async () => {
       try {
         await updateRecurringLastDone(id, todayStr);
@@ -155,7 +156,7 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
               key={tracker.id} 
               onClick={() => {
                 setSelectedTrackerForEdit(tracker);
-                setEditDate(tracker.lastDone ? new Date(tracker.lastDone).toISOString().split('T')[0] : '');
+                setEditDate(tracker.lastDone ? getLocalDateString(tracker.lastDone, 'UTC') : '');
               }}
               className="habit-item" 
               style={{ 
@@ -196,7 +197,7 @@ export default function RecurringTrackers({ initialTrackers }: { initialTrackers
                   style={{ color: 'var(--c-on-surface-variant)', fontSize: '20px', cursor: 'pointer' }}
                   onClick={() => {
                     setSelectedTrackerForEdit(tracker);
-                    setEditDate(tracker.lastDone ? new Date(tracker.lastDone).toISOString().split('T')[0] : '');
+                    setEditDate(tracker.lastDone ? getLocalDateString(tracker.lastDone, 'UTC') : '');
                   }}
                   title="Edit completion date"
                 >

@@ -1,13 +1,13 @@
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import Link from 'next/link';
+import { getTodayDateString } from '@/lib/dateUtils';
 
 export default async function TodayTasksPage(props: { searchParams?: Promise<{ [key: string]: string | undefined }> }) {
   const searchParams = await props.searchParams;
   const pageStr = searchParams?.page || '1';
   const page = parseInt(pageStr, 10) || 1;
 
-  const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
+  const todayStr = getTodayDateString();
 
   return (
     <>

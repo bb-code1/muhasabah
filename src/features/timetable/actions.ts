@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { getAuthenticatedUser } from '@/features/auth/actions';
+import { getTodayDateString } from '@/lib/dateUtils';
 
 export async function getTimeTable() {
   const user = await getAuthenticatedUser();
@@ -131,7 +132,7 @@ export async function getPrayerTimesAndMaghribStatus() {
     return { prayerTimes: null, maghribPassed: false, timezone: null };
   }
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getTodayDateString();
   let prayerTimes = null;
   let timezone = null;
   let maghribPassed = false;
