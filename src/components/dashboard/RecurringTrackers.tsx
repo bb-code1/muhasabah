@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { CalendarRange, Check, Calendar, Plus, X, CalendarCheck, Edit2 } from 'lucide-react';
+import { CalendarRange, Check, Plus, X, CalendarCheck } from 'lucide-react';
 import { addRecurringTracker, updateRecurringLastDone, deleteRecurringTracker } from '@/features/tasks/actions';
 import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 import { useToast } from '@/context/ToastContext';

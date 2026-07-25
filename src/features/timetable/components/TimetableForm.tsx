@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { updateTimeTable, updateUserLocation, updateCalculationMethod, updateAsrTiming } from '@/features/timetable/actions';
 import { useToast } from '@/context/ToastContext';
-import { Sun, Briefcase, Home, Dumbbell, BookOpen, Moon, Clock, Sunrise, MapPin, Edit3, X } from 'lucide-react';
+import { Sun, Briefcase, Home, Dumbbell, BookOpen, Moon, Clock, Sunrise, MapPin, X } from 'lucide-react';
 
 interface TimetableFormProps {
   initialData: {
@@ -93,7 +93,7 @@ function TimeInput({ name, label, icon, defaultValue, required = true }: {
             if ('showPicker' in e.currentTarget) {
               (e.currentTarget as HTMLInputElement).showPicker();
             }
-          } catch (err) {}
+          } catch {}
         }}
       />
     </div>
@@ -145,7 +145,6 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
   
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [selectedGym, setSelectedGym] = useState(initialData.gymPreference || 'NONE');
-  const [gymSaving, setGymSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const [tempGymVal, setTempGymVal] = useState<string>('NONE');
@@ -207,7 +206,7 @@ export default function TimetableForm({ initialData }: TimetableFormProps) {
           setLocLoading(false);
         }
       },
-      (error) => {
+      () => {
         setLocLoading(false);
         showToast('Unable to retrieve your location. Please check browser permissions.', 'error');
       }

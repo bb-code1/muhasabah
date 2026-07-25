@@ -3,13 +3,11 @@
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { login } from '@/features/auth/actions';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

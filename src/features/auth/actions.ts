@@ -25,7 +25,7 @@ export async function register(formData: FormData) {
   const globalPassword = process.env.GLOBAL_PASSWORD || 'password123';
   const passwordHash = await hashPassword(globalPassword);
   
-  const user = await prisma.user.create({
+  await prisma.user.create({
     data: {
       name,
       email,

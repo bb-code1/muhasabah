@@ -1,5 +1,6 @@
 import {
   PrismaClient,
+  Prisma,
   TransactionType,
   GoalCategory,
   GoalPriority,
@@ -128,7 +129,7 @@ async function main() {
   const expenseCats = ['Food', 'Transport', 'Shopping', 'Utilities', 'Health', 'General', 'Entertainment', 'Personal'];
   const incomeCats = ['Salary', 'Freelance', 'Business', 'Gift'];
 
-  const txs: any[] = [];
+  const txs: Prisma.TransactionCreateManyInput[] = [];
   for (let i = 0; i < 300; i++) {
     txs.push({
       userId: uId,
@@ -191,8 +192,8 @@ async function main() {
     seededHabits.push(h);
   }
 
-  const habitLogs: any[] = [];
-  const dayLogs: any[] = [];
+  const habitLogs: Prisma.SpiritualHabitLogCreateManyInput[] = [];
+  const dayLogs: Prisma.SpiritualDayLogCreateManyInput[] = [];
   for (let i = 0; i < 180; i++) {
     const date = getPastDate(i);
     const hasQuran = Math.random() > 0.35;
@@ -272,12 +273,12 @@ async function main() {
     'Visited Chikmagalur for a weekend coffee plantation trek.',
   ];
 
-  const journalData: any[] = [];
+  const journalData: Prisma.JournalEntryCreateManyInput[] = [];
   const cats = Object.values(JournalCategory);
   for (let i = 0; i < 120; i++) {
     const category = pick(cats);
     const date = getPastDate(rand(0, 365));
-    const entry: any = { userId: uId, category, date, createdAt: date };
+    const entry: Prisma.JournalEntryCreateManyInput = { userId: uId, category, content: '', date, createdAt: date };
     if (category === 'OFFICE') {
       entry.project = pick(officeProjects);
       entry.ticketId = Math.random() > 0.3 ? pick(officeTickets) : null;
@@ -305,7 +306,7 @@ async function main() {
     'Prepare tomorrow\'s plan', 'Submit daily report', 'Review PR comments', 'Attend standup',
     'Complete LeetCode problem', 'Watch 1 lecture', 'Clean workspace', 'Review goals',
   ];
-  const dailyTasks: any[] = [];
+  const dailyTasks: Prisma.DailyTaskCreateManyInput[] = [];
   for (let i = 0; i < 80; i++) {
     dailyTasks.push({
       userId: uId,
@@ -326,7 +327,7 @@ async function main() {
   ];
   for (const title of weekendTaskTitles) {
     const task = await prisma.weekendTask.create({ data: { title, userId: uId } });
-    const logs: any[] = [];
+    const logs: Prisma.WeekendTaskLogCreateManyInput[] = [];
     for (let w = 0; w < 12; w++) {
       if (Math.random() > 0.35) {
         const d = getPastDate(w * 7);
@@ -335,7 +336,7 @@ async function main() {
       }
     }
     if (logs.length > 0) {
-      const unique = Array.from(new Map(logs.map(l => [l.weekStartDate.toISOString(), l])).values());
+      const unique = Array.from(new Map(logs.map(l => [l.weekStartDate ? new Date(l.weekStartDate).toISOString() : '', l])).values());
       await prisma.weekendTaskLog.createMany({ data: unique });
     }
   }
@@ -350,7 +351,7 @@ async function main() {
   ];
   for (const { name, notes: debtNotes } of debtPeople) {
     const person = await prisma.person.create({ data: { name, userId: uId } });
-    const debts: any[] = [];
+    const debts: Prisma.DebtRecordCreateManyInput[] = [];
     for (let i = 0; i < rand(4, 10); i++) {
       debts.push({
         personId: person.id,
@@ -383,7 +384,7 @@ async function main() {
   const gymNotes = ['Great pump, felt strong.', 'Increased bench by 2.5 kg.', 'PB on deadlift today.', 'Focused on form.', 'High volume session.'];
   const runNotes = ['Easy 5k pace run.', 'Interval training.', 'Long slow run by the lake.', 'Felt refreshed post-run.', 'New personal best 6k.'];
   const fitnessActivities = ['Running', 'Gym', 'Walking', 'Cycling', 'Yoga', 'Swimming'];
-  const fitnessLogs: any[] = [];
+  const fitnessLogs: Prisma.FitnessLogCreateManyInput[] = [];
   for (let i = 0; i < 50; i++) {
     const activity = pick(fitnessActivities);
     const isGym = activity === 'Gym';

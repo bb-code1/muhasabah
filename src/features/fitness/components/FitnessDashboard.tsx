@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Clock, X, Dumbbell, Flame, Compass, Activity, Sparkles, MessageSquare, TrendingUp } from 'lucide-react';
+import { Plus, Calendar, Clock, X, Dumbbell, Flame, Activity, Sparkles } from 'lucide-react';
 import { addFitnessLog, deleteFitnessLog } from '@/features/fitness/actions';
 import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 import CustomDateRangeDialog from '@/components/ui/CustomDateRangeDialog';

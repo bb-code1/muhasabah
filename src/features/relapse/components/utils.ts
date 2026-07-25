@@ -30,7 +30,7 @@ export const getCalendarGrid = (year: number) => {
   let currentWeek: (Date | null)[] = Array(7).fill(null);
   
   const startDay = startDate.getDay();
-  let cur = new Date(startDate);
+  const cur = new Date(startDate);
   
   for (let i = startDay; i < 7; i++) {
     currentWeek[i] = new Date(cur);

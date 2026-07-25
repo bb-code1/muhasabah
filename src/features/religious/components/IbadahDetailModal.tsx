@@ -24,7 +24,7 @@ interface IbadahDetailModalProps {
 
 export default function IbadahDetailModal({ selectedRecord, onClose }: IbadahDetailModalProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState<any>(null);
+  const [editData, setEditData] = useState<Awaited<ReturnType<typeof getSpiritualTodayData>> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   if (!selectedRecord) {
@@ -74,7 +74,7 @@ export default function IbadahDetailModal({ selectedRecord, onClose }: IbadahDet
           return `Surah ${surah.englishName} (${parsed.surahNumber}), Verses ${parsed.fromVerse} - ${parsed.toVerse}`;
         }
       }
-    } catch (e) {}
+    } catch {}
     return val;
   };
 

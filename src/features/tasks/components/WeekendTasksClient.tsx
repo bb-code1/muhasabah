@@ -20,18 +20,7 @@ function getMonday(d: Date) {
   return new Date(Date.UTC(localMonday.getFullYear(), localMonday.getMonth(), localMonday.getDate()));
 }
 
-// Generate the last 12 weeks (Mondays)
-function generatePastWeeks(count: number) {
-  const weeks = [];
-  const currentMonday = getMonday(new Date());
-  
-  for (let i = 0; i < count; i++) {
-    const w = new Date(currentMonday);
-    w.setUTCDate(currentMonday.getUTCDate() - (i * 7));
-    weeks.push(w);
-  }
-  return weeks;
-}
+// Get Monday of current week
 
 export default function WeekendTasksClient({ initialTasks }: { initialTasks: TaskWithLogs[] }) {
   const [newTaskTitle, setNewTaskTitle] = useState('');

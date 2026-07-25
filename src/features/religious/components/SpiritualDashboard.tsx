@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Moon, CheckCircle2, Circle, Settings, ScrollText, Plus, Calendar } from 'lucide-react';
+import { Moon, CheckCircle2, Circle, Settings, ScrollText, Plus } from 'lucide-react';
 import { OPTIONAL_HABIT_NAMES } from '@/lib/spiritualHabits';
 import { QURAN_SURAHS } from '@/lib/quranData';
 import { getLocalDateString } from '@/lib/dateUtils';
@@ -38,8 +38,8 @@ interface SpiritualDashboardProps {
   };
   initialHistory: HistoryRecord[];
   allHabits: Array<{ id: number; name: string }>;
-  baseOffset: number;
-  maghribPassed: boolean;
+  baseOffset?: number;
+  maghribPassed?: boolean;
 }
 
 export default function SpiritualDashboard({
@@ -47,8 +47,6 @@ export default function SpiritualDashboard({
   initialTodayData,
   initialHistory,
   allHabits,
-  baseOffset,
-  maghribPassed
 }: SpiritualDashboardProps) {
   // Modal states
   const [isTrackerOpen, setIsTrackerOpen] = useState(false);
@@ -80,7 +78,7 @@ export default function SpiritualDashboard({
           return `Surah ${surah.englishName} (${parsed.surahNumber}), Verses ${parsed.fromVerse} - ${parsed.toVerse}`;
         }
       }
-    } catch (e) {}
+    } catch {}
     return val;
   };
 
@@ -269,7 +267,7 @@ export default function SpiritualDashboard({
             memorizedSurahs.add(surah.englishName);
           }
         }
-      } catch (e) {}
+      } catch {}
     };
 
     // 1. Gather historical data
@@ -479,7 +477,7 @@ export default function SpiritualDashboard({
             });
           }
         }
-      } catch (e) {}
+      } catch {}
     };
 
     initialHistory.forEach(record => {

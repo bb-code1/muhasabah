@@ -28,7 +28,7 @@ export async function updateTimeTable(formData: FormData) {
   const user = await getAuthenticatedUser();
   if (!user) throw new Error('Unauthorized');
 
-  const updateData: any = {};
+  const updateData: Record<string, string> = {};
   const fields = [
     'wakeUpTime', 'tillSunrise', 'sunriseTillOffice', 
     'officeDeparture', 'officeReturn', 'gymPreference', 

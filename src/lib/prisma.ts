@@ -3,7 +3,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 
 const getConnectionString = () => {
-  let url = process.env.DATABASE_URL || '';
+  const url = process.env.DATABASE_URL || '';
   try {
     if (url.startsWith('postgresql://') || url.startsWith('postgres://')) {
       const prefix = url.startsWith('postgresql://') ? 'postgresql://' : 'postgres://';

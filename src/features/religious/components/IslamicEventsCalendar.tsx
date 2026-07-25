@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { MONTH_DETAILS, ISLAMIC_EVENTS_DATA, IslamicEvent, EventCategory, getUpcomingIslamicEvents } from '@/lib/islamicEvents';
+import { MONTH_DETAILS, ISLAMIC_EVENTS_DATA, EventCategory } from '@/lib/islamicEvents';
 import { getHijriMonthNumber, ISLAMIC_MONTHS } from '@/lib/hijri';
-import { Search, Calendar, Moon, Sparkles, X, ChevronRight } from 'lucide-react';
+import { Search, Moon, Sparkles, X, ChevronRight } from 'lucide-react';
 
 interface Props {
   baseOffset?: number;

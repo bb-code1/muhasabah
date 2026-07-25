@@ -39,7 +39,7 @@ export default function TodayTrackerModal({ isOpen, onClose, dateStr, initialTod
       try {
         const parsed = JSON.parse(initialTodayData.quranMemorization);
         return parsed?.surahNumber || 1;
-      } catch (e) {}
+      } catch {}
     }
     return 1;
   });
@@ -48,7 +48,7 @@ export default function TodayTrackerModal({ isOpen, onClose, dateStr, initialTod
       try {
         const parsed = JSON.parse(initialTodayData.quranMemorization);
         return parsed?.fromVerse || 1;
-      } catch (e) {}
+      } catch {}
     }
     return 1;
   });
@@ -57,7 +57,7 @@ export default function TodayTrackerModal({ isOpen, onClose, dateStr, initialTod
       try {
         const parsed = JSON.parse(initialTodayData.quranMemorization);
         return parsed?.toVerse || 1;
-      } catch (e) {}
+      } catch {}
     }
     return 1;
   });

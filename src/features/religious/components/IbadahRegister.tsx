@@ -35,7 +35,7 @@ export default function IbadahRegister({ initialHistory }: IbadahRegisterProps) 
   const [isAddingPastDay, setIsAddingPastDay] = useState(false);
   const [pastDayDate, setPastDayDate] = useState<string>('');
   const [isEditingNew, setIsEditingNew] = useState(false);
-  const [editData, setEditData] = useState<any>(null);
+  const [editData, setEditData] = useState<Awaited<ReturnType<typeof getSpiritualTodayData>> | null>(null);
   const [isLoadingNew, setIsLoadingNew] = useState(false);
 
   const handleStartAddingPastDay = async () => {
@@ -62,7 +62,7 @@ export default function IbadahRegister({ initialHistory }: IbadahRegisterProps) 
           return `Surah ${surah.englishName} (${parsed.surahNumber}), Verses ${parsed.fromVerse} - ${parsed.toVerse}`;
         }
       }
-    } catch (e) {}
+    } catch {}
     return val;
   };
 

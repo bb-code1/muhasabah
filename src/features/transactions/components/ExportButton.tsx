@@ -5,7 +5,7 @@ import { useToast } from '@/context/ToastContext';
 
 interface Transaction {
   id: number;
-  amount: any;
+  amount: number | string | { toString(): string };
   description: string;
   category: string;
   type: 'INCOME' | 'EXPENSE';

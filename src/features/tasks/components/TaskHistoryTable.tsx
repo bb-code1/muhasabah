@@ -181,18 +181,20 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
 
         {/* Quick Filters */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {[
-            { id: 'all', label: 'All Time' },
-            { id: 'today', label: 'Today' },
-            { id: 'week', label: 'This Week' },
-            { id: 'month', label: 'This Month' },
-            { id: 'year', label: 'This Year' },
-            { id: 'custom', label: 'Custom Range' },
-          ].map(tab => (
+          {(
+            [
+              { id: 'all', label: 'All Time' },
+              { id: 'today', label: 'Today' },
+              { id: 'week', label: 'This Week' },
+              { id: 'month', label: 'This Month' },
+              { id: 'year', label: 'This Year' },
+              { id: 'custom', label: 'Custom Range' },
+            ] as const
+          ).map(tab => (
             <button
               key={tab.id}
               onClick={() => {
-                setActiveFilter(tab.id as any);
+                setActiveFilter(tab.id);
                 setCurrentPage(1);
               }}
               style={{

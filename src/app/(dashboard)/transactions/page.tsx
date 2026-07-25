@@ -104,7 +104,6 @@ export default async function TransactionsPage(props: { searchParams?: Promise<{
   // Calculate Metrics
   const totalIncome = transactionsInPeriod.filter(t => t.type === 'INCOME').reduce((sum, t) => sum + Number(t.amount), 0);
   const totalExpense = transactionsInPeriod.filter(t => t.type === 'EXPENSE').reduce((sum, t) => sum + Number(t.amount), 0);
-  const netFlow = totalIncome - totalExpense;
 
   // Filter Transactions by Active Tab, Category, and Search
   const displayTransactions = transactionsInPeriod

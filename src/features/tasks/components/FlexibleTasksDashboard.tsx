@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toggleDailyTask, deleteDailyTask } from '@/actions/index';
-import { Calendar, Clock, Sparkles, Inbox, Plus, Trash2, CalendarDays } from 'lucide-react';
+import { Calendar, Clock, Sparkles, Inbox, Plus, CalendarDays } from 'lucide-react';
 import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 import { useToast } from '@/context/ToastContext';
 

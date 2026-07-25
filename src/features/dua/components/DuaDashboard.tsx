@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, X, Edit, Trash2, Heart, Search } from 'lucide-react';
+import { Plus, X, Edit, Trash2, Search } from 'lucide-react';
 import { addDua, updateDua, deleteDua } from '@/features/dua/actions';
 import { useToast } from '@/context/ToastContext';
 import { Dua, DuaCategory } from '@prisma/client';

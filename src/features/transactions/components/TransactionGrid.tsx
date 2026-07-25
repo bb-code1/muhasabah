@@ -2,19 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowUpCircle, ArrowDownCircle, X, Edit, Trash2, Calendar, DollarSign, Tag, Info } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle, X, Edit, Trash2, Calendar, Tag, Info } from 'lucide-react';
 import { updateTransaction, deleteTransaction } from '@/actions/index';
 import { useToast } from '@/context/ToastContext';
 
 interface Transaction {
   id: number;
   userId: number;
-  amount: any; // Decimal type
+  amount: number | string | { toString(): string };
   description: string;
   category: string;
   type: 'INCOME' | 'EXPENSE';
-  date: any; // Date or string
-  createdAt: any;
+  date: Date | string;
+  createdAt: Date | string;
 }
 
 interface TransactionGridProps {
@@ -82,9 +82,10 @@ export default function TransactionGrid({ transactions }: TransactionGridProps) 
       await updateTransaction(selectedTx.id, formData);
       showToast('Transaction updated successfully!', 'success');
       handleClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      showToast(error.message || 'Failed to update transaction', 'error');
+      const msg = error instanceof Error ? error.message : 'Failed to update transaction';
+      showToast(msg, 'error');
     } finally {
       setLoading(false);
     }
@@ -98,9 +99,10 @@ export default function TransactionGrid({ transactions }: TransactionGridProps) 
       await deleteTransaction(selectedTx.id);
       showToast('Transaction deleted successfully!', 'success');
       handleClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      showToast(error.message || 'Failed to delete transaction', 'error');
+      const msg = error instanceof Error ? error.message : 'Failed to delete transaction';
+      showToast(msg, 'error');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,3 @@
-import { ISLAMIC_MONTHS } from './hijri';
-
 export type EventCategory = 'EID' | 'SUNNAH_FAST' | 'HISTORICAL' | 'SPECIAL_NIGHT' | 'SACRED_MONTH';
 
 export interface IslamicEvent {
