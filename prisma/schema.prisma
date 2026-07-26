@@ -241,16 +241,19 @@ model Note {
 }
 
 model FitnessLog {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  activity  String   // e.g., 'Running', 'Gym', 'Walking', 'Cycling', 'Yoga', 'Swimming', 'Other'
-  duration  Int      // Workout duration in minutes
-  distance  Decimal? @db.Decimal(5, 2) // Optional distance in kilometers
-  notes       String?  @db.Text
-  muscleGroup String?
-  date        DateTime @default(now()) @db.Date // Workout date
-  createdAt DateTime @default(now()) @db.Timestamptz()
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity       String   // e.g., 'Gym', 'Cricket', 'Badminton', 'Football', 'Running', etc.
+  duration       Int      // Workout duration in minutes
+  distance       Decimal? @db.Decimal(5, 2) // Optional distance in kilometers
+  notes          String?  @db.Text
+  muscleGroup    String?
+  exercisesCount Int?     // Optional: Number of exercises done (Gym)
+  setsCount      Int?     // Optional: Number of total sets done (Gym)
+  repsCount      Int?     // Optional: Number of total reps done (Gym)
+  date           DateTime @default(now()) @db.Date // Workout date
+  createdAt      DateTime @default(now()) @db.Timestamptz()
 }
 
 model RecurringTracker {

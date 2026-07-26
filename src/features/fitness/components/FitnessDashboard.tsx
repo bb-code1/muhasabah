@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Clock, X, Dumbbell, Flame, Activity, Sparkles } from 'lucide-react';
+import { Plus, Calendar, Clock, X, Dumbbell, Flame, Activity, Sparkles, Trophy } from 'lucide-react';
 import { addFitnessLog, deleteFitnessLog } from '@/features/fitness/actions';
 import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 import CustomDateRangeDialog from '@/components/ui/CustomDateRangeDialog';
@@ -13,10 +13,32 @@ function getActivityStyle(activity: string) {
   switch (activity) {
     case 'Gym':
       return { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa', accent: '#f97316' }; // Warm Orange
+    case 'Cricket':
+      return { bg: '#f0fdf4', text: '#15803d', border: '#bbf7d0', accent: '#22c55e' }; // Emerald
+    case 'Badminton':
+      return { bg: '#fefce8', text: '#a16207', border: '#fef08a', accent: '#eab308' }; // Yellow
+    case 'Football':
+      return { bg: '#ecfdf5', text: '#047857', border: '#a7f3d0', accent: '#10b981' }; // Teal
+    case 'Basketball':
+      return { bg: '#fff1f2', text: '#be123c', border: '#fecdd3', accent: '#f43f5e' }; // Rose
+    case 'Tennis':
+      return { bg: '#f7fee7', text: '#4d7c0f', border: '#d9f99d', accent: '#84cc16' }; // Lime
+    case 'Table Tennis':
+      return { bg: '#fdf2f8', text: '#be185d', border: '#fbcfe8', accent: '#ec4899' }; // Pink
+    case 'Volleyball':
+      return { bg: '#faf5ff', text: '#6b21a8', border: '#e9d5ff', accent: '#a855f7' }; // Purple
+    case 'Squash':
+      return { bg: '#fff8f0', text: '#c2410c', border: '#ffedd5', accent: '#ea580c' }; // Deep Orange
     case 'Running':
       return { bg: '#fef2f2', text: '#b91c1c', border: '#fecaca', accent: '#ef4444' }; // Red
     case 'Swimming':
       return { bg: '#ecfeff', text: '#0e7490', border: '#c5f2f7', accent: '#06b6d4' }; // Sky
+    case 'Cycling':
+      return { bg: '#f0f9ff', text: '#0369a1', border: '#bae6fd', accent: '#0ea5e9' }; // Blue
+    case 'Walking':
+      return { bg: '#f8fafc', text: '#475569', border: '#e2e8f0', accent: '#64748b' }; // Slate
+    case 'Yoga':
+      return { bg: '#f5f3ff', text: '#6d28d9', border: '#ddd6fe', accent: '#8b5cf6' }; // Violet
     default:
       return { bg: '#f9fafb', text: '#374151', border: '#e5e7eb', accent: '#64748b' }; // Slate
   }
@@ -31,6 +53,17 @@ const MUSCLE_GROUPS = [
   'Core',
   'Full Body',
   'Other'
+];
+
+const SPORTS_ACTIVITIES = [
+  'Cricket',
+  'Badminton',
+  'Football',
+  'Basketball',
+  'Tennis',
+  'Table Tennis',
+  'Volleyball',
+  'Squash'
 ];
 
 export default function FitnessDashboard({ initialLogs }: { initialLogs: FitnessLog[] }) {
@@ -57,6 +90,9 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
   const [duration, setDuration] = useState('30');
   const [distance, setDistance] = useState('');
   const [muscleGroup, setMuscleGroup] = useState('Chest');
+  const [exercisesCount, setExercisesCount] = useState('');
+  const [setsCount, setSetsCount] = useState('');
+  const [repsCount, setRepsCount] = useState('');
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(getTodayDateString());
 
@@ -65,6 +101,9 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
     setDuration('30');
     setDistance('');
     setMuscleGroup('Chest');
+    setExercisesCount('');
+    setSetsCount('');
+    setRepsCount('');
     setNotes('');
     setDate(getTodayDateString());
     setIsModalOpen(true);
@@ -87,6 +126,23 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
       return;
     }
 
+    const exNum = activity === 'Gym' && exercisesCount.trim() ? parseInt(exercisesCount, 10) : null;
+    const setsNum = activity === 'Gym' && setsCount.trim() ? parseInt(setsCount, 10) : null;
+    const repsNum = activity === 'Gym' && repsCount.trim() ? parseInt(repsCount, 10) : null;
+
+    if (exNum !== null && (isNaN(exNum) || exNum < 0)) {
+      showToast('Please enter a valid number of exercises.', 'error');
+      return;
+    }
+    if (setsNum !== null && (isNaN(setsNum) || setsNum < 0)) {
+      showToast('Please enter a valid number of sets.', 'error');
+      return;
+    }
+    if (repsNum !== null && (isNaN(repsNum) || repsNum < 0)) {
+      showToast('Please enter a valid number of reps.', 'error');
+      return;
+    }
+
     setSubmitting(true);
     try {
       await addFitnessLog(
@@ -95,7 +151,10 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
         distNum,
         notes.trim() || null,
         new Date(date),
-        activity === 'Gym' ? muscleGroup : null
+        activity === 'Gym' ? muscleGroup : null,
+        exNum,
+        setsNum,
+        repsNum
       );
       setCurrentPage(1); // Reset page on add
       closeModal();
@@ -192,6 +251,11 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
     }
   });
 
+  // Sports Stats
+  const sportsLogs = filteredLogs.filter(log => SPORTS_ACTIVITIES.includes(log.activity));
+  const sportsCount = sportsLogs.length;
+  const sportsMinutes = sportsLogs.reduce((sum, log) => sum + log.duration, 0);
+
   // Running Stats
   const runningLogs = filteredLogs.filter(log => log.activity === 'Running');
   const runningMinutes = runningLogs.reduce((sum, log) => sum + log.duration, 0);
@@ -203,12 +267,34 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
   // Icon mapping helper
   const getActivityIcon = (type: string, color: string) => {
     switch (type) {
-      case 'Running':
-        return <Flame size={18} color={color} />;
       case 'Gym':
         return <Dumbbell size={18} color={color} />;
+      case 'Cricket':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🏏</span>;
+      case 'Badminton':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🏸</span>;
+      case 'Football':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>⚽</span>;
+      case 'Basketball':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🏀</span>;
+      case 'Tennis':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🎾</span>;
+      case 'Table Tennis':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🏓</span>;
+      case 'Volleyball':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🏐</span>;
+      case 'Squash':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🎾</span>;
+      case 'Running':
+        return <Flame size={18} color={color} />;
       case 'Swimming':
         return <Activity size={18} color={color} />;
+      case 'Cycling':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🚴</span>;
+      case 'Walking':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🚶</span>;
+      case 'Yoga':
+        return <span style={{ fontSize: '16px', lineHeight: 1 }}>🧘</span>;
       default:
         return <Sparkles size={18} color={color} />;
     }
@@ -295,7 +381,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
       )}
 
       {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '36px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '36px' }}>
         {/* Gym Workouts Summary Card */}
         <div 
           className="card" 
@@ -303,7 +389,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
             display: 'flex', 
             flexDirection: 'column',
             gap: '16px', 
-            padding: '24px',
+            padding: '20px',
             border: '1.5px solid var(--c-outline-variant)',
             borderRadius: '20px',
             backgroundColor: 'var(--c-surface-container-low)',
@@ -326,7 +412,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
             </div>
             <div>
               <span className="text-label-md text-on-surface-variant" style={{ fontWeight: 600 }}>Gym Sessions</span>
-              <h3 className="text-display-sm" style={{ margin: '2px 0 0 0', fontWeight: 800, color: '#f97316', fontSize: '24px' }}>{gymCount} <span style={{ fontSize: '13px', fontWeight: 600 }}>workouts done</span></h3>
+              <h3 className="text-display-sm" style={{ margin: '2px 0 0 0', fontWeight: 800, color: '#f97316', fontSize: '24px' }}>{gymCount} <span style={{ fontSize: '13px', fontWeight: 600 }}>workouts</span></h3>
             </div>
           </div>
 
@@ -354,6 +440,47 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
           </div>
         </div>
 
+        {/* Sports Summary Card */}
+        <div 
+          className="card" 
+          style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            gap: '16px', 
+            padding: '20px',
+            border: '1.5px solid var(--c-outline-variant)',
+            borderRadius: '20px',
+            backgroundColor: 'var(--c-surface-container-low)',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.01)';
+            e.currentTarget.style.borderColor = 'rgba(34,197,94,0.4)';
+            e.currentTarget.style.boxShadow = '0 10px 30px rgba(34,197,94,0.08)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'none';
+            e.currentTarget.style.borderColor = 'var(--c-outline-variant)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ padding: '12px', backgroundColor: 'rgba(34,197,94,0.1)', color: '#16a34a', borderRadius: '16px', display: 'flex' }}>
+              <Trophy size={24} />
+            </div>
+            <div>
+              <span className="text-label-md text-on-surface-variant" style={{ fontWeight: 600 }}>Sports Played</span>
+              <h3 className="text-display-sm" style={{ margin: '2px 0 0 0', fontWeight: 800, color: '#16a34a', fontSize: '24px' }}>
+                {sportsCount} <span style={{ fontSize: '13px', fontWeight: 600 }}>matches / sessions</span>
+              </h3>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '12px', color: 'var(--c-on-surface-variant)', fontSize: '11px', fontWeight: 700 }}>
+            <span>⏱️ Total Play Time: {sportsMinutes} mins</span>
+          </div>
+        </div>
+
         {/* Running Summary Card */}
         <div 
           className="card" 
@@ -361,7 +488,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
             display: 'flex', 
             flexDirection: 'column',
             gap: '16px', 
-            padding: '24px',
+            padding: '20px',
             border: '1.5px solid var(--c-outline-variant)',
             borderRadius: '20px',
             backgroundColor: 'var(--c-surface-container-low)',
@@ -402,7 +529,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
             display: 'flex', 
             flexDirection: 'column',
             gap: '16px', 
-            padding: '24px',
+            padding: '20px',
             border: '1.5px solid var(--c-outline-variant)',
             borderRadius: '20px',
             backgroundColor: 'var(--c-surface-container-low)',
@@ -486,7 +613,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
               {/* Card Top Row */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ padding: '8px', backgroundColor: style.bg, borderRadius: '50%', display: 'flex', border: `1px solid ${style.border}` }}>
+                  <div style={{ padding: '8px', backgroundColor: style.bg, borderRadius: '50%', display: 'flex', border: `1px solid ${style.border}`, alignItems: 'center', justifyContent: 'center' }}>
                     {getActivityIcon(log.activity, style.accent)}
                   </div>
                   <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--c-on-surface)' }}>
@@ -523,6 +650,26 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                   border: '1px solid rgba(249,115,22,0.1)'
                 }}>
                   💪 Focus: {log.muscleGroup}
+                </div>
+              )}
+
+              {/* Gym Exercises / Sets / Reps metrics row */}
+              {log.activity === 'Gym' && (log.exercisesCount || log.setsCount || log.repsCount) && (
+                <div style={{ 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  gap: '6px', 
+                  fontSize: '11px', 
+                  fontWeight: 700, 
+                  color: '#c2410c',
+                  backgroundColor: 'rgba(249,115,22,0.06)',
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  border: '1px dashed rgba(249,115,22,0.2)'
+                }}>
+                  {log.exercisesCount && <span>🏋️ {log.exercisesCount} exercises</span>}
+                  {log.setsCount && <span>🔁 {log.setsCount} sets</span>}
+                  {log.repsCount && <span>🔥 {log.repsCount} reps</span>}
                 </div>
               )}
 
@@ -623,7 +770,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
       {/* Log Workout Modal */}
       {isModalOpen && mounted && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '16px', backdropFilter: 'blur(6px)' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '20px', padding: '24px', position: 'relative', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--c-outline-variant)' }}>
+          <div className="card" style={{ width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', padding: '24px', position: 'relative', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--c-outline-variant)' }}>
             <button 
               onClick={closeModal} 
               style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-on-surface-variant)' }}
@@ -643,28 +790,100 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                   style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
                   required
                 >
-                  <option value="Gym">Gym / Workout</option>
-                  <option value="Running">Running</option>
-                  <option value="Swimming">Swimming</option>
-                  <option value="Other">Other</option>
+                  <optgroup label="Workouts & Fitness">
+                    <option value="Gym">Gym / Workout</option>
+                    <option value="Running">Running</option>
+                    <option value="Swimming">Swimming</option>
+                    <option value="Cycling">Cycling</option>
+                    <option value="Walking">Walking</option>
+                    <option value="Yoga">Yoga</option>
+                  </optgroup>
+                  <optgroup label="Sports & Outdoor Games">
+                    <option value="Cricket">Cricket 🏏</option>
+                    <option value="Badminton">Badminton 🏸</option>
+                    <option value="Football">Football ⚽</option>
+                    <option value="Basketball">Basketball 🏀</option>
+                    <option value="Tennis">Tennis 🎾</option>
+                    <option value="Table Tennis">Table Tennis 🏓</option>
+                    <option value="Volleyball">Volleyball 🏐</option>
+                    <option value="Squash">Squash 🎾</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="Other">Other</option>
+                  </optgroup>
                 </select>
               </div>
 
               {activity === 'Gym' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Workout Focus (Muscle Group)</label>
-                  <select 
-                    value={muscleGroup}
-                    onChange={(e) => setMuscleGroup(e.target.value)}
-                    className="search-input"
-                    style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
-                    required
-                  >
-                    {MUSCLE_GROUPS.map(g => (
-                      <option key={g} value={g}>{g}</option>
-                    ))}
-                  </select>
-                </div>
+                <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Workout Focus (Muscle Group)</label>
+                    <select 
+                      value={muscleGroup}
+                      onChange={(e) => setMuscleGroup(e.target.value)}
+                      className="search-input"
+                      style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+                      required
+                    >
+                      {MUSCLE_GROUPS.map(g => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Optional Gym Details */}
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    padding: '14px',
+                    borderRadius: '12px',
+                    backgroundColor: 'rgba(249,115,22,0.04)',
+                    border: '1px solid rgba(249,115,22,0.15)'
+                  }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#c2410c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Gym Details (Optional)
+                    </span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Exercises</label>
+                        <input 
+                          type="number" 
+                          placeholder="e.g. 5"
+                          value={exercisesCount}
+                          onChange={(e) => setExercisesCount(e.target.value)}
+                          className="search-input"
+                          style={{ width: '100%', borderRadius: '8px', fontWeight: 600, fontSize: '13px', padding: '8px' }}
+                          min="0"
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Total Sets</label>
+                        <input 
+                          type="number" 
+                          placeholder="e.g. 15"
+                          value={setsCount}
+                          onChange={(e) => setSetsCount(e.target.value)}
+                          className="search-input"
+                          style={{ width: '100%', borderRadius: '8px', fontWeight: 600, fontSize: '13px', padding: '8px' }}
+                          min="0"
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Total Reps</label>
+                        <input 
+                          type="number" 
+                          placeholder="e.g. 150"
+                          value={repsCount}
+                          onChange={(e) => setRepsCount(e.target.value)}
+                          className="search-input"
+                          style={{ width: '100%', borderRadius: '8px', fontWeight: 600, fontSize: '13px', padding: '8px' }}
+                          min="0"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
               )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -716,7 +935,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="search-input"
-                  style={{ width: '100%', minHeight: '100px', borderRadius: '10px', resize: 'vertical', fontSize: '14px', lineHeight: 1.6 }}
+                  style={{ width: '100%', minHeight: '90px', borderRadius: '10px', resize: 'vertical', fontSize: '14px', lineHeight: 1.6 }}
                 />
               </div>
 
