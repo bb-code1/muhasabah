@@ -458,6 +458,23 @@ export default function IbadahRegister({ initialHistory }: IbadahRegisterProps) 
                               <span>{record.otherActivities}</span>
                             </div>
                           )}
+                          {record.shortcomings && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: 'var(--c-error)', 
+                              fontWeight: 600, 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '4px',
+                              marginTop: '2px',
+                              textOverflow: 'ellipsis',
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>error</span>
+                              <span>{record.shortcomings}</span>
+                            </div>
+                          )}
                         </div>
 
                         <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--c-surface-container-highest)', borderRadius: '3px', overflow: 'hidden' }}>

@@ -11,7 +11,7 @@ interface StatsDetailItem {
 }
 
 interface StatsDetailsModalProps {
-  activeStatsDetail: { type: 'prayer' | 'quran' | 'deeds'; title: string; prayerName?: string } | null;
+  activeStatsDetail: { type: 'prayer' | 'quran' | 'deeds' | 'shortcomings'; title: string; prayerName?: string } | null;
   onClose: () => void;
   getPrayerPeriodDetails: (prayer: string) => StatsDetailItem[];
   getQuranPeriodDetails: () => StatsDetailItem[];
@@ -20,6 +20,7 @@ interface StatsDetailsModalProps {
     totalVerses: number;
     surahs: string[];
     activities: { date: Date; text: string }[];
+    shortcomings: { date: Date; text: string }[];
   };
 }
 
@@ -169,6 +170,39 @@ export default function StatsDetailsModal({
               ) : (
                 <p style={{ fontSize: '14px', color: 'var(--c-on-surface-variant)', fontStyle: 'italic', margin: '20px 0', textAlign: 'center' }}>
                   No other activities logged in the selected period.
+                </p>
+              )}
+            </>
+          )}
+
+          {/* Shortcomings details */}
+          {activeStatsDetail.type === 'shortcomings' && (
+            <>
+              {additionalStats.shortcomings.length > 0 ? (
+                additionalStats.shortcomings.map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '6px',
+                      padding: '14px 16px',
+                      borderRadius: '8px',
+                      backgroundColor: 'var(--c-surface-container-low)',
+                      border: '1px solid var(--c-outline-variant)'
+                    }}
+                  >
+                    <span style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', fontWeight: 600 }}>
+                      {new Date(item.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    </span>
+                    <p style={{ margin: 0, fontSize: '14px', color: 'var(--c-on-surface)', whiteSpace: 'pre-wrap', fontWeight: 500, lineHeight: 1.5 }}>
+                      {item.text}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p style={{ fontSize: '14px', color: 'var(--c-on-surface-variant)', fontStyle: 'italic', margin: '20px 0', textAlign: 'center' }}>
+                  No shortcomings logged in the selected period.
                 </p>
               )}
             </>

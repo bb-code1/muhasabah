@@ -155,6 +155,18 @@ export default async function Dashboard() {
       };
     });
 
+  const recentShortcomings = monthlyDayLogs
+    .filter(l => l.shortcomings && l.shortcomings.trim())
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 3)
+    .map(l => {
+      const text = l.shortcomings!.split('\n')[0].trim();
+      return {
+        date: l.date,
+        text: text.length > 50 ? text.substring(0, 47) + '...' : text,
+      };
+    });
+
   // Calculate recovery streak
   let streakDays = 0;
   let streakText = 'No occurrences logged. Start your recovery journey!';
@@ -417,6 +429,7 @@ export default async function Dashboard() {
           monthlyQuranVerses={monthlyQuranVerses}
           monthlyQuranSurahsCount={monthlyQuranSurahs.size}
           recentGoodDeeds={recentGoodDeeds}
+          recentShortcomings={recentShortcomings}
         />
 
         {/* GOALS SUMMARY */}

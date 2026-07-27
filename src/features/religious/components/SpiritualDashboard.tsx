@@ -60,7 +60,7 @@ export default function SpiritualDashboard({
   const [statsCustomStart, setStatsCustomStart] = useState<string>('');
   const [statsCustomEnd, setStatsCustomEnd] = useState<string>('');
   const [isStatsCustomRangeOpen, setIsStatsCustomRangeOpen] = useState(false);
-  const [activeStatsDetail, setActiveStatsDetail] = useState<{ type: 'prayer' | 'quran' | 'deeds'; title: string; prayerName?: string } | null>(null);
+  const [activeStatsDetail, setActiveStatsDetail] = useState<{ type: 'prayer' | 'quran' | 'deeds' | 'shortcomings'; title: string; prayerName?: string } | null>(null);
 
   const completedCount = initialTodayData.habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name) && h.isCompleted).length;
   const totalCount = initialTodayData.habits.filter(h => !OPTIONAL_HABIT_NAMES.has(h.name)).length;
@@ -254,6 +254,7 @@ export default function SpiritualDashboard({
     let totalVerses = 0;
     const memorizedSurahs = new Set<string>();
     const activitiesList: Array<{ date: Date; text: string }> = [];
+    const shortcomingsList: Array<{ date: Date; text: string }> = [];
 
     const processQuranData = (quranVal: string | null) => {
       if (!quranVal) return;
@@ -290,6 +291,11 @@ export default function SpiritualDashboard({
       if (record.otherActivities && record.otherActivities.trim()) {
         activitiesList.push({ date: recDate, text: record.otherActivities.trim() });
       }
+
+      // Shortcomings
+      if (record.shortcomings && record.shortcomings.trim()) {
+        shortcomingsList.push({ date: recDate, text: record.shortcomings.trim() });
+      }
     });
 
     // 2. Gather today's live data
@@ -305,6 +311,9 @@ export default function SpiritualDashboard({
       if (initialTodayData.otherActivities && initialTodayData.otherActivities.trim()) {
         activitiesList.push({ date: todayDateObj, text: initialTodayData.otherActivities.trim() });
       }
+      if (initialTodayData.shortcomings && initialTodayData.shortcomings.trim()) {
+        shortcomingsList.push({ date: todayDateObj, text: initialTodayData.shortcomings.trim() });
+      }
     }
 
     return {
@@ -312,6 +321,7 @@ export default function SpiritualDashboard({
       totalVerses,
       surahs: Array.from(memorizedSurahs),
       activities: activitiesList.sort((a, b) => b.date.getTime() - a.date.getTime()),
+      shortcomings: shortcomingsList.sort((a, b) => b.date.getTime() - a.date.getTime()),
     };
   };
 
@@ -795,6 +805,81 @@ export default function SpiritualDashboard({
               ) : (
                 <p style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)', margin: 0, fontStyle: 'italic', opacity: 0.7 }}>
                   No other activities logged during this period.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* RECENT SHORTCOMINGS INSIGHTS */}
+        <div
+          className="card"
+          onClick={() => setActiveStatsDetail({ type: 'shortcomings', title: 'Recent Shortcomings' })}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            height: '100%',
+            cursor: 'pointer',
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
+            border: '1px solid var(--c-outline-variant)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+            e.currentTarget.style.borderColor = 'var(--c-error)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.borderColor = 'var(--c-outline-variant)';
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--c-error)', fontSize: '22px' }}>error</span>
+            <h3 className="text-title-md" style={{ margin: 0, fontWeight: 700 }}>Recent Shortcomings</h3>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderRadius: '12px', backgroundColor: 'var(--c-surface-container-low)', border: '1px solid var(--c-outline-variant)' }}>
+            <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)', fontWeight: 600 }}>Active Days</span>
+            <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--c-on-surface)' }}>{additionalStats.shortcomings.length}</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
+            <span style={{ fontSize: '12px', color: 'var(--c-on-surface-variant)', fontWeight: 600 }}>Logged Shortcomings History</span>
+            <div style={{
+              maxHeight: '130px',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              paddingRight: '4px',
+            }}>
+              {additionalStats.shortcomings.length > 0 ? (
+                additionalStats.shortcomings.map((act, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      backgroundColor: 'var(--c-surface-container-lowest)',
+                      border: '1px solid var(--c-outline-variant)',
+                      fontSize: '13px',
+                      color: 'var(--c-on-surface)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px',
+                    }}
+                  >
+                    <span style={{ fontSize: '10px', color: 'var(--c-on-surface-variant)', fontWeight: 600 }}>
+                      {new Date(act.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </span>
+                    <span style={{ whiteSpace: 'pre-wrap' }}>{act.text}</span>
+                  </div>
+                ))
+              ) : (
+                <p style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)', margin: 0, fontStyle: 'italic', opacity: 0.7 }}>
+                  No shortcomings logged during this period.
                 </p>
               )}
             </div>
