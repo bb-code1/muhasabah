@@ -29,6 +29,7 @@ export default function EditEntryModal({ isOpen, onClose, category, selectedEntr
   const [editLocation, setEditLocation] = useState('');
   const [editActivity, setEditActivity] = useState('Other');
   const [editTag, setEditTag] = useState('');
+  const [editDate, setEditDate] = useState('');
 
   useEffect(() => {
     if (isOpen && selectedEntry) {
@@ -55,6 +56,11 @@ export default function EditEntryModal({ isOpen, onClose, category, selectedEntr
       setEditLocation(selectedEntry.location || '');
       setEditActivity(selectedEntry.activity || 'Other');
       setEditTag(selectedEntry.tag || '');
+      setEditDate(
+        selectedEntry.date
+          ? new Date(selectedEntry.date).toISOString().split('T')[0]
+          : ''
+      );
     }
   }, [isOpen, selectedEntry, category]);
 
@@ -83,7 +89,8 @@ export default function EditEntryModal({ isOpen, onClose, category, selectedEntr
         durationValue,
         locationValue,
         activityValue,
-        tagValue
+        tagValue,
+        editDate || null
       );
       
       showToast('Entry updated!', 'success');
@@ -103,6 +110,20 @@ export default function EditEntryModal({ isOpen, onClose, category, selectedEntr
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 700 }}>Edit Entry</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-on-surface-variant)' }}><X size={20} /></button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Date
+          </label>
+          <input
+            type="date"
+            value={editDate}
+            onChange={(e) => setEditDate(e.target.value)}
+            className="search-input"
+            style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+            required
+          />
         </div>
 
         {category === 'LEARNING' && (

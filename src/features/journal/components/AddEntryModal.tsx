@@ -28,6 +28,11 @@ export default function AddEntryModal({ isOpen, onClose, category, onSuccess }: 
   const [location, setLocation] = useState('');
   const [activity, setActivity] = useState('Other');
   const [tag, setTag] = useState('');
+  const [date, setDate] = useState(() => {
+    // Format current date to YYYY-MM-DD avoiding timezone offsets shifting the date backwards
+    const now = new Date();
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  });
   
   const [loading, setLoading] = useState(false);
 
@@ -40,6 +45,7 @@ export default function AddEntryModal({ isOpen, onClose, category, onSuccess }: 
       const formData = new FormData();
       formData.append('content', content);
       formData.append('category', category);
+      if (date) formData.append('date', date);
       
       if (category === 'LEARNING') {
         const finalSubject = selectedTopicOption === 'OTHER' ? subject.trim() : selectedTopicOption;
@@ -72,6 +78,8 @@ export default function AddEntryModal({ isOpen, onClose, category, onSuccess }: 
       setLocation('');
       setActivity('Other');
       setTag('');
+      const now = new Date();
+      setDate(new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0]);
       
       showToast('Entry added successfully!', 'success');
       onSuccess();
@@ -94,6 +102,20 @@ export default function AddEntryModal({ isOpen, onClose, category, onSuccess }: 
             {category === 'OFFICE' ? 'Log Office Work' : category === 'LEARNING' ? 'What did I learn today?' : category === 'MISC' ? 'Log Life Event' : 'New Journal Entry'}
           </h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-on-surface-variant)' }}><X size={20} /></button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Date
+          </label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="search-input"
+            style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+            required
+          />
         </div>
         
         {category === 'LEARNING' && (
