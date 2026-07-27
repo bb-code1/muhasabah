@@ -26,6 +26,7 @@ interface HistoryRecord {
   totalCount: number;
   quranMemorization: string | null;
   otherActivities: string | null;
+  shortcomings: string | null;
   habits: Array<{ name: string; isCompleted: boolean; prayedWithJamaat: boolean }>;
 }
 
@@ -35,6 +36,7 @@ interface SpiritualDashboardProps {
     habits: HabitStatus[];
     quranMemorization: string | null;
     otherActivities: string | null;
+    shortcomings: string | null;
   };
   initialHistory: HistoryRecord[];
   allHabits: Array<{ id: number; name: string }>;
@@ -619,6 +621,13 @@ export default function SpiritualDashboard({
             <ScrollText size={16} color="var(--c-primary)" />
             <span style={{ fontWeight: 600 }}>Other activities:</span>
             <span>{initialTodayData.otherActivities}</span>
+          </div>
+        )}
+
+        {initialTodayData.shortcomings && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', backgroundColor: 'var(--c-surface-container-low)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--c-error)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>error</span>
+            <span>{initialTodayData.shortcomings}</span>
           </div>
         )}
 

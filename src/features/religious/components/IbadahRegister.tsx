@@ -15,6 +15,7 @@ interface HistoryRecord {
   totalCount: number;
   quranMemorization: string | null;
   otherActivities: string | null;
+  shortcomings: string | null;
   habits: Array<{ name: string; isCompleted: boolean; prayedWithJamaat: boolean }>;
 }
 

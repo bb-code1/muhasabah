@@ -14,6 +14,7 @@ interface HistoryRecord {
   totalCount: number;
   quranMemorization: string | null;
   otherActivities: string | null;
+  shortcomings: string | null;
   habits: Array<{ name: string; isCompleted: boolean; prayedWithJamaat: boolean }>;
 }
 
@@ -223,6 +224,13 @@ export default function IbadahDetailModal({ selectedRecord, onClose }: IbadahDet
           <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', backgroundColor: 'var(--c-surface-container-low)', border: '1px solid var(--c-outline-variant)' }}>
             <p className="text-label-sm text-on-surface-variant" style={{ margin: '0 0 8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Other Worship / Good Deeds</p>
             <p className="text-body-md" style={{ margin: 0, whiteSpace: 'pre-wrap', fontWeight: 600 }}>{selectedRecord.otherActivities}</p>
+          </div>
+        )}
+
+        {selectedRecord.shortcomings && (
+          <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', backgroundColor: 'var(--c-surface-container-low)', border: '1px solid var(--c-outline-variant)' }}>
+            <p className="text-label-sm" style={{ margin: '0 0 8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--c-error)' }}>Shortcomings / Missed Worship</p>
+            <p className="text-body-md" style={{ margin: 0, whiteSpace: 'pre-wrap', fontWeight: 600 }}>{selectedRecord.shortcomings}</p>
           </div>
         )}
       </div>

@@ -119,6 +119,7 @@ model SpiritualDayLog {
   date              DateTime @db.Date
   quranMemorization String?  @db.Text
   otherActivities   String?  @db.Text
+  shortcomings      String?  @db.Text
   createdAt         DateTime @default(now()) @db.Timestamptz()
 
   @@unique([userId, date])

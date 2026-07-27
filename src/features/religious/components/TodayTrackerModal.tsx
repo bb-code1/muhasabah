@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Moon, CheckCircle2, Plus, X, Users } from 'lucide-react';
-import { toggleSpiritualHabit, setPrayerJamaat, updateQuranMemorization, updateOtherActivities } from '@/features/religious/actions';
+import { toggleSpiritualHabit, setPrayerJamaat, updateQuranMemorization, updateOtherActivities, updateShortcomings } from '@/features/religious/actions';
 import { useToast } from '@/context/ToastContext';
 import { PRAYER_HABIT_NAMES } from '@/lib/spiritualHabits';
 import { QURAN_SURAHS } from '@/lib/quranData';
@@ -23,6 +23,7 @@ interface TodayTrackerModalProps {
     habits: HabitStatus[];
     quranMemorization: string | null;
     otherActivities: string | null;
+    shortcomings: string | null;
   };
 }
 
@@ -63,6 +64,7 @@ export default function TodayTrackerModal({ isOpen, onClose, dateStr, initialTod
   });
 
   const [otherActivities, setOtherActivities] = useState<string>(initialTodayData.otherActivities || '');
+  const [shortcomings, setShortcomings] = useState<string>(initialTodayData.shortcomings || '');
   const [togglingId, setTogglingId] = useState<number | null>(null);
   const [savingAll, setSavingAll] = useState(false);
 
@@ -118,6 +120,7 @@ export default function TodayTrackerModal({ isOpen, onClose, dateStr, initialTod
       }
 
       await updateOtherActivities(dateStr, otherActivities);
+      await updateShortcomings(dateStr, shortcomings);
 
       showToast('Spiritual tracker progress saved!', 'success');
       onClose();
@@ -347,6 +350,44 @@ export default function TodayTrackerModal({ isOpen, onClose, dateStr, initialTod
             placeholder="Describe your activities..."
             value={otherActivities}
             onChange={(e) => setOtherActivities(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid var(--c-outline)',
+              backgroundColor: 'var(--c-surface)',
+              color: 'var(--c-on-surface)',
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              resize: 'vertical',
+              outline: 'none',
+            }}
+          />
+        </div>
+
+        {/* Shortcomings Textarea */}
+        <div style={{
+          marginTop: '20px',
+          padding: '16px',
+          borderRadius: '12px',
+          backgroundColor: 'var(--c-surface-container-low)',
+          border: '1px solid var(--c-outline-variant)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--c-error)', fontSize: '18px' }}>error</span>
+            <h3 className="text-title-md" style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>Shortcomings / Missed Worship</h3>
+          </div>
+          <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-on-surface-variant)', fontWeight: 500 }}>
+            Record any missed obligations or areas of improvement (e.g., &quot;Today, I missed Fajr Salah. May Allah Forgive Me&quot;, missed Azkaar, etc.)
+          </p>
+          <textarea
+            rows={3}
+            placeholder="Log any missed worships or shortcomings..."
+            value={shortcomings}
+            onChange={(e) => setShortcomings(e.target.value)}
             style={{
               width: '100%',
               padding: '12px',
