@@ -51,6 +51,41 @@ export async function addFitnessLog(
   revalidatePath('/fitness');
 }
 
+export async function editFitnessLog(
+  id: number,
+  activity: string,
+  duration: number,
+  distance: number | null,
+  notes: string | null,
+  date: Date,
+  muscleGroup: string | null = null,
+  exercisesCount: number | null = null,
+  setsCount: number | null = null,
+  repsCount: number | null = null
+) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  if (!activity) throw new Error('Activity type is required.');
+  if (duration <= 0) throw new Error('Duration must be greater than 0.');
+
+  await prisma.fitnessLog.updateMany({
+    where: { id, userId: user.id },
+    data: {
+      activity,
+      duration,
+      distance,
+      notes,
+      muscleGroup,
+      exercisesCount,
+      setsCount,
+      repsCount,
+      date,
+    },
+  });
+  revalidatePath('/fitness');
+}
+
 export async function deleteFitnessLog(id: number) {
   const user = await getAuthenticatedUser();
   if (!user) throw new Error('Unauthorized');

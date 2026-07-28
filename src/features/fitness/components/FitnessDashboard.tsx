@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Calendar, Clock, X, Dumbbell, Flame, Activity, Sparkles, Trophy } from 'lucide-react';
-import { addFitnessLog, deleteFitnessLog } from '@/features/fitness/actions';
+import { addFitnessLog, deleteFitnessLog, editFitnessLog } from '@/features/fitness/actions';
+import { Edit } from 'lucide-react';
 import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 import CustomDateRangeDialog from '@/components/ui/CustomDateRangeDialog';
 import { useToast } from '@/context/ToastContext';
@@ -95,17 +96,32 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
   const [repsCount, setRepsCount] = useState('');
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(getTodayDateString());
+  const [editId, setEditId] = useState<number | null>(null);
 
-  const openModal = () => {
-    setActivity('Gym');
-    setDuration('30');
-    setDistance('');
-    setMuscleGroup('Chest');
-    setExercisesCount('');
-    setSetsCount('');
-    setRepsCount('');
-    setNotes('');
-    setDate(getTodayDateString());
+  const openModal = (log?: FitnessLog) => {
+    if (log) {
+      setEditId(log.id);
+      setActivity(log.activity);
+      setDuration(log.duration.toString());
+      setDistance(log.distance ? log.distance.toString() : '');
+      setMuscleGroup(log.muscleGroup || 'Chest');
+      setExercisesCount(log.exercisesCount !== null ? log.exercisesCount.toString() : '');
+      setSetsCount(log.setsCount !== null ? log.setsCount.toString() : '');
+      setRepsCount(log.repsCount !== null ? log.repsCount.toString() : '');
+      setNotes(log.notes || '');
+      setDate(getLocalDateString(new Date(log.date), 'UTC'));
+    } else {
+      setEditId(null);
+      setActivity('Gym');
+      setDuration('30');
+      setDistance('');
+      setMuscleGroup('Chest');
+      setExercisesCount('');
+      setSetsCount('');
+      setRepsCount('');
+      setNotes('');
+      setDate(getTodayDateString());
+    }
     setIsModalOpen(true);
   };
 
@@ -145,20 +161,36 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
 
     setSubmitting(true);
     try {
-      await addFitnessLog(
-        activity,
-        durNum,
-        distNum,
-        notes.trim() || null,
-        new Date(date),
-        activity === 'Gym' ? muscleGroup : null,
-        exNum,
-        setsNum,
-        repsNum
-      );
-      setCurrentPage(1); // Reset page on add
+      if (editId) {
+        await editFitnessLog(
+          editId,
+          activity,
+          durNum,
+          distNum,
+          notes.trim() || null,
+          new Date(date),
+          activity === 'Gym' ? muscleGroup : null,
+          exNum,
+          setsNum,
+          repsNum
+        );
+        showToast('Workout updated successfully!', 'success');
+      } else {
+        await addFitnessLog(
+          activity,
+          durNum,
+          distNum,
+          notes.trim() || null,
+          new Date(date),
+          activity === 'Gym' ? muscleGroup : null,
+          exNum,
+          setsNum,
+          repsNum
+        );
+        setCurrentPage(1); // Reset page on add
+        showToast('Workout logged successfully!', 'success');
+      }
       closeModal();
-      showToast('Workout logged successfully!', 'success');
     } catch (error) {
       console.error(error);
       showToast('Failed to log fitness activity.', 'error');
@@ -568,7 +600,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <h3 className="text-title-lg" style={{ margin: 0, fontWeight: 800, color: 'var(--c-on-surface)' }}>Activity History</h3>
         <button 
-          onClick={openModal} 
+          onClick={() => openModal()} 
           className="primary-btn" 
           style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '10px', fontSize: '14px', fontWeight: 700 }}
         >
@@ -588,6 +620,18 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
             <div 
               key={log.id} 
               className="card" 
+              onClick={() => {
+                let msg = `Activity: ${log.activity}\nDuration: ${log.duration} mins`;
+                if (log.distance) msg += `\nDistance: ${log.distance} km`;
+                if (log.activity === 'Gym') {
+                  if (log.muscleGroup) msg += `\nFocus: ${log.muscleGroup}`;
+                  if (log.exercisesCount) msg += `\nExercises: ${log.exercisesCount}`;
+                  if (log.setsCount) msg += `\nSets: ${log.setsCount}`;
+                  if (log.repsCount) msg += `\nReps: ${log.repsCount}`;
+                }
+                if (log.notes) msg += `\nNotes: ${log.notes}`;
+                showToast(msg, 'success');
+              }}
               style={{ 
                 padding: '20px', 
                 borderRadius: '16px',
@@ -597,7 +641,8 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '12px',
-                position: 'relative'
+                position: 'relative',
+                cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)';
@@ -717,13 +762,39 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                   <span>{dateString}</span>
                 </div>
 
-                <div onClick={(e) => e.stopPropagation()}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => openModal(log)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--c-on-surface-variant)',
+                      padding: '4px',
+                      borderRadius: '8px',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--c-surface-container-highest)';
+                      e.currentTarget.style.color = 'var(--c-primary)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--c-on-surface-variant)';
+                    }}
+                    title="Edit Activity"
+                  >
+                    <Edit size={16} />
+                  </button>
                   <DeleteConfirmButton 
                     action={async () => {
                       await deleteFitnessLog(log.id);
                       setCurrentPage(1);
                     }}
-                    iconSize={15}
+                    iconSize={16}
                     title="Delete Activity"
                     message="Are you sure you want to delete this activity log?"
                   />
@@ -778,7 +849,9 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
               <X size={20} />
             </button>
 
-            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 700 }}>Log Fitness Activity</h3>
+            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 700 }}>
+              {editId ? 'Edit Fitness Activity' : 'Log Fitness Activity'}
+            </h3>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
