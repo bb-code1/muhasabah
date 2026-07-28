@@ -146,33 +146,6 @@ export default function Navigation({ notifications = [] }: NavigationProps) {
             <span className="material-symbols-outlined">folder_open</span>
             <span className="text-body-md">Miscellaneous</span>
           </Link>
-          <button
-            type="button"
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              localStorage.removeItem('muhasabah_pwa_dismissed');
-              const promptEvent = (window as unknown as Record<string, { prompt: () => void }>).__muhasabahDeferredPrompt;
-              if (promptEvent) {
-                promptEvent.prompt();
-              } else {
-                alert('To add Muhasabah to your Home Screen:\n• Chrome/Android: Tap menu (⋮) -> "Add to Home screen"\n• iPhone/Safari: Tap Share -> "Add to Home Screen"');
-              }
-            }}
-            className="nav-item"
-            style={{
-              width: '100%',
-              textAlign: 'left',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              marginTop: '8px',
-              color: 'var(--c-primary)',
-              borderTop: '1px solid var(--c-outline-variant)'
-            }}
-          >
-            <span className="material-symbols-outlined">install_mobile</span>
-            <span className="text-body-md" style={{ fontWeight: 700 }}>Add to Home Screen</span>
-          </button>
         </nav>
       </aside>
  
@@ -365,26 +338,6 @@ export default function Navigation({ notifications = [] }: NavigationProps) {
                   <span className="text-body-md">Profile Settings</span>
                 </button>
               </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowProfileMenu(false);
-                  localStorage.removeItem('muhasabah_pwa_dismissed');
-                  window.dispatchEvent(new Event('beforeinstallprompt'));
-                  // Trigger install if prompt available
-                  const promptEvent = (window as unknown as Record<string, { prompt: () => void }>).__muhasabahDeferredPrompt;
-                  if (promptEvent) {
-                    promptEvent.prompt();
-                  } else {
-                    alert('To add Muhasabah to your Home Screen:\n• Chrome/Android: Tap menu (⋮) -> "Add to Home screen"\n• iPhone/Safari: Tap Share -> "Add to Home Screen"');
-                  }
-                }}
-                className="nav-item"
-                style={{ width: '100%', textAlign: 'left', padding: '8px 16px', borderRadius: 0, color: 'var(--c-primary)' }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>get_app</span>
-                <span className="text-body-md" style={{ fontWeight: 600 }}>Add to Home Screen</span>
-              </button>
               <button onClick={handleLogout} className="nav-item" style={{ width: '100%', textAlign: 'left', padding: '8px 16px', borderRadius: 0, color: 'var(--c-error)' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>logout</span>
                 <span className="text-body-md">Logout</span>
