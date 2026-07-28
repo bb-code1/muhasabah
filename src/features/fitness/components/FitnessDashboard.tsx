@@ -97,8 +97,10 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(getTodayDateString());
   const [editId, setEditId] = useState<number | null>(null);
+  const [isViewOnly, setIsViewOnly] = useState(false);
 
-  const openModal = (log?: FitnessLog) => {
+  const openModal = (log?: FitnessLog, viewOnly: boolean = false) => {
+    setIsViewOnly(viewOnly);
     if (log) {
       setEditId(log.id);
       setActivity(log.activity);
@@ -620,7 +622,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
             <div 
               key={log.id} 
               className="card" 
-              onClick={() => openModal(log)}
+              onClick={() => openModal(log, true)}
               style={{ 
                 padding: '20px', 
                 borderRadius: '16px',
@@ -753,7 +755,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={(e) => e.stopPropagation()}>
                   <button
-                    onClick={() => openModal(log)}
+                    onClick={() => openModal(log, false)}
                     style={{
                       background: 'none',
                       border: 'none',
@@ -839,7 +841,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
             </button>
 
             <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 700 }}>
-              {editId ? 'Edit Fitness Activity' : 'Log Fitness Activity'}
+              {isViewOnly ? 'View Fitness Activity' : editId ? 'Edit Fitness Activity' : 'Log Fitness Activity'}
             </h3>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -848,6 +850,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                 <select 
                   value={activity}
                   onChange={(e) => setActivity(e.target.value)}
+                  disabled={isViewOnly}
                   className="search-input"
                   style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
                   required
@@ -876,119 +879,105 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                 </select>
               </div>
 
-              {activity === 'Gym' && (
-                <>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Workout Focus (Muscle Group)</label>
-                    <select 
-                      value={muscleGroup}
-                      onChange={(e) => setMuscleGroup(e.target.value)}
-                      className="search-input"
-                      style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
-                      required
-                    >
-                      {MUSCLE_GROUPS.map(g => (
-                        <option key={g} value={g}>{g}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Optional Gym Details */}
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px',
-                    padding: '14px',
-                    borderRadius: '12px',
-                    backgroundColor: 'rgba(249,115,22,0.04)',
-                    border: '1px solid rgba(249,115,22,0.15)'
-                  }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#c2410c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Gym Details (Optional)
-                    </span>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Exercises</label>
-                        <input 
-                          type="number" 
-                          placeholder="e.g. 5"
-                          value={exercisesCount}
-                          onChange={(e) => setExercisesCount(e.target.value)}
-                          className="search-input"
-                          style={{ width: '100%', borderRadius: '8px', fontWeight: 600, fontSize: '13px', padding: '8px' }}
-                          min="0"
-                        />
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Total Sets</label>
-                        <input 
-                          type="number" 
-                          placeholder="e.g. 15"
-                          value={setsCount}
-                          onChange={(e) => setSetsCount(e.target.value)}
-                          className="search-input"
-                          style={{ width: '100%', borderRadius: '8px', fontWeight: 600, fontSize: '13px', padding: '8px' }}
-                          min="0"
-                        />
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Total Reps</label>
-                        <input 
-                          type="number" 
-                          placeholder="e.g. 150"
-                          value={repsCount}
-                          onChange={(e) => setRepsCount(e.target.value)}
-                          className="search-input"
-                          style={{ width: '100%', borderRadius: '8px', fontWeight: 600, fontSize: '13px', padding: '8px' }}
-                          min="0"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Duration (mins)</label>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                  <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date</label>
                   <input 
-                    type="number" 
-                    placeholder="e.g. 45"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
+                    type="date" 
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    disabled={isViewOnly}
                     className="search-input"
-                    style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }}
-                    min="1"
+                    style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)', color: 'var(--c-on-surface)' }}
                     required
                   />
                 </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Distance (km - optional)</label>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                  <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Duration (mins)</label>
                   <input 
                     type="number" 
-                    placeholder="e.g. 5.2"
-                    value={distance}
-                    onChange={(e) => setDistance(e.target.value)}
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    disabled={isViewOnly}
                     className="search-input"
-                    style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }}
-                    step="0.01"
-                    min="0"
+                    placeholder="e.g. 45"
+                    style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+                    required
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date</label>
-                <input 
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="search-input"
-                  style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px' }}
-                  required
-                />
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                  <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Distance (km) <span style={{ opacity: 0.5, fontWeight: 500 }}>(Optional)</span></label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    value={distance}
+                    onChange={(e) => setDistance(e.target.value)}
+                    disabled={isViewOnly}
+                    className="search-input"
+                    placeholder="e.g. 5.2"
+                    style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                  <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Muscle Focus <span style={{ opacity: 0.5, fontWeight: 500 }}>(Optional)</span></label>
+                  <select 
+                    value={muscleGroup}
+                    onChange={(e) => setMuscleGroup(e.target.value)}
+                    disabled={isViewOnly || activity !== 'Gym'}
+                    className="search-input"
+                    style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+                  >
+                    {MUSCLE_GROUPS.map(mg => (
+                      <option key={mg} value={mg}>{mg}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
+              {activity === 'Gym' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Exercises</label>
+                    <input 
+                      type="number" 
+                      value={exercisesCount}
+                      onChange={(e) => setExercisesCount(e.target.value)}
+                      disabled={isViewOnly}
+                      className="search-input"
+                      placeholder="e.g. 6"
+                      style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sets</label>
+                    <input 
+                      type="number" 
+                      value={setsCount}
+                      onChange={(e) => setSetsCount(e.target.value)}
+                      disabled={isViewOnly}
+                      className="search-input"
+                      placeholder="e.g. 15"
+                      style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Reps</label>
+                    <input 
+                      type="number" 
+                      value={repsCount}
+                      onChange={(e) => setRepsCount(e.target.value)}
+                      disabled={isViewOnly}
+                      className="search-input"
+                      placeholder="e.g. 150"
+                      style={{ width: '100%', borderRadius: '10px', fontWeight: 600, fontSize: '14px', padding: '10px 14px', backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <label className="text-label-md" style={{ fontWeight: 700, fontSize: '11px', color: 'var(--c-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Notes / Context</label>
@@ -996,8 +985,9 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                   placeholder="How did it go? (optional)"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
+                  disabled={isViewOnly}
                   className="search-input"
-                  style={{ width: '100%', minHeight: '90px', borderRadius: '10px', resize: 'vertical', fontSize: '14px', lineHeight: 1.6 }}
+                  style={{ width: '100%', minHeight: '90px', borderRadius: '10px', resize: 'vertical', fontSize: '14px', lineHeight: 1.6, backgroundColor: 'var(--c-surface-container-high)', border: '1px solid var(--c-outline-variant)' }}
                 />
               </div>
 
@@ -1007,16 +997,18 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
                   onClick={closeModal} 
                   style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--c-on-surface-variant)', border: '1px solid var(--c-outline-variant)', fontWeight: 600, cursor: 'pointer' }}
                 >
-                  Cancel
+                  {isViewOnly ? 'Close' : 'Cancel'}
                 </button>
-                <button 
-                  type="submit" 
-                  className="primary-btn"
-                  style={{ padding: '10px 24px', borderRadius: '8px' }}
-                  disabled={submitting}
-                >
-                  {submitting ? 'Saving...' : 'Save Activity'}
-                </button>
+                {!isViewOnly && (
+                  <button 
+                    type="submit" 
+                    className="primary-btn"
+                    style={{ padding: '10px 24px', borderRadius: '8px' }}
+                    disabled={submitting}
+                  >
+                    {submitting ? 'Saving...' : editId ? 'Save Changes' : 'Save Activity'}
+                  </button>
+                )}
               </div>
             </form>
           </div>
