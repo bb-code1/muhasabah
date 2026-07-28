@@ -620,18 +620,7 @@ export default function FitnessDashboard({ initialLogs }: { initialLogs: Fitness
             <div 
               key={log.id} 
               className="card" 
-              onClick={() => {
-                let msg = `Activity: ${log.activity}\nDuration: ${log.duration} mins`;
-                if (log.distance) msg += `\nDistance: ${log.distance} km`;
-                if (log.activity === 'Gym') {
-                  if (log.muscleGroup) msg += `\nFocus: ${log.muscleGroup}`;
-                  if (log.exercisesCount) msg += `\nExercises: ${log.exercisesCount}`;
-                  if (log.setsCount) msg += `\nSets: ${log.setsCount}`;
-                  if (log.repsCount) msg += `\nReps: ${log.repsCount}`;
-                }
-                if (log.notes) msg += `\nNotes: ${log.notes}`;
-                showToast(msg, 'success');
-              }}
+              onClick={() => openModal(log)}
               style={{ 
                 padding: '20px', 
                 borderRadius: '16px',
