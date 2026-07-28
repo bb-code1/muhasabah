@@ -34,6 +34,7 @@ export default async function Dashboard() {
     latestDua,
     latestBook,
     latestRelapse,
+    latestFitnessLog,
     persons,
     recurringTrackers,
     prayerTimesData
@@ -81,6 +82,10 @@ export default async function Dashboard() {
       orderBy: { createdAt: 'desc' },
     }),
     prisma.relapseLog.findFirst({
+      where: { userId: sessionUser.id },
+      orderBy: { date: 'desc' },
+    }),
+    prisma.fitnessLog.findFirst({
       where: { userId: sessionUser.id },
       orderBy: { date: 'desc' },
     }),
@@ -673,6 +678,80 @@ export default async function Dashboard() {
                 <span className="material-symbols-outlined" style={{ fontSize: '32px', color: 'var(--c-on-surface-variant)' }}>menu_book</span>
                 <span style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', fontStyle: 'italic' }}>
                   No books added yet. Click to add!
+                </span>
+              </div>
+            )}
+          </Link>
+        </div>
+
+        {/* FITNESS SUMMARY */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <h4 className="text-title-sm" style={{ fontWeight: 700, color: 'var(--c-on-surface-variant)', margin: 0 }}>Latest Fitness Activity</h4>
+          <Link 
+            href="/fitness"
+            className="card" 
+            style={{ 
+              padding: '16px', 
+              borderRadius: '12px', 
+              backgroundColor: 'var(--c-surface-container-high)',
+              border: '1px solid var(--c-outline-variant)',
+              textDecoration: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              flexGrow: 1,
+              justifyContent: 'center',
+              transition: 'transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease'
+            }}
+          >
+            {latestFitnessLog ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-secondary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                    {latestFitnessLog.activity.toUpperCase()}
+                  </span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--c-on-surface-variant)' }}>arrow_forward</span>
+                </div>
+                <h3 
+                  className="text-title-md" 
+                  style={{ 
+                    margin: 0, 
+                    fontWeight: 700, 
+                    color: 'var(--c-on-surface)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {latestFitnessLog.duration} mins {latestFitnessLog.distance ? `• ${latestFitnessLog.distance}km` : ''}
+                </h3>
+                {latestFitnessLog.notes && (
+                  <p 
+                    style={{ 
+                      margin: 0, 
+                      lineHeight: 1.6, 
+                      fontSize: '13px',
+                      color: 'var(--c-on-surface-variant)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {latestFitnessLog.notes}
+                  </p>
+                )}
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--c-primary)', fontWeight: 700, marginTop: '4px' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>event</span> 
+                  {new Date(latestFitnessLog.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '120px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '32px', color: 'var(--c-on-surface-variant)' }}>fitness_center</span>
+                <span style={{ fontSize: '11px', color: 'var(--c-on-surface-variant)', fontStyle: 'italic' }}>
+                  No fitness activities logged. Click to add!
                 </span>
               </div>
             )}
