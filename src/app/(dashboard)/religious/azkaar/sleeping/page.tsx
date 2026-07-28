@@ -91,14 +91,14 @@ export default function SleepingAzkaarPage() {
 
             {/* Benefit & Reference */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {azkaar.benefit && (
+              {(azkaar as any).benefit && (
                 <div style={{ display: 'flex', alignItems: 'start', gap: '8px', color: 'var(--c-secondary)', fontSize: '14px' }}>
                   <BookOpen size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
-                  <span><span style={{ fontWeight: 600 }}>Benefit:</span> {azkaar.benefit}</span>
+                  <span><span style={{ fontWeight: 600 }}>Benefit:</span> {(azkaar as any).benefit}</span>
                 </div>
               )}
               <div style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)' }}>
-                <span style={{ fontWeight: 600 }}>Reference:</span> {azkaar.reference}
+                <span style={{ fontWeight: 600 }}>Reference:</span> {(azkaar as any).reference || 'None'}
               </div>
             </div>
 
