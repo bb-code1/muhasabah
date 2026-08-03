@@ -235,7 +235,7 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
                       lineHeight: 1.5,
                       direction: isContentArabic ? 'rtl' : 'ltr',
                       textAlign: isContentArabic ? 'right' : 'left',
-                      fontFamily: isContentArabic ? '"Scheherazade New", Amiri, serif' : 'inherit',
+                      fontFamily: isContentArabic ? 'var(--font-arabic)' : 'inherit',
                       fontSize: isContentArabic ? '18px' : '13px',
                       color: 'var(--c-on-surface-variant)'
                     }}
@@ -418,7 +418,7 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
                   wordBreak: 'break-word',
                   direction: isArabicText(selectedDua.content) ? 'rtl' : 'ltr',
                   textAlign: isArabicText(selectedDua.content) ? 'right' : 'left',
-                  fontFamily: isArabicText(selectedDua.content) ? '"Scheherazade New", Amiri, serif' : 'inherit',
+                  fontFamily: isArabicText(selectedDua.content) ? 'var(--font-arabic)' : 'inherit',
                   fontSize: isArabicText(selectedDua.content) ? '26px' : '15px',
                   color: 'var(--c-on-surface)'
                 }}

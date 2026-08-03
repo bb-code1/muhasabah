@@ -68,10 +68,10 @@ export default function SleepingAzkaarPage() {
             <p style={{ 
               margin: 0, 
               fontSize: '28px', 
-              lineHeight: '1.8', 
+              lineHeight: '2.0', 
               textAlign: 'right', 
               direction: 'rtl', 
-              fontFamily: 'var(--font-arabic, sans-serif)',
+              fontFamily: 'var(--font-arabic)',
               color: 'var(--c-primary)' 
             }}>
               {azkaar.arabic}

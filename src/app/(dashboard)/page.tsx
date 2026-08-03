@@ -558,7 +558,7 @@ export default async function Dashboard() {
                     wordBreak: 'break-word',
                     direction: /[\u0600-\u06FF]/.test(latestDua.content) ? 'rtl' : 'ltr',
                     textAlign: /[\u0600-\u06FF]/.test(latestDua.content) ? 'right' : 'left',
-                    fontFamily: /[\u0600-\u06FF]/.test(latestDua.content) ? '"Scheherazade New", Amiri, serif' : 'inherit',
+                    fontFamily: /[\u0600-\u06FF]/.test(latestDua.content) ? 'var(--font-arabic)' : 'inherit',
                     fontSize: /[\u0600-\u06FF]/.test(latestDua.content) ? '20px' : '13px',
                     color: 'var(--c-on-surface-variant)',
                     overflow: 'hidden',
