@@ -7,17 +7,15 @@ import { Search, Moon, Sparkles, X, ChevronRight } from 'lucide-react';
 
 interface Props {
   baseOffset?: number;
-  maghribPassed?: boolean;
 }
 
-export default function IslamicEventsCalendar({ baseOffset = 0, maghribPassed = false }: Props) {
+export default function IslamicEventsCalendar({ baseOffset = 0 }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedMonthPopup, setSelectedMonthPopup] = useState<number | null>(null);
 
   const today = new Date();
-  const effectiveOffset = baseOffset + (maghribPassed ? 1 : 0);
-  const currentMonthNum = getHijriMonthNumber(today, effectiveOffset);
+  const currentMonthNum = getHijriMonthNumber(today, baseOffset);
 
   // Filter events based on search & category
   const filteredEvents = ISLAMIC_EVENTS_DATA.filter(ev => {

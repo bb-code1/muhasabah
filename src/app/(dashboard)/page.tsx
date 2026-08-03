@@ -99,7 +99,7 @@ export default async function Dashboard() {
     getPrayerTimesAndMaghribStatus()
   ]);
 
-  const { prayerTimes, maghribPassed } = prayerTimesData;
+  const { prayerTimes } = prayerTimesData;
 
   const todayStart = new Date(now);
   todayStart.setHours(0, 0, 0, 0);
@@ -236,8 +236,7 @@ export default async function Dashboard() {
 
   // Calculate upcoming Islamic events (occurring today, tomorrow, or in 2 days)
   const baseOffset = user?.hijriOffset ?? 0;
-  const effectiveOffset = baseOffset + (maghribPassed ? 1 : 0);
-  const upcomingIslamicEvents = getUpcomingIslamicEvents(new Date(), effectiveOffset, 2);
+  const upcomingIslamicEvents = getUpcomingIslamicEvents(new Date(), baseOffset, 2);
 
   return (
     <>
@@ -409,7 +408,7 @@ export default async function Dashboard() {
 
       {/* HIJRI DATE DISPLAY */}
       <div style={{ marginBottom: '24px' }}>
-        <HijriDateDisplay baseOffset={baseOffset} maghribPassed={maghribPassed} />
+        <HijriDateDisplay baseOffset={baseOffset} />
       </div>
 
       {/* TIMETABLE SECTION */}

@@ -8,10 +8,9 @@ interface IslamicEventsModalProps {
   isOpen: boolean;
   onClose: () => void;
   baseOffset: number;
-  maghribPassed: boolean;
 }
 
-export default function IslamicEventsModal({ isOpen, onClose, baseOffset, maghribPassed }: IslamicEventsModalProps) {
+export default function IslamicEventsModal({ isOpen, onClose, baseOffset }: IslamicEventsModalProps) {
   if (!isOpen) return null;
 
   return createPortal(
@@ -32,7 +31,7 @@ export default function IslamicEventsModal({ isOpen, onClose, baseOffset, maghri
         </button>
         
         <div style={{ marginTop: '12px' }}>
-          <IslamicEventsCalendar baseOffset={baseOffset} maghribPassed={maghribPassed} />
+          <IslamicEventsCalendar baseOffset={baseOffset} />
         </div>
       </div>
     </div>,

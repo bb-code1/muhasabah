@@ -28,7 +28,7 @@ export default async function TimetablePage() {
     getPrayerTimesAndMaghribStatus()
   ]);
 
-  const { prayerTimes, maghribPassed } = prayerTimesData;
+  const { prayerTimes } = prayerTimesData;
   const baseOffset = user?.hijriOffset ?? 0;
 
   const initialData = {
@@ -47,7 +47,7 @@ export default async function TimetablePage() {
         <h2 className="text-headline-md" style={{ margin: 0 }}>Daily Time Table</h2>
       </div>
 
-      <HijriDateDisplay baseOffset={baseOffset} maghribPassed={maghribPassed} showControls={true} />
+      <HijriDateDisplay baseOffset={baseOffset} showControls={true} />
 
       <div className="w-full" style={{ marginBottom: '12px' }}>
         <TimetableDashboardCard timetable={initialData} prayerTimes={prayerTimes} />

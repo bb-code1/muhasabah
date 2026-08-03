@@ -13,11 +13,18 @@ export const ISLAMIC_MONTHS = [
   'Dhu al-Hijjah'
 ];
 
-export function getHijriMonthNumber(date: Date, offsetDays: number = 0): number {
+export const DEFAULT_TIMEZONE = 'Asia/Kolkata';
+
+export function getHijriMonthNumber(
+  date: Date = new Date(),
+  offsetDays: number = 0,
+  timeZone: string = DEFAULT_TIMEZONE
+): number {
   const adjustedTime = date.getTime() + offsetDays * 24 * 60 * 60 * 1000;
   const adjustedDate = new Date(adjustedTime);
   try {
     const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+      timeZone,
       month: 'numeric'
     });
     const parts = formatter.formatToParts(adjustedDate);
@@ -34,13 +41,18 @@ export function getHijriMonthNumber(date: Date, offsetDays: number = 0): number 
   return 1;
 }
 
-export function getHijriDateString(date: Date, offsetDays: number = 0): string {
+export function getHijriDateString(
+  date: Date = new Date(),
+  offsetDays: number = 0,
+  timeZone: string = DEFAULT_TIMEZONE
+): string {
   // Apply manual offset (convert offset in days to milliseconds)
   const adjustedTime = date.getTime() + offsetDays * 24 * 60 * 60 * 1000;
   const adjustedDate = new Date(adjustedTime);
 
   try {
     const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+      timeZone,
       day: 'numeric',
       month: 'numeric',
       year: 'numeric'
@@ -67,3 +79,4 @@ export function getHijriDateString(date: Date, offsetDays: number = 0): string {
     return adjustedDate.toLocaleDateString();
   }
 }
+

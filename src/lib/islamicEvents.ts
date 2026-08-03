@@ -380,7 +380,8 @@ export const MONTH_DETAILS: Record<number, IslamicMonthDetail> = {
 export function getUpcomingIslamicEvents(
   today: Date = new Date(),
   offsetDays: number = 0,
-  maxWindowDays: number = 2
+  maxWindowDays: number = 2,
+  timeZone: string = 'Asia/Kolkata'
 ): { event: IslamicEvent; status: 'TODAY' | 'IN_1_DAY' | 'IN_2_DAYS'; targetDate: Date }[] {
   const results: { event: IslamicEvent; status: 'TODAY' | 'IN_1_DAY' | 'IN_2_DAYS'; targetDate: Date }[] = [];
   const seenEventIds = new Set<string>();
@@ -393,6 +394,7 @@ export function getUpcomingIslamicEvents(
 
     try {
       const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+        timeZone,
         day: 'numeric',
         month: 'numeric'
       });

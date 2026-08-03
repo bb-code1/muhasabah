@@ -11,11 +11,10 @@ import IslamicMonthPopup from '@/features/religious/components/IslamicMonthPopup
 
 interface Props {
   baseOffset: number;
-  maghribPassed?: boolean;
   showControls?: boolean;
 }
 
-export default function HijriDateDisplay({ baseOffset, maghribPassed = false, showControls = false }: Props) {
+export default function HijriDateDisplay({ baseOffset, showControls = false }: Props) {
   const [offsetState, setOffsetState] = useState(baseOffset);
   const [showMonthsList, setShowMonthsList] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
@@ -31,9 +30,8 @@ export default function HijriDateDisplay({ baseOffset, maghribPassed = false, sh
   }, []);
 
   const today = new Date();
-  const effectiveOffset = offsetState + (maghribPassed ? 1 : 0);
-  const hijriStr = getHijriDateString(today, effectiveOffset);
-  const currentMonthNum = getHijriMonthNumber(today, effectiveOffset);
+  const hijriStr = getHijriDateString(today, offsetState);
+  const currentMonthNum = getHijriMonthNumber(today, offsetState);
   const gregorianStr = today.toLocaleDateString(undefined, {
     weekday: 'long',
     day: 'numeric',

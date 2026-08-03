@@ -41,8 +41,6 @@ interface SpiritualDashboardProps {
   };
   initialHistory: HistoryRecord[];
   allHabits: Array<{ id: number; name: string }>;
-  baseOffset?: number;
-  maghribPassed?: boolean;
 }
 
 export default function SpiritualDashboard({

@@ -129,13 +129,12 @@ export async function updateHijriOffset(offset: number) {
 export async function getPrayerTimesAndMaghribStatus() {
   const user = await getAuthenticatedUser();
   if (!user || !user.latitude || !user.longitude) {
-    return { prayerTimes: null, maghribPassed: false, timezone: null };
+    return { prayerTimes: null, timezone: null };
   }
 
   const todayStr = getTodayDateString();
   let prayerTimes = null;
   let timezone = null;
-  let maghribPassed = false;
 
   try {
     const method = user.calculationMethod ?? 1;
@@ -145,25 +144,11 @@ export async function getPrayerTimesAndMaghribStatus() {
     if (data && data.data && data.data.timings) {
       prayerTimes = data.data.timings;
       timezone = data.data.meta?.timezone;
-
-      if (prayerTimes && prayerTimes.Maghrib) {
-        const maghribTime = prayerTimes.Maghrib as string;
-        const [mHour, mMin] = maghribTime.split(':').map(Number);
-        
-        const userNow = timezone 
-          ? new Date(new Date().toLocaleString("en-US", { timeZone: timezone }))
-          : new Date();
-        
-        const currentHour = userNow.getHours();
-        const currentMin = userNow.getMinutes();
-        
-        maghribPassed = currentHour > mHour || (currentHour === mHour && currentMin >= mMin);
-      }
     }
   } catch (e) {
     console.error('Failed to fetch prayer times', e);
   }
 
-  return { prayerTimes, maghribPassed, timezone };
+  return { prayerTimes, timezone };
 }
 

@@ -16,7 +16,6 @@ A comprehensive personal dashboard and self-accountability app to help you track
 
 ### ⏰ Dynamic Timetable & Hijri Calendar
 - **Adjustable Hijri Date Display**: Displays today's adjusted Hijri date prominently on the Dashboard and Time Table pages.
-  - Automatically advances the Hijri date by 1 day after local Maghrib time.
   - Allows manual adjustment of ±1 day (or more) via a clean portal dialog popup modal on the Time Table page to align with local moon sighting announcements.
   - Selected offset persists across refreshes and sessions (saved in the database per user).
 - Save your GPS coordinates via browser Geolocation API
