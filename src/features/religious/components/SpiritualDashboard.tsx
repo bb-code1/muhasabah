@@ -670,13 +670,15 @@ export default function SpiritualDashboard({
               gap: '8px',
               padding: '10px 18px',
               borderRadius: '20px',
-              backgroundColor: 'var(--c-primary)',
-              color: 'white',
+              backgroundColor: 'var(--c-surface-container-high)',
+              color: 'var(--c-on-surface)',
               textDecoration: 'none',
               fontSize: '14px',
               fontWeight: 600,
-              boxShadow: 'var(--shadow-xs)'
+              transition: 'background-color 0.2s'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--c-outline-variant)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--c-surface-container-high)'}
           >
             Morning & Evening Azkaar
           </Link>
