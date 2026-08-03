@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { DailyTask } from '@prisma/client';
 import { Calendar, CheckCircle2, XCircle, X, Trash2 } from 'lucide-react';
 import { deleteDailyTask } from '@/features/tasks/actions';
+import CustomDateRangeDialog from '@/components/ui/CustomDateRangeDialog';
 
 interface TaskHistoryTableProps {
   tasks: DailyTask[];
@@ -20,6 +21,7 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const [startDateStr, setStartDateStr] = useState<string>('');
   const [endDateStr, setEndDateStr] = useState<string>('');
+  const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
 
   // Local state to allow immediate updates on delete
   const [localTasks, setLocalTasks] = useState<DailyTask[]>(tasks);
@@ -194,6 +196,10 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
             <button
               key={tab.id}
               onClick={() => {
+                if (tab.id === 'custom') {
+                  setIsCustomRangeOpen(true);
+                  return;
+                }
                 setActiveFilter(tab.id);
                 setCurrentPage(1);
               }}
@@ -214,7 +220,7 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
           ))}
         </div>
 
-        {/* Year Dropdown & Custom Range Inputs */}
+        {/* Year Dropdown & Custom Range Dialog */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', marginTop: '4px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>YEAR WISE</span>
@@ -244,54 +250,45 @@ export default function TaskHistoryTable({ tasks }: TaskHistoryTableProps) {
             </select>
           </div>
 
-          {activeFilter === 'custom' && (
-            <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>START DATE</span>
-                <input
-                  type="date"
-                  value={startDateStr}
-                  onChange={(e) => {
-                    setStartDateStr(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="search-input"
-                  style={{
-                    padding: '5px 12px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    border: '1px solid var(--c-outline-variant)',
-                    backgroundColor: 'var(--c-surface)',
-                    color: 'var(--c-on-surface)',
-                    outline: 'none'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>END DATE</span>
-                <input
-                  type="date"
-                  value={endDateStr}
-                  onChange={(e) => {
-                    setEndDateStr(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="search-input"
-                  style={{
-                    padding: '5px 12px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    border: '1px solid var(--c-outline-variant)',
-                    backgroundColor: 'var(--c-surface)',
-                    color: 'var(--c-on-surface)',
-                    outline: 'none'
-                  }}
-                />
-              </div>
-            </>
+          {activeFilter === 'custom' && startDateStr && endDateStr && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px' }}>
+              <span className="text-body-sm text-on-surface-variant" style={{ fontWeight: 600 }}>
+                Range: {startDateStr} to {endDateStr}
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsCustomRangeOpen(true)}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  backgroundColor: 'var(--c-surface-container-high)',
+                  color: 'var(--c-primary)',
+                  border: '1px solid var(--c-outline-variant)',
+                  cursor: 'pointer'
+                }}
+              >
+                Change Range
+              </button>
+            </div>
           )}
         </div>
+
+        {isCustomRangeOpen && (
+          <CustomDateRangeDialog
+            initialStartDate={startDateStr}
+            initialEndDate={endDateStr}
+            onClose={() => setIsCustomRangeOpen(false)}
+            onApply={(newStart, newEnd) => {
+              setStartDateStr(newStart);
+              setEndDateStr(newEnd);
+              setActiveFilter('custom');
+              setCurrentPage(1);
+              setIsCustomRangeOpen(false);
+            }}
+          />
+        )}
       </div>
 
       {/* TASK HISTORY GRID */}
