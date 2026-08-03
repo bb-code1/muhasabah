@@ -650,36 +650,57 @@ export default function SpiritualDashboard({
       </div>
 
       {/* AZKAAR COLLECTION LINK */}
-      <div className="card" style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="card" style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(195, 150, 38, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-primary)' }}>
             <ScrollText size={24} />
           </div>
           <div>
             <h3 className="text-title-md" style={{ margin: 0, fontWeight: 700 }}>Azkaar Collection</h3>
-            <p className="text-body-sm text-on-surface-variant" style={{ margin: 0 }}>Authentic supplications for daily life</p>
+            <p className="text-body-sm text-on-surface-variant" style={{ margin: 0 }}>Authentic daily supplications from Hisnul Muslim</p>
           </div>
         </div>
-        <Link
-          href="/religious/azkaar/sleeping"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 16px',
-            borderRadius: '20px',
-            backgroundColor: 'var(--c-surface-container-high)',
-            color: 'var(--c-on-surface)',
-            textDecoration: 'none',
-            fontSize: '14px',
-            fontWeight: 600,
-            transition: 'background-color 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--c-outline-variant)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--c-surface-container-high)'}
-        >
-          Sleeping Azkaar
-        </Link>
+        
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <Link
+            href="/religious/azkaar/morning-evening"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 18px',
+              borderRadius: '20px',
+              backgroundColor: 'var(--c-primary)',
+              color: 'white',
+              textDecoration: 'none',
+              fontSize: '14px',
+              fontWeight: 600,
+              boxShadow: 'var(--shadow-xs)'
+            }}
+          >
+            Morning & Evening Azkaar
+          </Link>
+          <Link
+            href="/religious/azkaar/sleeping"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 18px',
+              borderRadius: '20px',
+              backgroundColor: 'var(--c-surface-container-high)',
+              color: 'var(--c-on-surface)',
+              textDecoration: 'none',
+              fontSize: '14px',
+              fontWeight: 600,
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--c-outline-variant)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--c-surface-container-high)'}
+          >
+            Sleeping Azkaar
+          </Link>
+        </div>
       </div>
 
       {/* MONTHLY PRAYER STATISTICS */}
