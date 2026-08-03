@@ -11,27 +11,21 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
   const search = searchParams?.search || '';
 
   // Calculate Net Balances
-  // If type === 'CREDIT' (I lend to others), the balance goes UP (They owe me).
-  // If type === 'DEBIT' (I borrow from others), the balance goes DOWN (I owe them).
-  // Net Balance > 0 means They Owe Me.
-  // Net Balance < 0 means I Owe Them.
-  let totalTheyOweMe = 0;
-  let totalIOweThem = 0;
+  // Credit (+): They owe me money.
+  // Debit (-): I owe them money.
+  let overallNetBalance = 0;
 
   const enrichedPersons = persons.map(person => {
     let netBalance = 0;
     person.debts.forEach(debt => {
-      if (debt.status === 'PENDING') {
-        const amt = Number(debt.amount);
-        if (debt.type === 'CREDIT') {
-          netBalance += amt;
-          totalTheyOweMe += amt;
-        } else {
-          netBalance -= amt;
-          totalIOweThem += amt;
-        }
+      const amt = Number(debt.amount);
+      if (debt.type === 'CREDIT') {
+        netBalance += amt;
+      } else {
+        netBalance -= amt;
       }
     });
+    overallNetBalance += netBalance;
     return { ...person, netBalance };
   });
 
@@ -63,25 +57,39 @@ export default async function DebtsPage(props: { searchParams?: Promise<{ [key: 
         <SearchInput placeholder="Search contacts by name..." />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '40px' }}>
-        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ padding: '16px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-primary)', borderRadius: '16px' }}>
-            <Wallet size={32} />
+      {/* SINGLE OVERALL NET BALANCE CARD */}
+      <div style={{ marginBottom: '40px' }}>
+        {overallNetBalance > 0 ? (
+          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px', maxWidth: '380px' }}>
+            <div style={{ padding: '16px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-primary)', borderRadius: '16px' }}>
+              <Wallet size={32} />
+            </div>
+            <div>
+              <span className="text-label-md text-on-surface-variant">They Owe You</span>
+              <h3 className="text-title-md" style={{ color: 'var(--c-primary)', margin: 0 }}>${overallNetBalance.toFixed(2)}</h3>
+            </div>
           </div>
-          <div>
-            <span className="text-label-md text-on-surface-variant">They Owe You</span>
-            <h3 className="text-title-md" style={{ color: 'var(--c-primary)', margin: 0 }}>${totalTheyOweMe.toFixed(2)}</h3>
+        ) : overallNetBalance < 0 ? (
+          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px', maxWidth: '380px' }}>
+            <div style={{ padding: '16px', backgroundColor: 'var(--c-error-container)', color: 'var(--c-error)', borderRadius: '16px' }}>
+              <Wallet size={32} />
+            </div>
+            <div>
+              <span className="text-label-md text-on-surface-variant">You Owe Them</span>
+              <h3 className="text-title-md" style={{ color: 'var(--c-error)', margin: 0 }}>${Math.abs(overallNetBalance).toFixed(2)}</h3>
+            </div>
           </div>
-        </div>
-        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ padding: '16px', backgroundColor: 'var(--c-error-container)', color: 'var(--c-error)', borderRadius: '16px' }}>
-            <Wallet size={32} />
+        ) : (
+          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px', maxWidth: '380px' }}>
+            <div style={{ padding: '16px', backgroundColor: 'var(--c-surface-variant)', color: 'var(--c-on-surface)', borderRadius: '16px' }}>
+              <Wallet size={32} />
+            </div>
+            <div>
+              <span className="text-label-md text-on-surface-variant">Overall Settled</span>
+              <h3 className="text-title-md" style={{ color: 'var(--c-on-surface)', margin: 0 }}>$0.00</h3>
+            </div>
           </div>
-          <div>
-            <span className="text-label-md text-on-surface-variant">You Owe Them</span>
-            <h3 className="text-title-md" style={{ color: 'var(--c-error)', margin: 0 }}>${totalIOweThem.toFixed(2)}</h3>
-          </div>
-        </div>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>

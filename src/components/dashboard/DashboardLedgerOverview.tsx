@@ -3,14 +3,15 @@
 import Link from 'next/link';
 
 interface DashboardLedgerOverviewProps {
-  totalTheyOweMe: number;
-  totalIOweThem: number;
+  overallNetBalance: number;
 }
 
 export default function DashboardLedgerOverview({
-  totalTheyOweMe,
-  totalIOweThem,
+  overallNetBalance,
 }: DashboardLedgerOverviewProps) {
+  const isPositive = overallNetBalance > 0;
+  const isNegative = overallNetBalance < 0;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <h4 className="text-title-sm" style={{ fontWeight: 700, color: 'var(--c-on-surface-variant)', margin: 0 }}>
@@ -43,61 +44,28 @@ export default function DashboardLedgerOverview({
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '4px' }}>
-            <div
-              style={{
-                padding: '10px 12px',
-                borderRadius: '8px',
-                backgroundColor: 'var(--c-surface)',
-                borderLeft: '4px solid var(--c-primary)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px',
-              }}
-            >
-              <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>THEY OWE YOU</span>
-              <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--c-primary)' }}>
-                ${totalTheyOweMe.toFixed(2)}
-              </span>
-            </div>
-
-            <div
-              style={{
-                padding: '10px 12px',
-                borderRadius: '8px',
-                backgroundColor: 'var(--c-surface)',
-                borderLeft: '4px solid var(--c-error)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px',
-              }}
-            >
-              <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>YOU OWE THEM</span>
-              <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--c-error)' }}>
-                ${totalIOweThem.toFixed(2)}
-              </span>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--c-on-surface-variant)', fontStyle: 'italic', marginTop: '6px' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-              info
+          <div
+            style={{
+              padding: '12px 16px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--c-surface)',
+              borderLeft: `4px solid ${isPositive ? 'var(--c-primary)' : isNegative ? 'var(--c-error)' : 'var(--c-on-surface-variant)'}`,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '2px',
+              marginTop: '4px'
+            }}
+          >
+            <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>
+              {isPositive ? 'THEY OWE YOU' : isNegative ? 'YOU OWE THEM' : 'SETTLED'}
             </span>
-            {totalTheyOweMe === 0 && totalIOweThem === 0 ? (
-              <span>All debts are currently settled.</span>
-            ) : (
-              <span>
-                Net Position:{' '}
-                {totalTheyOweMe >= totalIOweThem ? (
-                  <strong style={{ color: 'var(--c-primary)' }}>+${(totalTheyOweMe - totalIOweThem).toFixed(2)}</strong>
-                ) : (
-                  <strong style={{ color: 'var(--c-error)' }}>-${(totalIOweThem - totalTheyOweMe).toFixed(2)}</strong>
-                )}
-              </span>
-            )}
+            <span style={{ fontSize: '20px', fontWeight: 800, color: isPositive ? 'var(--c-primary)' : isNegative ? 'var(--c-error)' : 'var(--c-on-surface)' }}>
+              ${Math.abs(overallNetBalance).toFixed(2)}
+            </span>
           </div>
         </div>
       </Link>
     </div>
   );
 }
+

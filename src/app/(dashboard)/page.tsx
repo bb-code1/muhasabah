@@ -190,18 +190,15 @@ export default async function Dashboard() {
   }
 
   // Calculate Net Balances for Ledger
-  let totalTheyOweMe = 0;
-  let totalIOweThem = 0;
+  let overallNetBalance = 0;
 
   persons.forEach(person => {
     person.debts.forEach(debt => {
-      if (debt.status === 'PENDING') {
-        const amt = Number(debt.amount);
-        if (debt.type === 'CREDIT') {
-          totalTheyOweMe += amt;
-        } else {
-          totalIOweThem += amt;
-        }
+      const amt = Number(debt.amount);
+      if (debt.type === 'CREDIT') {
+        overallNetBalance += amt;
+      } else {
+        overallNetBalance -= amt;
       }
     });
   });
@@ -766,8 +763,7 @@ export default async function Dashboard() {
 
         {/* LEDGER SUMMARY */}
         <DashboardLedgerOverview
-          totalTheyOweMe={totalTheyOweMe}
-          totalIOweThem={totalIOweThem}
+          overallNetBalance={overallNetBalance}
         />
 
       </div>

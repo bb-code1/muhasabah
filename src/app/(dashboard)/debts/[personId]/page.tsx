@@ -1,7 +1,7 @@
-import { getPersonById, markDebtPaid, deleteDebtRecord, deletePerson, markDebtPending } from '@/features/debts/actions';
+import { getPersonById, deleteDebtRecord, deletePerson } from '@/features/debts/actions';
 import AddDebtRecordForm from "@/features/debts/components/AddDebtRecordForm";
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Circle, Wallet } from 'lucide-react';
+import { ArrowLeft, Wallet } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import DeleteConfirmButton from '@/components/ui/DeleteConfirmButton';
 
@@ -20,13 +20,11 @@ export default async function PersonDebtPage(props: {
 
   let netBalance = 0;
   person.debts.forEach(debt => {
-    if (debt.status === 'PENDING') {
-      const amt = Number(debt.amount);
-      if (debt.type === 'CREDIT') {
-        netBalance += amt;
-      } else {
-        netBalance -= amt;
-      }
+    const amt = Number(debt.amount);
+    if (debt.type === 'CREDIT') {
+      netBalance += amt;
+    } else {
+      netBalance -= amt;
     }
   });
 
@@ -85,13 +83,11 @@ export default async function PersonDebtPage(props: {
             {paginatedDebts.map(debt => {
               const amt = Number(debt.amount);
               const isCredit = debt.type === 'CREDIT';
-              const isPaid = debt.status === 'PAID';
-              const toggleAction = isPaid ? markDebtPending.bind(null, debt.id, person.id) : markDebtPaid.bind(null, debt.id, person.id);
               const delAction = deleteDebtRecord.bind(null, debt.id, person.id);
 
               return (
-                <div key={debt.id} className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', opacity: isPaid ? 0.6 : 1, borderRadius: '16px', border: `1.5px solid ${isCredit ? 'rgba(191,145,41,0.25)' : 'rgba(239,68,68,0.2)'}`, backgroundColor: 'var(--c-surface-container-low)', boxShadow: 'var(--shadow-sm)' }}>
-                  {/* Top row: badge + amount */}
+                <div key={debt.id} className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', borderRadius: '16px', border: `1.5px solid ${isCredit ? 'rgba(191,145,41,0.25)' : 'rgba(239,68,68,0.2)'}`, backgroundColor: 'var(--c-surface-container-low)', boxShadow: 'var(--shadow-sm)' }}>
+                  {/* Top row: badge + date */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '0.05em', backgroundColor: isCredit ? 'rgba(191,145,41,0.12)' : 'rgba(239,68,68,0.1)', color: isCredit ? 'var(--c-primary)' : '#ef4444' }}>
                       {isCredit ? 'They Owe' : 'You Owe'}
@@ -102,25 +98,19 @@ export default async function PersonDebtPage(props: {
                   </div>
 
                   {/* Amount */}
-                  <p className="text-headline-sm" style={{ margin: 0, fontWeight: 800, color: isCredit ? 'var(--c-primary)' : '#ef4444', textDecoration: isPaid ? 'line-through' : 'none', lineHeight: 1 }}>
+                  <p className="text-headline-sm" style={{ margin: 0, fontWeight: 800, color: isCredit ? 'var(--c-primary)' : '#ef4444', lineHeight: 1 }}>
                     {isCredit ? '+' : '-'}${amt.toFixed(2)}
                   </p>
 
                   {/* Notes */}
                   {debt.notes && (
-                    <p className="text-body-sm text-on-surface-variant" style={{ margin: 0, lineHeight: 1.5, textDecoration: isPaid ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                    <p className="text-body-sm text-on-surface-variant" style={{ margin: 0, lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                       {debt.notes}
                     </p>
                   )}
 
-                  {/* Footer: status toggle + delete */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '12px', marginTop: 'auto' }}>
-                    <form action={toggleAction}>
-                      <button type="submit" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isPaid ? 'var(--c-primary)' : 'var(--c-on-surface-variant)', fontSize: '12px', fontWeight: 600, padding: 0 }}>
-                        {isPaid ? <CheckCircle2 size={18} /> : <Circle size={18} />}
-                        {isPaid ? 'Paid' : 'Mark Paid'}
-                      </button>
-                    </form>
+                  {/* Footer: delete button */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid var(--c-outline-variant)', paddingTop: '12px', marginTop: 'auto' }}>
                     <DeleteConfirmButton
                       action={delAction}
                       iconSize={16}
