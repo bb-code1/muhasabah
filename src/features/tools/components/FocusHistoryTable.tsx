@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FocusSession } from '@prisma/client';
-import { Calendar, Trash2, Clock, Trophy, Flame, Sparkles } from 'lucide-react';
-import { deleteFocusSession } from '@/features/tools/actions';
+import { Calendar, Trash2, Clock, Trophy, Flame, Sparkles, Pencil, X } from 'lucide-react';
+import { deleteFocusSession, updateFocusSessionLabel } from '@/features/tools/actions';
 import { useToast } from '@/context/ToastContext';
 import CustomDateRangeDialog from '@/components/ui/CustomDateRangeDialog';
 
@@ -21,8 +22,18 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  // Edit Modal State
+  const [editingSession, setEditingSession] = useState<FocusSession | null>(null);
+  const [editLabel, setEditLabel] = useState<string>('');
+  const [isSavingEdit, setIsSavingEdit] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
+
   const { showToast } = useToast();
   const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Sync if props update
   if (initialSessions !== sessions && initialSessions.length !== sessions.length) {
@@ -48,6 +59,31 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
       showToast(`Error deleting session: ${(e as Error).message}`, 'error');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleOpenEditModal = (session: FocusSession) => {
+    setEditingSession(session);
+    setEditLabel(session.label || '');
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSession) return;
+
+    setIsSavingEdit(true);
+    try {
+      const finalLabel = editLabel.trim() || null;
+      await updateFocusSessionLabel(editingSession.id, finalLabel);
+      setSessions((prev) =>
+        prev.map((s) => (s.id === editingSession.id ? { ...s, label: finalLabel } : s))
+      );
+      showToast('Focus task label updated!', 'success');
+      setEditingSession(null);
+    } catch (err) {
+      showToast(`Failed to update focus session: ${(err as Error).message}`, 'error');
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -274,7 +310,7 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
                 <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Date & Time</th>
                 <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Focus Task / Label</th>
                 <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Duration</th>
-                <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textAlign: 'right' }}>Action</th>
+                <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -300,22 +336,38 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
                       </span>
                     </td>
                     <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                      <button
-                        onClick={() => handleDelete(session.id)}
-                        disabled={deletingId === session.id}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--c-error)',
-                          cursor: 'pointer',
-                          padding: '6px',
-                          borderRadius: '8px',
-                          opacity: deletingId === session.id ? 0.5 : 1
-                        }}
-                        title="Delete session record"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                        <button
+                          onClick={() => handleOpenEditModal(session)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--c-primary)',
+                            cursor: 'pointer',
+                            padding: '6px',
+                            borderRadius: '8px'
+                          }}
+                          title="Edit focus task label"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(session.id)}
+                          disabled={deletingId === session.id}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--c-error)',
+                            cursor: 'pointer',
+                            padding: '6px',
+                            borderRadius: '8px',
+                            opacity: deletingId === session.id ? 0.5 : 1
+                          }}
+                          title="Delete session record"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -376,6 +428,121 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
           }}
         />
       )}
+
+      {/* Edit Focus Session Modal */}
+      {mounted && editingSession && createPortal(
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1010,
+            padding: '16px',
+            backdropFilter: 'blur(4px)'
+          }}
+          onClick={() => setEditingSession(null)}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%',
+              maxWidth: '480px',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+              boxShadow: 'var(--shadow-lg)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Pencil size={20} style={{ color: 'var(--c-primary)' }} />
+                <h3 className="text-title-lg" style={{ margin: 0, fontWeight: 700 }}>Edit Focus Task</h3>
+              </div>
+              <button
+                onClick={() => setEditingSession(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-on-surface-variant)' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSaveEdit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Session Summary Info */}
+              <div style={{
+                padding: '12px 16px',
+                borderRadius: '12px',
+                backgroundColor: 'var(--c-surface-container-low)',
+                border: '1px solid var(--c-outline-variant)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                fontSize: '13px'
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textTransform: 'uppercase' }}>COMPLETED ON</span>
+                  <span style={{ fontWeight: 600, color: 'var(--c-on-surface)' }}>{formatDate(editingSession.completedAt)}</span>
+                </div>
+                <span style={{
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  backgroundColor: 'var(--c-primary-container)',
+                  color: 'var(--c-on-primary-container)',
+                  fontWeight: 700,
+                  fontSize: '12px'
+                }}>
+                  ⏱️ {editingSession.duration} mins
+                </span>
+              </div>
+
+              {/* Editable Label Field */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Focus Task / Label</label>
+                <input
+                  type="text"
+                  value={editLabel}
+                  onChange={(e) => setEditLabel(e.target.value)}
+                  placeholder="e.g., Quran Study, Coding, Tafseer"
+                  className="search-input"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px' }}
+                  autoFocus
+                />
+              </div>
+
+              {/* Modal Actions */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', paddingTop: '16px', borderTop: '1px solid var(--c-outline-variant)' }}>
+                <button
+                  type="button"
+                  onClick={() => setEditingSession(null)}
+                  className="secondary-btn"
+                  style={{ padding: '10px 20px', borderRadius: '12px', fontSize: '14px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="primary-btn"
+                  disabled={isSavingEdit}
+                  style={{ padding: '10px 24px', borderRadius: '12px', fontSize: '14px', color: 'var(--c-on-primary)' }}
+                >
+                  {isSavingEdit ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
+

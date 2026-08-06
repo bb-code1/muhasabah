@@ -48,3 +48,21 @@ export async function deleteFocusSession(id: number) {
 
   revalidatePath('/tools');
 }
+
+export async function updateFocusSessionLabel(id: number, label: string | null) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.focusSession.updateMany({
+    where: {
+      id,
+      userId: user.id,
+    },
+    data: {
+      label: label ? label.trim() : null,
+    },
+  });
+
+  revalidatePath('/tools');
+}
+
