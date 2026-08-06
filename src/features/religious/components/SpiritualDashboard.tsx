@@ -670,15 +670,22 @@ export default function SpiritualDashboard({
               gap: '8px',
               padding: '10px 18px',
               borderRadius: '20px',
-              backgroundColor: 'var(--c-surface-container-high)',
-              color: 'var(--c-on-surface)',
+              backgroundColor: 'var(--c-primary-container)',
+              color: 'var(--c-on-primary-container)',
               textDecoration: 'none',
               fontSize: '14px',
               fontWeight: 600,
-              transition: 'background-color 0.2s'
+              border: '1px solid var(--c-primary)',
+              transition: 'all 0.2s'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--c-outline-variant)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--c-surface-container-high)'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--c-primary)';
+              e.currentTarget.style.color = 'var(--c-on-primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--c-primary-container)';
+              e.currentTarget.style.color = 'var(--c-on-primary-container)';
+            }}
           >
             Morning & Evening Azkaar
           </Link>
@@ -690,15 +697,22 @@ export default function SpiritualDashboard({
               gap: '8px',
               padding: '10px 18px',
               borderRadius: '20px',
-              backgroundColor: 'var(--c-surface-container-high)',
-              color: 'var(--c-on-surface)',
+              backgroundColor: 'var(--c-primary-container)',
+              color: 'var(--c-on-primary-container)',
               textDecoration: 'none',
               fontSize: '14px',
               fontWeight: 600,
-              transition: 'background-color 0.2s'
+              border: '1px solid var(--c-primary)',
+              transition: 'all 0.2s'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--c-outline-variant)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--c-surface-container-high)'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--c-primary)';
+              e.currentTarget.style.color = 'var(--c-on-primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--c-primary-container)';
+              e.currentTarget.style.color = 'var(--c-on-primary-container)';
+            }}
           >
             Sleeping Azkaar
           </Link>
