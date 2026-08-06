@@ -7,12 +7,14 @@ import { Calendar, Trash2, Clock, Trophy, Flame, Sparkles, Pencil, X } from 'luc
 import { deleteFocusSession, updateFocusSessionLabel } from '@/features/tools/actions';
 import { useToast } from '@/context/ToastContext';
 import CustomDateRangeDialog from '@/components/ui/CustomDateRangeDialog';
+import { ReactNode } from 'react';
 
 interface FocusHistoryTableProps {
   initialSessions: FocusSession[];
+  timerComponent?: ReactNode;
 }
 
-export default function FocusHistoryTable({ initialSessions }: FocusHistoryTableProps) {
+export default function FocusHistoryTable({ initialSessions, timerComponent }: FocusHistoryTableProps) {
   const [sessions, setSessions] = useState<FocusSession[]>(initialSessions);
   const [activeFilter, setActiveFilter] = useState<'all' | 'today' | 'week' | 'month' | 'year' | 'custom'>('all');
   const [selectedYear, setSelectedYear] = useState<string>('all');
@@ -181,49 +183,60 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
       
-      {/* Stats Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div className="card" style={{ padding: '20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(212, 175, 55, 0.15)', color: 'var(--c-primary)' }}>
-            <Clock size={24} />
+      {/* Top Section: Timer & Stats */}
+      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'stretch' }}>
+        
+        {/* Left: Timer (if provided) */}
+        {timerComponent && (
+          <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column' }}>
+            {timerComponent}
           </div>
-          <div>
-            <span className="text-label-sm text-on-surface-variant">TOTAL FOCUS TIME</span>
-            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800 }}>{totalHours} hrs</h3>
-            <span className="text-body-xs text-on-surface-variant">({totalMinutes} mins total)</span>
-          </div>
-        </div>
+        )}
 
-        <div className="card" style={{ padding: '20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-task-done-bg)', color: 'var(--c-task-done-icon)' }}>
-            <Flame size={24} />
+        {/* Right: Stats Cards */}
+        <div style={{ flex: '1 1 350px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignContent: 'start' }}>
+          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(212, 175, 55, 0.15)', color: 'var(--c-primary)' }}>
+              <Clock size={24} />
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>TOTAL FOCUS TIME</span>
+              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800 }}>{totalHours} hrs</h3>
+              <span className="text-body-xs text-on-surface-variant">({totalMinutes} mins total)</span>
+            </div>
           </div>
-          <div>
-            <span className="text-label-sm text-on-surface-variant">TODAY FOCUS</span>
-            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800, color: 'var(--c-task-done-icon)' }}>{todayMinutes} mins</h3>
-            <span className="text-body-xs text-on-surface-variant">Logged today</span>
-          </div>
-        </div>
 
-        <div className="card" style={{ padding: '20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)' }}>
-            <Trophy size={24} />
+          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-task-done-bg)', color: 'var(--c-task-done-icon)' }}>
+              <Flame size={24} />
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>TODAY FOCUS</span>
+              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800, color: 'var(--c-task-done-icon)' }}>{todayMinutes} mins</h3>
+              <span className="text-body-xs text-on-surface-variant">Logged today</span>
+            </div>
           </div>
-          <div>
-            <span className="text-label-sm text-on-surface-variant">SESSIONS COMPLETED</span>
-            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800 }}>{sessionCount}</h3>
-            <span className="text-body-xs text-on-surface-variant">In current filter</span>
-          </div>
-        </div>
 
-        <div className="card" style={{ padding: '20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)' }}>
-            <Sparkles size={24} />
+          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)' }}>
+              <Trophy size={24} />
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>SESSIONS</span>
+              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800 }}>{sessionCount}</h3>
+              <span className="text-body-xs text-on-surface-variant">In current filter</span>
+            </div>
           </div>
-          <div>
-            <span className="text-label-sm text-on-surface-variant">AVG DURATION</span>
-            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800 }}>{avgDuration} mins</h3>
-            <span className="text-body-xs text-on-surface-variant">Per focus session</span>
+
+          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)' }}>
+              <Sparkles size={24} />
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>AVG DURATION</span>
+              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800 }}>{avgDuration} m</h3>
+              <span className="text-body-xs text-on-surface-variant">Per session</span>
+            </div>
           </div>
         </div>
       </div>

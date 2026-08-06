@@ -92,11 +92,11 @@ export default function ToolsDashboard({ initialSessions }: ToolsDashboardProps)
       {/* Main Tool Content */}
       {activeTab === 'pomodoro' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          {/* Timer Component */}
-          <PomodoroTimer onSessionComplete={handleNewSessionCompleted} />
-
-          {/* Focus Session History & Filters */}
-          <FocusHistoryTable initialSessions={sessions} />
+          {/* Focus Session History & Filters (includes Timer side-by-side) */}
+          <FocusHistoryTable 
+            initialSessions={sessions} 
+            timerComponent={<PomodoroTimer onSessionComplete={handleNewSessionCompleted} />}
+          />
         </div>
       )}
     </div>
