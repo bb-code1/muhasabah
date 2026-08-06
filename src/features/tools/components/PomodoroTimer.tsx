@@ -56,8 +56,7 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
 
   const { showToast } = useToast();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<number | null>(null);
-  const initialSecondsRef = useRef<number>(25 * 60);
+  const targetEndTimeRef = useRef<number | null>(null);
 
   const totalSeconds = selectedMinutes * 60;
 
@@ -67,7 +66,7 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
     const validMins = Math.max(1, Math.min(180, mins));
     setSelectedMinutes(validMins);
     setSecondsLeft(validMins * 60);
-    initialSecondsRef.current = validMins * 60;
+    targetEndTimeRef.current = null;
   };
 
   const handleAdjustMinutes = (delta: number) => {
@@ -93,6 +92,7 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
       }
 
       // Reset timer
+      targetEndTimeRef.current = null;
       setIsRunning(false);
       setSecondsLeft(selectedMinutes * 60);
     } catch (err) {
@@ -102,41 +102,81 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
     }
   }, [isSaving, soundEnabled, label, selectedMinutes, showToast, onSessionComplete]);
 
-  // Timer Tick Interval
+  // Recalculate remaining time accurately against wall-clock timestamp
+  const updateRemainingTime = useCallback(() => {
+    if (!targetEndTimeRef.current) return;
+    
+    const now = Date.now();
+    const remainingMs = targetEndTimeRef.current - now;
+    const remainingSecs = Math.max(0, Math.ceil(remainingMs / 1000));
+
+    setSecondsLeft(remainingSecs);
+
+    if (remainingSecs <= 0) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      targetEndTimeRef.current = null;
+      setIsRunning(false);
+      handleCompleteSession(selectedMinutes);
+    }
+  }, [selectedMinutes, handleCompleteSession]);
+
+  // Timer Tick Interval & Background Tab / Window Visibility Change Sync
   useEffect(() => {
     if (isRunning) {
-      timerRef.current = setInterval(() => {
-        setSecondsLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(timerRef.current as NodeJS.Timeout);
-            setIsRunning(false);
-            handleCompleteSession(selectedMinutes);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
+      if (!targetEndTimeRef.current) {
+        targetEndTimeRef.current = Date.now() + (secondsLeft * 1000);
+      }
 
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isRunning, selectedMinutes, handleCompleteSession]);
+      updateRemainingTime();
+
+      timerRef.current = setInterval(() => {
+        updateRemainingTime();
+      }, 500);
+
+      const handleVisibilityOrFocusChange = () => {
+        updateRemainingTime();
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityOrFocusChange);
+      window.addEventListener('focus', handleVisibilityOrFocusChange);
+
+      return () => {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        document.removeEventListener('visibilitychange', handleVisibilityOrFocusChange);
+        window.removeEventListener('focus', handleVisibilityOrFocusChange);
+      };
+    } else {
+      targetEndTimeRef.current = null;
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+  }, [isRunning, updateRemainingTime]);
 
   const toggleStartPause = () => {
     if (!isRunning) {
-      if (secondsLeft === 0) {
-        setSecondsLeft(selectedMinutes * 60);
+      let currentSecs = secondsLeft;
+      if (currentSecs <= 0) {
+        currentSecs = selectedMinutes * 60;
+        setSecondsLeft(currentSecs);
       }
+      targetEndTimeRef.current = Date.now() + (currentSecs * 1000);
       setIsRunning(true);
     } else {
+      targetEndTimeRef.current = null;
       setIsRunning(false);
     }
   };
 
   const handleReset = () => {
+    targetEndTimeRef.current = null;
     setIsRunning(false);
     setSecondsLeft(selectedMinutes * 60);
   };
