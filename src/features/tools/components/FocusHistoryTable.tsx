@@ -159,18 +159,18 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
         </div>
 
         <div className="card" style={{ padding: '20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(34, 197, 94, 0.15)', color: '#16a34a' }}>
+          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-task-done-bg)', color: 'var(--c-task-done-icon)' }}>
             <Flame size={24} />
           </div>
           <div>
             <span className="text-label-sm text-on-surface-variant">TODAY FOCUS</span>
-            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800, color: '#16a34a' }}>{todayMinutes} mins</h3>
+            <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800, color: 'var(--c-task-done-icon)' }}>{todayMinutes} mins</h3>
             <span className="text-body-xs text-on-surface-variant">Logged today</span>
           </div>
         </div>
 
         <div className="card" style={{ padding: '20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#2563eb' }}>
+          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)' }}>
             <Trophy size={24} />
           </div>
           <div>
@@ -181,7 +181,7 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
         </div>
 
         <div className="card" style={{ padding: '20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(168, 85, 247, 0.15)', color: '#9333ea' }}>
+          <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)' }}>
             <Sparkles size={24} />
           </div>
           <div>
@@ -215,7 +215,7 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
                 fontSize: '12px',
                 fontWeight: 600,
                 border: '1px solid var(--c-outline-variant)',
-                backgroundColor: 'var(--c-surface)',
+                backgroundColor: 'var(--c-surface-container-high)',
                 color: 'var(--c-on-surface)'
               }}
             >
@@ -253,7 +253,7 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
                 fontWeight: 600,
                 fontSize: '13px',
                 backgroundColor: activeFilter === tab.id ? 'var(--c-primary)' : 'var(--c-surface-container-high)',
-                color: activeFilter === tab.id ? '#ffffff' : 'var(--c-on-surface)',
+                color: activeFilter === tab.id ? 'var(--c-on-primary)' : 'var(--c-on-surface-variant)',
                 border: '1px solid var(--c-outline-variant)',
                 cursor: 'pointer',
                 transition: 'all 0.2s'
@@ -291,8 +291,8 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
                       <span style={{
                         padding: '4px 10px',
                         borderRadius: '12px',
-                        backgroundColor: 'rgba(212, 175, 55, 0.15)',
-                        color: 'var(--c-primary)',
+                        backgroundColor: 'var(--c-primary-container)',
+                        color: 'var(--c-on-primary-container)',
                         fontWeight: 700,
                         fontSize: '13px'
                       }}>
@@ -343,7 +343,7 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="btn-secondary"
+                className="secondary-btn"
                 style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
               >
                 Previous
@@ -351,7 +351,7 @@ export default function FocusHistoryTable({ initialSessions }: FocusHistoryTable
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="btn-secondary"
+                className="secondary-btn"
                 style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
               >
                 Next

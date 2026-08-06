@@ -239,12 +239,12 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
               key={mins}
               onClick={() => handleSelectMinutes(mins)}
               style={{
-                padding: '6px 16px',
+                padding: '8px 18px',
                 borderRadius: '20px',
                 fontWeight: 700,
                 fontSize: '13px',
                 backgroundColor: selectedMinutes === mins ? 'var(--c-primary)' : 'var(--c-surface-container-high)',
-                color: selectedMinutes === mins ? '#ffffff' : 'var(--c-on-surface)',
+                color: selectedMinutes === mins ? 'var(--c-on-primary)' : 'var(--c-on-surface-variant)',
                 border: '1px solid var(--c-outline-variant)',
                 cursor: 'pointer',
                 transition: 'all 0.2s'
@@ -260,34 +260,34 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button
               onClick={() => handleAdjustMinutes(-5)}
-              className="btn-secondary"
-              style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px' }}
+              className="secondary-btn"
+              style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px' }}
             >
               -5m
             </button>
             <button
               onClick={() => handleAdjustMinutes(-1)}
-              className="btn-secondary"
-              style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px' }}
+              className="secondary-btn"
+              style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px' }}
             >
               -1m
             </button>
             
-            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--c-on-surface-variant)', minWidth: '80px', textAlign: 'center' }}>
+            <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--c-on-surface)', minWidth: '80px', textAlign: 'center' }}>
               {selectedMinutes} mins
             </span>
 
             <button
               onClick={() => handleAdjustMinutes(1)}
-              className="btn-secondary"
-              style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px' }}
+              className="secondary-btn"
+              style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px' }}
             >
               +1m
             </button>
             <button
               onClick={() => handleAdjustMinutes(5)}
-              className="btn-secondary"
-              style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px' }}
+              className="secondary-btn"
+              style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px' }}
             >
               +5m
             </button>
@@ -321,7 +321,7 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
             <defs>
               <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="var(--c-primary)" />
-                <stop offset="100%" stopColor="#d4af37" />
+                <stop offset="100%" stopColor="var(--c-secondary)" />
               </linearGradient>
             </defs>
           </svg>
@@ -348,12 +348,13 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
             className="search-input"
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '12px',
+              padding: '12px 16px',
+              borderRadius: '14px',
               border: '1px solid var(--c-outline-variant)',
-              fontSize: '13px',
+              fontSize: '14px',
               textAlign: 'center',
-              backgroundColor: 'var(--c-surface)'
+              backgroundColor: 'var(--c-surface-container-high)',
+              color: 'var(--c-on-surface)'
             }}
           />
         </div>
@@ -364,10 +365,10 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
             type="button"
             onClick={toggleStartPause}
             disabled={isSaving}
-            className="btn-primary"
+            className="primary-btn"
             style={{
               flex: 1,
-              padding: '12px 24px',
+              padding: '14px 24px',
               borderRadius: '14px',
               fontWeight: 700,
               fontSize: '15px',
@@ -375,26 +376,28 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              minWidth: '140px'
+              minWidth: '140px',
+              color: 'var(--c-on-primary)'
             }}
           >
-            {isRunning ? <Pause size={18} /> : <Play size={18} />}
-            <span>{isRunning ? 'Pause' : secondsLeft < totalSeconds ? 'Resume' : 'Start Focus'}</span>
+            {isRunning ? <Pause size={18} color="var(--c-on-primary)" /> : <Play size={18} color="var(--c-on-primary)" />}
+            <span style={{ color: 'var(--c-on-primary)' }}>{isRunning ? 'Pause' : secondsLeft < totalSeconds ? 'Resume' : 'Start Focus'}</span>
           </button>
 
           <button
             type="button"
             onClick={handleReset}
             disabled={isSaving || (secondsLeft === totalSeconds && !isRunning)}
-            className="btn-secondary"
+            className="secondary-btn"
             style={{
-              padding: '12px 18px',
+              padding: '14px 20px',
               borderRadius: '14px',
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              fontSize: '14px'
+              fontSize: '14px',
+              color: 'var(--c-on-surface)'
             }}
             title="Reset Timer"
           >
@@ -408,12 +411,12 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
               onClick={handleFinishEarly}
               disabled={isSaving}
               style={{
-                padding: '12px 18px',
+                padding: '14px 20px',
                 borderRadius: '14px',
                 fontWeight: 700,
-                backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                color: '#16a34a',
-                border: '1px solid rgba(34, 197, 94, 0.3)',
+                backgroundColor: 'var(--c-task-done-bg)',
+                color: 'var(--c-task-done-icon)',
+                border: '1px solid var(--c-task-done-border)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
