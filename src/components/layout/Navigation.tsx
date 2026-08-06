@@ -98,6 +98,10 @@ export default function Navigation({ notifications = [] }: NavigationProps) {
             <span className="material-symbols-outlined">calendar_today</span>
             <span className="text-body-md">Time Table</span>
           </Link>
+          <Link href="/tools" className={`nav-item ${pathname.startsWith('/tools') ? 'active' : ''}`}>
+            <span className="material-symbols-outlined">build</span>
+            <span className="text-body-md">Tools</span>
+          </Link>
           <Link href="/goals" className={`nav-item ${pathname === '/goals' ? 'active' : ''}`}>
             <span className="material-symbols-outlined">target</span>
             <span className="text-body-md">Goals</span>

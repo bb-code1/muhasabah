@@ -39,6 +39,7 @@ model User {
   documentFolders   DocumentFolder[]
   noteFolders       NoteFolder[]
   timeTable         TimeTable?
+  focusSessions     FocusSession[]
 }
 
 
@@ -361,3 +362,14 @@ model TimeTable {
   createdAt             DateTime @default(now()) @db.Timestamptz()
   updatedAt             DateTime @updatedAt @db.Timestamptz()
 }
+
+model FocusSession {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  duration    Int      // Duration in minutes
+  label       String?  // Optional session label / title
+  completedAt DateTime @default(now()) @db.Timestamptz()
+  createdAt   DateTime @default(now()) @db.Timestamptz()
+}
+
