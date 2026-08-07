@@ -551,9 +551,10 @@ export default async function Dashboard() {
                   {latestDua.title}
                 </h3>
                 <p 
+                  className={/[\u0600-\u06FF]/.test(latestDua.content) ? "arabic-text" : ""}
                   style={{ 
                     margin: 0, 
-                    lineHeight: 1.6, 
+                    lineHeight: /[\u0600-\u06FF]/.test(latestDua.content) ? 2.0 : 1.6, 
                     whiteSpace: 'pre-wrap', 
                     wordBreak: 'break-word',
                     direction: /[\u0600-\u06FF]/.test(latestDua.content) ? 'rtl' : 'ltr',

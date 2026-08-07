@@ -223,7 +223,7 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
                   </h3>
 
                   <p 
-                    className="text-body-md"
+                    className={isContentArabic ? "arabic-text" : "text-body-md"}
                     style={{ 
                       whiteSpace: 'pre-wrap', 
                       margin: 0,
@@ -232,11 +232,11 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
                       display: '-webkit-box',
                       WebkitLineClamp: 3,
                       WebkitBoxOrient: 'vertical',
-                      lineHeight: 1.5,
+                      lineHeight: isContentArabic ? 2.0 : 1.5,
                       direction: isContentArabic ? 'rtl' : 'ltr',
                       textAlign: isContentArabic ? 'right' : 'left',
                       fontFamily: isContentArabic ? 'var(--font-arabic)' : 'inherit',
-                      fontSize: isContentArabic ? '18px' : '13px',
+                      fontSize: isContentArabic ? '20px' : '13px',
                       color: 'var(--c-on-surface-variant)'
                     }}
                   >
@@ -411,9 +411,10 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
               }}
             >
               <p 
+                className={isArabicText(selectedDua.content) ? "arabic-text" : ""}
                 style={{ 
                   margin: 0, 
-                  lineHeight: 1.8, 
+                  lineHeight: isArabicText(selectedDua.content) ? 2.2 : 1.8, 
                   whiteSpace: 'pre-wrap', 
                   wordBreak: 'break-word',
                   direction: isArabicText(selectedDua.content) ? 'rtl' : 'ltr',

@@ -65,14 +65,11 @@ export default function SleepingAzkaarPage() {
             )}
 
             {/* Arabic */}
-            <p style={{ 
+            <p className="arabic-text" style={{ 
               margin: 0, 
               fontSize: '28px', 
-              lineHeight: '2.0', 
-              textAlign: 'right', 
-              direction: 'rtl', 
-              fontFamily: 'var(--font-arabic)',
-              color: 'var(--c-primary)' 
+              color: 'var(--c-primary)',
+              fontWeight: 700 
             }}>
               {azkaar.arabic}
             </p>
