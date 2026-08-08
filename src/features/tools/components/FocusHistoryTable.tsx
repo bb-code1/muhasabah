@@ -415,24 +415,20 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
-                    {/* Header Row: Label Pill Badge + Actions */}
+                    {/* Header Row: Category Badge + Actions */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                       <span style={{
-                        fontSize: '11px',
+                        fontSize: '10px',
                         fontWeight: 700,
                         padding: '4px 10px',
                         borderRadius: '20px',
-                        backgroundColor: badgeStyle.bg,
-                        color: badgeStyle.text,
-                        border: `1.5px solid ${badgeStyle.border}`,
+                        backgroundColor: 'rgba(212, 175, 55, 0.15)',
+                        color: 'var(--c-primary)',
+                        border: '1.5px solid rgba(212, 175, 55, 0.35)',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.04em',
-                        maxWidth: '80%',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
+                        letterSpacing: '0.05em'
                       }}>
-                        {session.label ? session.label.toUpperCase() : 'GENERAL FOCUS'}
+                        FOCUS SESSION
                       </span>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
