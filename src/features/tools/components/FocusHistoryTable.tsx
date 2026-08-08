@@ -214,48 +214,48 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
         )}
 
         {/* Right: Stats Cards */}
-        <div style={{ flex: '1 1 350px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignContent: 'start' }}>
-          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(212, 175, 55, 0.15)', color: 'var(--c-primary)' }}>
-              <Clock size={24} />
+        <div style={{ flex: '1 1 320px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))', gap: '16px', alignContent: 'start' }}>
+          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ padding: '10px', borderRadius: '12px', backgroundColor: 'rgba(212, 175, 55, 0.15)', color: 'var(--c-primary)', flexShrink: 0 }}>
+              <Clock size={22} />
             </div>
-            <div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>TOTAL FOCUS TIME</span>
-              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800 }}>{totalHours} hrs</h3>
-              <span className="text-body-xs text-on-surface-variant">({totalMinutes} mins total)</span>
-            </div>
-          </div>
-
-          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-task-done-bg)', color: 'var(--c-task-done-icon)' }}>
-              <Flame size={24} />
-            </div>
-            <div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>TODAY FOCUS</span>
-              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800, color: 'var(--c-task-done-icon)' }}>{todayMinutes} mins</h3>
-              <span className="text-body-xs text-on-surface-variant">Logged today</span>
+            <div style={{ minWidth: 0 }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>TOTAL FOCUS TIME</span>
+              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800, fontSize: '20px' }}>{totalHours} hrs</h3>
+              <span className="text-body-xs text-on-surface-variant" style={{ fontSize: '11px' }}>({totalMinutes} mins)</span>
             </div>
           </div>
 
-          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)' }}>
-              <Trophy size={24} />
+          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ padding: '10px', borderRadius: '12px', backgroundColor: 'var(--c-task-done-bg)', color: 'var(--c-task-done-icon)', flexShrink: 0 }}>
+              <Flame size={22} />
             </div>
-            <div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>SESSIONS</span>
-              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800 }}>{sessionCount}</h3>
-              <span className="text-body-xs text-on-surface-variant">In current filter</span>
+            <div style={{ minWidth: 0 }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>TODAY FOCUS</span>
+              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800, fontSize: '20px', color: 'var(--c-task-done-icon)' }}>{todayMinutes} mins</h3>
+              <span className="text-body-xs text-on-surface-variant" style={{ fontSize: '11px' }}>Logged today</span>
             </div>
           </div>
 
-          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)' }}>
-              <Sparkles size={24} />
+          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ padding: '10px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)', flexShrink: 0 }}>
+              <Trophy size={22} />
             </div>
-            <div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>AVG DURATION</span>
-              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800 }}>{avgDuration} m</h3>
-              <span className="text-body-xs text-on-surface-variant">Per session</span>
+            <div style={{ minWidth: 0 }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>SESSIONS</span>
+              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800, fontSize: '20px' }}>{sessionCount}</h3>
+              <span className="text-body-xs text-on-surface-variant" style={{ fontSize: '11px' }}>In current filter</span>
+            </div>
+          </div>
+
+          <div className="card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ padding: '10px', borderRadius: '12px', backgroundColor: 'var(--c-primary-container)', color: 'var(--c-on-primary-container)', flexShrink: 0 }}>
+              <Sparkles size={22} />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>AVG DURATION</span>
+              <h3 className="text-headline-sm" style={{ margin: 0, fontWeight: 800, fontSize: '20px' }}>{avgDuration} m</h3>
+              <span className="text-body-xs text-on-surface-variant" style={{ fontSize: '11px' }}>Per session</span>
             </div>
           </div>
         </div>
@@ -269,7 +269,7 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
             <h3 className="text-title-md" style={{ margin: 0, fontWeight: 700 }}>Focus History</h3>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             {/* View Mode Switcher */}
             <div style={{ display: 'flex', backgroundColor: 'var(--c-surface-container-high)', borderRadius: '12px', padding: '3px', border: '1px solid var(--c-outline-variant)' }}>
               <button
@@ -383,7 +383,7 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
       {/* History Content (Cards or Table) */}
       {viewMode === 'cards' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(285px, 1fr))', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
             {paginatedSessions.length > 0 ? (
               paginatedSessions.map((session) => {
                 const badgeStyle = getBadgeStyle(session.label || 'General Focus');

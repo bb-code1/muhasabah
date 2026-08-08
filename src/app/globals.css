@@ -279,6 +279,45 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
   padding: 24px;
 }
 
+@media (max-width: 640px) {
+  .container-max {
+    padding: 16px 12px;
+  }
+  .main-content {
+    padding-top: 80px;
+  }
+  .card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  .text-headline-md {
+    font-size: 22px;
+    line-height: 30px;
+  }
+  .text-display-lg {
+    font-size: 32px;
+    line-height: 40px;
+  }
+  .text-title-md {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  .quote-card {
+    padding: 20px 16px;
+  }
+  .quote-arabic {
+    font-size: 20px;
+    line-height: 1.8;
+  }
+  .quote-english {
+    font-size: 14px;
+    max-width: 100%;
+  }
+  .quote-divider {
+    width: 90%;
+  }
+}
+
 /* Sidebar Navigation Items */
 .nav-item {
   display: flex;

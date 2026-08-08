@@ -213,7 +213,8 @@ export default function Navigation({ notifications = [] }: NavigationProps) {
                    borderRadius: '12px',
                    padding: '12px 0',
                    boxShadow: 'var(--shadow-lg)',
-                   minWidth: '300px',
+                   minWidth: 'min(300px, calc(100vw - 32px))',
+                   maxWidth: 'calc(100vw - 32px)',
                    zIndex: 100
                  }}>
                    <div style={{ padding: '0 16px 8px 16px', borderBottom: '1px solid var(--c-outline-variant)', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -330,6 +331,7 @@ export default function Navigation({ notifications = [] }: NavigationProps) {
               padding: '8px 0',
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               minWidth: '200px',
+              maxWidth: 'calc(100vw - 32px)',
               zIndex: 100
             }}>
               <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--c-outline-variant)', marginBottom: '8px' }}>

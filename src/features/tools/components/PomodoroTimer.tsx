@@ -223,8 +223,8 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
       }}
     >
       {/* Header Banner */}
-      <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 auto' }}>
           <div style={{
             width: '40px',
             height: '40px',
@@ -233,13 +233,14 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--c-primary)'
+            color: 'var(--c-primary)',
+            flexShrink: 0
           }}>
             <Clock size={22} />
           </div>
           <div>
-            <h2 className="text-title-lg" style={{ margin: 0, fontWeight: 700 }}>Pomodoro Focus Timer</h2>
-            <p className="text-body-sm text-on-surface-variant" style={{ margin: 0 }}>
+            <h2 className="text-title-lg" style={{ margin: 0, fontWeight: 700, fontSize: '18px' }}>Pomodoro Focus Timer</h2>
+            <p className="text-body-sm text-on-surface-variant" style={{ margin: 0, fontSize: '13px' }}>
               Deep focus mode without interruptions
             </p>
           </div>
@@ -260,7 +261,8 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
             cursor: 'pointer',
             fontSize: '13px',
             fontWeight: 600,
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            alignSelf: 'flex-start'
           }}
           title={soundEnabled ? 'Chime Enabled' : 'Chime Muted'}
         >
@@ -273,13 +275,15 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', width: '100%', maxWidth: '440px' }}>
         
         {/* Preset Selector */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', opacity: isRunning ? 0.6 : 1, pointerEvents: isRunning ? 'none' : 'auto' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', width: '100%', opacity: isRunning ? 0.6 : 1, pointerEvents: isRunning ? 'none' : 'auto' }}>
           {PRESET_MINUTES.map((mins) => (
             <button
               key={mins}
               onClick={() => handleSelectMinutes(mins)}
               style={{
-                padding: '8px 18px',
+                flex: '1 1 70px',
+                minWidth: '65px',
+                padding: '8px 12px',
                 borderRadius: '20px',
                 fontWeight: 700,
                 fontSize: '13px',
@@ -287,7 +291,8 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
                 color: selectedMinutes === mins ? 'var(--c-on-primary)' : 'var(--c-on-surface-variant)',
                 border: '1px solid var(--c-outline-variant)',
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                textAlign: 'center'
               }}
             >
               {mins} Mins
@@ -297,46 +302,50 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
 
         {/* Custom Duration Adjustment (when not running) */}
         {!isRunning && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <button
-              onClick={() => handleAdjustMinutes(-5)}
-              className="secondary-btn"
-              style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px' }}
-            >
-              -5m
-            </button>
-            <button
-              onClick={() => handleAdjustMinutes(-1)}
-              className="secondary-btn"
-              style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px' }}
-            >
-              -1m
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                onClick={() => handleAdjustMinutes(-5)}
+                className="secondary-btn"
+                style={{ padding: '8px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px', minHeight: '36px' }}
+              >
+                -5m
+              </button>
+              <button
+                onClick={() => handleAdjustMinutes(-1)}
+                className="secondary-btn"
+                style={{ padding: '8px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px', minHeight: '36px' }}
+              >
+                -1m
+              </button>
+            </div>
             
-            <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--c-on-surface)', minWidth: '80px', textAlign: 'center' }}>
+            <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--c-on-surface)', minWidth: '70px', textAlign: 'center', padding: '4px 0' }}>
               {selectedMinutes} mins
             </span>
 
-            <button
-              onClick={() => handleAdjustMinutes(1)}
-              className="secondary-btn"
-              style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px' }}
-            >
-              +1m
-            </button>
-            <button
-              onClick={() => handleAdjustMinutes(5)}
-              className="secondary-btn"
-              style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px' }}
-            >
-              +5m
-            </button>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                onClick={() => handleAdjustMinutes(1)}
+                className="secondary-btn"
+                style={{ padding: '8px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px', minHeight: '36px' }}
+              >
+                +1m
+              </button>
+              <button
+                onClick={() => handleAdjustMinutes(5)}
+                className="secondary-btn"
+                style={{ padding: '8px 12px', fontSize: '12px', fontWeight: 700, borderRadius: '10px', minHeight: '36px' }}
+              >
+                +5m
+              </button>
+            </div>
           </div>
         )}
 
         {/* Circular Progress & Countdown */}
-        <div style={{ position: 'relative', width: '240px', height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '12px 0' }}>
-          <svg height={radius * 2} width={radius * 2} style={{ transform: 'rotate(-90deg)' }}>
+        <div style={{ position: 'relative', width: '100%', maxWidth: '240px', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '8px 0' }}>
+          <svg viewBox={`0 0 ${radius * 2} ${radius * 2}`} style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
             {/* Background Track */}
             <circle
               stroke="var(--c-surface-container-high)"
@@ -368,7 +377,7 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
 
           {/* Time text overlay */}
           <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: '46px', fontWeight: 800, fontFamily: 'monospace', letterSpacing: '-1px', color: 'var(--c-on-surface)' }}>
+            <span style={{ fontSize: 'clamp(32px, 8vw, 46px)', fontWeight: 800, fontFamily: 'monospace', letterSpacing: '-1px', color: 'var(--c-on-surface)' }}>
               {formatTime(secondsLeft)}
             </span>
             <span style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: isRunning ? 'var(--c-primary)' : 'var(--c-on-surface-variant)', marginTop: '-4px' }}>
@@ -381,7 +390,7 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
         <div style={{ width: '100%' }}>
           <input
             type="text"
-            placeholder="What are you focusing on? (optional e.g., Quran Study, Coding)"
+            placeholder="What are you focusing on? (e.g. Quran Study, Coding)"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             disabled={isRunning && secondsLeft < totalSeconds}
@@ -400,15 +409,15 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '12px', width: '100%', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
+        <div style={{ display: 'flex', gap: '10px', width: '100%', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
           <button
             type="button"
             onClick={toggleStartPause}
             disabled={isSaving}
             className="primary-btn"
             style={{
-              flex: 1,
-              padding: '14px 24px',
+              flex: '1 1 140px',
+              padding: '14px 20px',
               borderRadius: '14px',
               fontWeight: 700,
               fontSize: '15px',
@@ -416,7 +425,7 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              minWidth: '140px',
+              minHeight: '48px',
               color: 'var(--c-on-primary)'
             }}
           >
@@ -430,13 +439,16 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
             disabled={isSaving || (secondsLeft === totalSeconds && !isRunning)}
             className="secondary-btn"
             style={{
-              padding: '14px 20px',
+              flex: '1 1 90px',
+              padding: '14px 16px',
               borderRadius: '14px',
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '6px',
               fontSize: '14px',
+              minHeight: '48px',
               color: 'var(--c-on-surface)'
             }}
             title="Reset Timer"
@@ -451,7 +463,8 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
               onClick={handleFinishEarly}
               disabled={isSaving}
               style={{
-                padding: '14px 20px',
+                flex: '1 1 120px',
+                padding: '14px 16px',
                 borderRadius: '14px',
                 fontWeight: 700,
                 backgroundColor: 'var(--c-task-done-bg)',
@@ -459,8 +472,10 @@ export default function PomodoroTimer({ onSessionComplete }: PomodoroTimerProps)
                 border: '1px solid var(--c-task-done-border)',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
                 fontSize: '14px',
+                minHeight: '48px',
                 cursor: 'pointer'
               }}
               title="Log completed time so far"
