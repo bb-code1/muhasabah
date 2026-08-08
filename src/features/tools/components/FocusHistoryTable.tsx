@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FocusSession } from '@prisma/client';
-import { Calendar, Trash2, Clock, Trophy, Flame, Sparkles, Pencil, X } from 'lucide-react';
+import { Calendar, Trash2, Clock, Trophy, Flame, Sparkles, Pencil, X, LayoutGrid, List } from 'lucide-react';
 import { deleteFocusSession, updateFocusSessionLabel } from '@/features/tools/actions';
 import { useToast } from '@/context/ToastContext';
 import CustomDateRangeDialog from '@/components/ui/CustomDateRangeDialog';
@@ -14,8 +14,28 @@ interface FocusHistoryTableProps {
   timerComponent?: ReactNode;
 }
 
+function getBadgeStyle(label: string) {
+  let hash = 0;
+  const str = label.toUpperCase();
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const colorPalettes = [
+    { bg: 'rgba(168, 85, 247, 0.15)', text: '#e9d5ff', border: 'rgba(168, 85, 247, 0.35)' }, // Purple
+    { bg: 'rgba(59, 130, 246, 0.15)', text: '#bfdbfe', border: 'rgba(59, 130, 246, 0.35)' }, // Blue
+    { bg: 'rgba(16, 185, 129, 0.15)', text: '#a7f3d0', border: 'rgba(16, 185, 129, 0.35)' }, // Emerald/Green
+    { bg: 'rgba(249, 115, 22, 0.15)', text: '#fed7aa', border: 'rgba(249, 115, 22, 0.35)' }, // Orange
+    { bg: 'rgba(236, 72, 153, 0.15)', text: '#fbcfe8', border: 'rgba(236, 72, 153, 0.35)' }, // Pink
+    { bg: 'rgba(20, 184, 166, 0.15)', text: '#99f6e4', border: 'rgba(20, 184, 166, 0.35)' }, // Teal
+    { bg: 'rgba(234, 179, 8, 0.15)', text: '#fef08a', border: 'rgba(234, 179, 8, 0.35)' }, // Gold
+  ];
+  const idx = Math.abs(hash) % colorPalettes.length;
+  return colorPalettes[idx];
+}
+
 export default function FocusHistoryTable({ initialSessions, timerComponent }: FocusHistoryTableProps) {
   const [sessions, setSessions] = useState<FocusSession[]>(initialSessions);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [activeFilter, setActiveFilter] = useState<'all' | 'today' | 'week' | 'month' | 'year' | 'custom'>('all');
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const [startDateStr, setStartDateStr] = useState<string>('');
@@ -31,7 +51,7 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
   const [mounted, setMounted] = useState<boolean>(false);
 
   const { showToast } = useToast();
-  const PAGE_SIZE = 10;
+  const PAGE_SIZE = 12;
 
   useEffect(() => {
     setMounted(true);
@@ -241,38 +261,84 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
         </div>
       </div>
 
-      {/* Filter Section */}
+      {/* Filter & View Switcher Section */}
       <div className="card flex-col gap-16" style={{ padding: '20px', borderRadius: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Calendar size={18} style={{ color: 'var(--c-primary)' }} />
-            <h3 className="text-title-md" style={{ margin: 0, fontWeight: 700 }}>Focus History & Filter</h3>
+            <h3 className="text-title-md" style={{ margin: 0, fontWeight: 700 }}>Focus History</h3>
           </div>
 
-          {/* Year Dropdown */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>YEAR:</span>
-            <select
-              value={selectedYear}
-              onChange={(e) => {
-                setSelectedYear(e.target.value);
-                setCurrentPage(1);
-              }}
-              style={{
-                padding: '4px 10px',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 600,
-                border: '1px solid var(--c-outline-variant)',
-                backgroundColor: 'var(--c-surface-container-high)',
-                color: 'var(--c-on-surface)'
-              }}
-            >
-              <option value="all">All Years</option>
-              {availableYears.map((yr) => (
-                <option key={yr} value={yr.toString()}>{yr}</option>
-              ))}
-            </select>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            {/* View Mode Switcher */}
+            <div style={{ display: 'flex', backgroundColor: 'var(--c-surface-container-high)', borderRadius: '12px', padding: '3px', border: '1px solid var(--c-outline-variant)' }}>
+              <button
+                onClick={() => { setViewMode('cards'); setCurrentPage(1); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '9px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: viewMode === 'cards' ? 'var(--c-primary)' : 'transparent',
+                  color: viewMode === 'cards' ? 'var(--c-on-primary)' : 'var(--c-on-surface-variant)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <LayoutGrid size={15} />
+                <span>Cards</span>
+              </button>
+              <button
+                onClick={() => { setViewMode('table'); setCurrentPage(1); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '9px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: viewMode === 'table' ? 'var(--c-primary)' : 'transparent',
+                  color: viewMode === 'table' ? 'var(--c-on-primary)' : 'var(--c-on-surface-variant)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <List size={15} />
+                <span>Table</span>
+              </button>
+            </div>
+
+            {/* Year Dropdown */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-on-surface-variant)', letterSpacing: '0.05em' }}>YEAR:</span>
+              <select
+                value={selectedYear}
+                onChange={(e) => {
+                  setSelectedYear(e.target.value);
+                  setCurrentPage(1);
+                }}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  border: '1px solid var(--c-outline-variant)',
+                  backgroundColor: 'var(--c-surface-container-high)',
+                  color: 'var(--c-on-surface)'
+                }}
+              >
+                <option value="all">All Years</option>
+                {availableYears.map((yr) => (
+                  <option key={yr} value={yr.toString()}>{yr}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -314,55 +380,79 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
         </div>
       </div>
 
-      {/* History Table */}
-      <div className="card" style={{ padding: '0', borderRadius: '20px', overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
-            <thead>
-              <tr style={{ backgroundColor: 'var(--c-surface-container-low)', borderBottom: '1px solid var(--c-outline-variant)' }}>
-                <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Date & Time</th>
-                <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Focus Task / Label</th>
-                <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Duration</th>
-                <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedSessions.length > 0 ? (
-                paginatedSessions.map((session) => (
-                  <tr key={session.id} style={{ borderBottom: '1px solid var(--c-outline-variant)', transition: 'background-color 0.15s' }}>
-                    <td style={{ padding: '14px 20px', fontWeight: 600, color: 'var(--c-on-surface)' }}>
-                      {formatDate(session.completedAt)}
-                    </td>
-                    <td style={{ padding: '14px 20px', color: session.label ? 'var(--c-on-surface)' : 'var(--c-on-surface-variant)', fontStyle: session.label ? 'normal' : 'italic' }}>
-                      {session.label || 'General Focus Session'}
-                    </td>
-                    <td style={{ padding: '14px 20px' }}>
+      {/* History Content (Cards or Table) */}
+      {viewMode === 'cards' ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(285px, 1fr))', gap: '20px' }}>
+            {paginatedSessions.length > 0 ? (
+              paginatedSessions.map((session) => {
+                const badgeStyle = getBadgeStyle(session.label || 'General Focus');
+                return (
+                  <div
+                    key={session.id}
+                    className="card"
+                    style={{
+                      padding: '20px',
+                      borderRadius: '16px',
+                      border: '1.5px solid var(--c-outline-variant)',
+                      backgroundColor: 'var(--c-surface-container-low)',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '16px',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.borderColor = 'var(--c-primary)';
+                      e.currentTarget.style.boxShadow = '0 8px 24px rgba(191,145,41,0.14)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'none';
+                      e.currentTarget.style.borderColor = 'var(--c-outline-variant)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    {/* Header Row: Label Pill Badge + Actions */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                       <span style={{
-                        padding: '4px 10px',
-                        borderRadius: '12px',
-                        backgroundColor: 'var(--c-primary-container)',
-                        color: 'var(--c-on-primary-container)',
+                        fontSize: '11px',
                         fontWeight: 700,
-                        fontSize: '13px'
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        backgroundColor: badgeStyle.bg,
+                        color: badgeStyle.text,
+                        border: `1.5px solid ${badgeStyle.border}`,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        maxWidth: '80%',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
                       }}>
-                        ⏱️ {session.duration} mins
+                        {session.label ? session.label.toUpperCase() : 'GENERAL FOCUS'}
                       </span>
-                    </td>
-                    <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <button
                           onClick={() => handleOpenEditModal(session)}
                           style={{
                             background: 'none',
                             border: 'none',
-                            color: 'var(--c-primary)',
+                            color: 'var(--c-on-surface-variant)',
                             cursor: 'pointer',
-                            padding: '6px',
-                            borderRadius: '8px'
+                            padding: '4px',
+                            borderRadius: '6px',
+                            opacity: 0.7,
+                            transition: 'all 0.2s'
                           }}
-                          title="Edit focus task label"
+                          onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = 'var(--c-primary)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = 'var(--c-on-surface-variant)'; }}
+                          title="Edit session label"
                         >
-                          <Pencil size={16} />
+                          <Pencil size={15} />
                         </button>
                         <button
                           onClick={() => handleDelete(session.id)}
@@ -370,61 +460,224 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
                           style={{
                             background: 'none',
                             border: 'none',
-                            color: 'var(--c-error)',
+                            color: 'var(--c-on-surface-variant)',
                             cursor: 'pointer',
-                            padding: '6px',
-                            borderRadius: '8px',
-                            opacity: deletingId === session.id ? 0.5 : 1
+                            padding: '4px',
+                            borderRadius: '6px',
+                            opacity: deletingId === session.id ? 0.3 : 0.7,
+                            transition: 'all 0.2s'
                           }}
-                          title="Delete session record"
+                          onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = 'var(--c-error)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = 'var(--c-on-surface-variant)'; }}
+                          title="Delete session"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
+                    </div>
+
+                    {/* Main Task Title & Duration */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <h4 style={{
+                        margin: 0,
+                        fontSize: '15px',
+                        fontWeight: 700,
+                        color: 'var(--c-on-surface)',
+                        lineHeight: 1.4,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        wordBreak: 'break-word'
+                      }}>
+                        {session.label || 'General Focus Session'}
+                      </h4>
+
+                      <div>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          backgroundColor: 'var(--c-primary-container)',
+                          color: 'var(--c-on-primary-container)',
+                          fontWeight: 700,
+                          fontSize: '12px'
+                        }}>
+                          ⏱️ {session.duration} mins
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Footer Row: Date & Time */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      borderTop: '1px solid var(--c-outline-variant)',
+                      paddingTop: '12px',
+                      marginTop: 'auto'
+                    }}>
+                      <Calendar size={13} color="var(--c-on-surface-variant)" style={{ opacity: 0.7 }} />
+                      <span className="text-label-sm text-on-surface-variant" style={{ textTransform: 'none', fontWeight: 600, fontSize: '11px' }}>
+                        {formatDate(session.completedAt)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="card" style={{ gridColumn: '1 / -1', padding: '50px 20px', textAlign: 'center', color: 'var(--c-on-surface-variant)', borderRadius: '20px' }}>
+                <Clock size={36} style={{ margin: '0 auto 12px auto', opacity: 0.4 }} />
+                <p style={{ margin: 0, fontWeight: 700, fontSize: '15px' }}>No focus sessions recorded for this filter range.</p>
+                <p style={{ margin: '6px 0 0 0', fontSize: '13px' }}>Start the Pomodoro timer above to log your first session!</p>
+              </div>
+            )}
+          </div>
+
+          {/* Pagination Controls for Cards */}
+          {totalPages > 1 && (
+            <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderRadius: '16px' }}>
+              <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)' }}>
+                Showing {((currentPage - 1) * PAGE_SIZE) + 1} to {Math.min(currentPage * PAGE_SIZE, filteredSessions.length)} of {filteredSessions.length} sessions
+              </span>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  className="secondary-btn"
+                  style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
+                >
+                  Previous
+                </button>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  className="secondary-btn"
+                  style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* History Table View */
+        <div className="card" style={{ padding: '0', borderRadius: '20px', overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+              <thead>
+                <tr style={{ backgroundColor: 'var(--c-surface-container-low)', borderBottom: '1px solid var(--c-outline-variant)' }}>
+                  <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Date & Time</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Focus Task / Label</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)' }}>Duration</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--c-on-surface-variant)', textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedSessions.length > 0 ? (
+                  paginatedSessions.map((session) => (
+                    <tr key={session.id} style={{ borderBottom: '1px solid var(--c-outline-variant)', transition: 'background-color 0.15s' }}>
+                      <td style={{ padding: '14px 20px', fontWeight: 600, color: 'var(--c-on-surface)' }}>
+                        {formatDate(session.completedAt)}
+                      </td>
+                      <td style={{ padding: '14px 20px', color: session.label ? 'var(--c-on-surface)' : 'var(--c-on-surface-variant)', fontStyle: session.label ? 'normal' : 'italic' }}>
+                        {session.label || 'General Focus Session'}
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        <span style={{
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          backgroundColor: 'var(--c-primary-container)',
+                          color: 'var(--c-on-primary-container)',
+                          fontWeight: 700,
+                          fontSize: '13px'
+                        }}>
+                          ⏱️ {session.duration} mins
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                          <button
+                            onClick={() => handleOpenEditModal(session)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'var(--c-primary)',
+                              cursor: 'pointer',
+                              padding: '6px',
+                              borderRadius: '8px'
+                            }}
+                            title="Edit focus task label"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(session.id)}
+                            disabled={deletingId === session.id}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'var(--c-error)',
+                              cursor: 'pointer',
+                              padding: '6px',
+                              borderRadius: '8px',
+                              opacity: deletingId === session.id ? 0.5 : 1
+                            }}
+                            title="Delete session record"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--c-on-surface-variant)' }}>
+                      <Clock size={32} style={{ margin: '0 auto 8px auto', opacity: 0.4 }} />
+                      <p style={{ margin: 0, fontWeight: 600 }}>No focus sessions recorded for this filter range.</p>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '12px' }}>Start the Pomodoro timer above to log your first session!</p>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--c-on-surface-variant)' }}>
-                    <Clock size={32} style={{ margin: '0 auto 8px auto', opacity: 0.4 }} />
-                    <p style={{ margin: 0, fontWeight: 600 }}>No focus sessions recorded for this filter range.</p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '12px' }}>Start the Pomodoro timer above to log your first session!</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderTop: '1px solid var(--c-outline-variant)' }}>
-            <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)' }}>
-              Showing {((currentPage - 1) * PAGE_SIZE) + 1} to {Math.min(currentPage * PAGE_SIZE, filteredSessions.length)} of {filteredSessions.length} sessions
-            </span>
-
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="secondary-btn"
-                style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
-              >
-                Previous
-              </button>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="secondary-btn"
-                style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
-              >
-                Next
-              </button>
-            </div>
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+
+          {/* Pagination Controls for Table */}
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderTop: '1px solid var(--c-outline-variant)' }}>
+              <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)' }}>
+                Showing {((currentPage - 1) * PAGE_SIZE) + 1} to {Math.min(currentPage * PAGE_SIZE, filteredSessions.length)} of {filteredSessions.length} sessions
+              </span>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  className="secondary-btn"
+                  style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
+                >
+                  Previous
+                </button>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  className="secondary-btn"
+                  style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Custom Range Dialog */}
       {isCustomRangeOpen && (
