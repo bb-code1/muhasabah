@@ -110,3 +110,59 @@ export async function deleteGoal(id: number) {
   revalidatePath('/goals');
   revalidatePath('/');
 }
+
+export async function setTopGoalNote(title: string, description: string | null, goalId?: number) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  // Clear previous top goal status
+  await prisma.goal.updateMany({
+    where: { userId: user.id },
+    data: { isTopGoal: false },
+  });
+
+  if (goalId && goalId > 0) {
+    await prisma.goal.updateMany({
+      where: { id: goalId, userId: user.id },
+      data: {
+        title,
+        description,
+        isTopGoal: true,
+      },
+    });
+  } else {
+    await prisma.goal.create({
+      data: {
+        title,
+        description,
+        isTopGoal: true,
+        priority: 'HIGH',
+        category: 'PERSONAL',
+        userId: user.id,
+      },
+    });
+  }
+
+  revalidatePath('/');
+  revalidatePath('/goals');
+}
+
+export async function selectExistingTopGoal(goalId: number) {
+  const user = await getAuthenticatedUser();
+  if (!user) throw new Error('Unauthorized');
+
+  await prisma.goal.updateMany({
+    where: { userId: user.id },
+    data: { isTopGoal: false },
+  });
+
+  if (goalId > 0) {
+    await prisma.goal.updateMany({
+      where: { id: goalId, userId: user.id },
+      data: { isTopGoal: true },
+    });
+  }
+
+  revalidatePath('/');
+  revalidatePath('/goals');
+}

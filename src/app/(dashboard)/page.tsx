@@ -2,6 +2,7 @@ import { getAuthenticatedUser } from '@/features/auth/actions';
 import TasksOfTheDay from '@/components/dashboard/TasksOfTheDay';
 import TimetableDashboardCard from '@/components/dashboard/TimetableDashboardCard';
 import HijriDateDisplay from '@/components/ui/HijriDateDisplay';
+import TopGoalCard from '@/components/dashboard/TopGoalCard';
 import DashboardFinancialOverview from '@/components/dashboard/DashboardFinancialOverview';
 import DashboardSpiritualOverview from '@/components/dashboard/DashboardSpiritualOverview';
 import DashboardRecoveryStreakCard from '@/components/dashboard/DashboardRecoveryStreakCard';
@@ -31,6 +32,8 @@ export default async function Dashboard() {
     habitLogs,
     monthlyDayLogs,
     absoluteLatestGoal,
+    explicitTopGoal,
+    allGoals,
     latestDua,
     latestBook,
     latestRelapse,
@@ -72,6 +75,14 @@ export default async function Dashboard() {
     prisma.goal.findFirst({
       where: { userId: sessionUser.id },
       orderBy: { createdAt: 'desc' },
+    }),
+    prisma.goal.findFirst({
+      where: { userId: sessionUser.id, isTopGoal: true },
+    }),
+    prisma.goal.findMany({
+      where: { userId: sessionUser.id },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, title: true, description: true, category: true },
     }),
     prisma.dua.findFirst({
       where: { userId: sessionUser.id },
@@ -406,6 +417,14 @@ export default async function Dashboard() {
       {/* HIJRI DATE DISPLAY */}
       <div style={{ marginBottom: '24px' }}>
         <HijriDateDisplay baseOffset={baseOffset} />
+      </div>
+
+      {/* TOP GOAL NOTE SECTION */}
+      <div style={{ marginBottom: '24px' }}>
+        <TopGoalCard 
+          topGoal={explicitTopGoal || absoluteLatestGoal} 
+          allGoals={allGoals} 
+        />
       </div>
 
       {/* TIMETABLE SECTION */}
