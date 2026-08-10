@@ -127,22 +127,11 @@ export default function TopGoalCard({ topGoal, allGoals }: TopGoalCardProps) {
           </div>
 
           <div>
-            <span
-              style={{
-                fontSize: '11px',
-                fontWeight: 800,
-                color: 'var(--c-primary)',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase'
-              }}
-            >
-              FOCUS DIRECTIVE
-            </span>
             {/* BIG FONT TOP GOAL HEADER */}
             <h2
               style={{
                 margin: 0,
-                fontSize: '28px',
+                fontSize: '32px',
                 fontWeight: 900,
                 letterSpacing: '-0.02em',
                 color: 'var(--c-on-surface)',
@@ -301,36 +290,16 @@ export default function TopGoalCard({ topGoal, allGoals }: TopGoalCardProps) {
             position: 'relative'
           }}
         >
-          {/* Note Pin Icon Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: '20px', color: 'var(--c-primary)', transform: 'rotate(-15deg)' }}
-              >
-                push_pin
-              </span>
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  color: 'var(--c-primary)',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                {topGoal.category || 'PRIMARY'} OBJECTIVE NOTE
-              </span>
-            </div>
-
-            {topGoal.progress !== undefined && (
+          {/* Note Header / Progress */}
+          {topGoal.progress !== undefined && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--c-on-surface-variant)' }}>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--c-on-surface-variant)' }}>
                   {topGoal.progress}%
                 </span>
                 <div
                   style={{
-                    width: '80px',
+                    width: '90px',
                     height: '8px',
                     borderRadius: '4px',
                     backgroundColor: 'var(--c-outline-variant)',
@@ -347,15 +316,15 @@ export default function TopGoalCard({ topGoal, allGoals }: TopGoalCardProps) {
                   />
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* NOTE TITLE (BIG, CLEAR BOLD TEXT) */}
+          {/* NOTE TITLE (BIGGER, BOLD TEXT) */}
           <h3
             style={{
               margin: 0,
-              fontSize: '22px',
-              fontWeight: 800,
+              fontSize: '26px',
+              fontWeight: 850,
               color: 'var(--c-on-surface)',
               lineHeight: 1.35
             }}
@@ -363,14 +332,14 @@ export default function TopGoalCard({ topGoal, allGoals }: TopGoalCardProps) {
             {topGoal.title}
           </h3>
 
-          {/* NOTE DESCRIPTION */}
+          {/* NOTE DESCRIPTION (BIGGER TEXT) */}
           {topGoal.description ? (
             <p
               style={{
                 margin: 0,
-                fontSize: '15px',
+                fontSize: '18px',
                 color: 'var(--c-on-surface-variant)',
-                lineHeight: 1.65,
+                lineHeight: 1.7,
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
                 fontWeight: 500
