@@ -290,34 +290,7 @@ export default function TopGoalCard({ topGoal, allGoals }: TopGoalCardProps) {
             position: 'relative'
           }}
         >
-          {/* Note Header / Progress */}
-          {topGoal.progress !== undefined && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--c-on-surface-variant)' }}>
-                  {topGoal.progress}%
-                </span>
-                <div
-                  style={{
-                    width: '90px',
-                    height: '8px',
-                    borderRadius: '4px',
-                    backgroundColor: 'var(--c-outline-variant)',
-                    overflow: 'hidden'
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${topGoal.progress}%`,
-                      height: '100%',
-                      background: 'var(--c-primary-gradient)',
-                      borderRadius: '4px'
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* NOTE TITLE (BIGGER, BOLD TEXT) */}
           <h3
