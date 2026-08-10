@@ -232,11 +232,11 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
                       display: '-webkit-box',
                       WebkitLineClamp: 3,
                       WebkitBoxOrient: 'vertical',
-                      lineHeight: isContentArabic ? 2.0 : 1.5,
+                      lineHeight: isContentArabic ? 2.3 : 1.5,
                       direction: isContentArabic ? 'rtl' : 'ltr',
                       textAlign: isContentArabic ? 'right' : 'left',
                       fontFamily: isContentArabic ? 'var(--font-arabic)' : 'inherit',
-                      fontSize: isContentArabic ? '20px' : '13px',
+                      fontSize: isContentArabic ? '22px' : '13px',
                       color: 'var(--c-on-surface-variant)'
                     }}
                   >
@@ -414,13 +414,13 @@ export default function DuaDashboard({ initialDuas }: { initialDuas: Dua[] }) {
                 className={isArabicText(selectedDua.content) ? "arabic-text" : ""}
                 style={{ 
                   margin: 0, 
-                  lineHeight: isArabicText(selectedDua.content) ? 2.2 : 1.8, 
+                  lineHeight: isArabicText(selectedDua.content) ? 2.3 : 1.8, 
                   whiteSpace: 'pre-wrap', 
                   wordBreak: 'break-word',
                   direction: isArabicText(selectedDua.content) ? 'rtl' : 'ltr',
                   textAlign: isArabicText(selectedDua.content) ? 'right' : 'left',
                   fontFamily: isArabicText(selectedDua.content) ? 'var(--font-arabic)' : 'inherit',
-                  fontSize: isArabicText(selectedDua.content) ? '26px' : '15px',
+                  fontSize: isArabicText(selectedDua.content) ? '28px' : '15px',
                   color: 'var(--c-on-surface)'
                 }}
               >

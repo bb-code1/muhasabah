@@ -554,13 +554,13 @@ export default async function Dashboard() {
                   className={/[\u0600-\u06FF]/.test(latestDua.content) ? "arabic-text" : ""}
                   style={{ 
                     margin: 0, 
-                    lineHeight: /[\u0600-\u06FF]/.test(latestDua.content) ? 2.0 : 1.6, 
+                    lineHeight: /[\u0600-\u06FF]/.test(latestDua.content) ? 2.3 : 1.6, 
                     whiteSpace: 'pre-wrap', 
                     wordBreak: 'break-word',
                     direction: /[\u0600-\u06FF]/.test(latestDua.content) ? 'rtl' : 'ltr',
                     textAlign: /[\u0600-\u06FF]/.test(latestDua.content) ? 'right' : 'left',
                     fontFamily: /[\u0600-\u06FF]/.test(latestDua.content) ? 'var(--font-arabic)' : 'inherit',
-                    fontSize: /[\u0600-\u06FF]/.test(latestDua.content) ? '20px' : '13px',
+                    fontSize: /[\u0600-\u06FF]/.test(latestDua.content) ? '22px' : '13px',
                     color: 'var(--c-on-surface-variant)',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',

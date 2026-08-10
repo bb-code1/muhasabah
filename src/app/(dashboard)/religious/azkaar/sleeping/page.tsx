@@ -69,7 +69,7 @@ export default function SleepingAzkaarPage() {
               margin: 0, 
               fontSize: '28px', 
               color: 'var(--c-primary)',
-              fontWeight: 700 
+              lineHeight: 2.3
             }}>
               {azkaar.arabic}
             </p>

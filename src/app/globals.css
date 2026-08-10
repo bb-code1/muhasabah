@@ -1,7 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Scheherazade+New:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gulzar&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Amiri+Quran&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Scheherazade+New:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@font-face {
+  font-family: 'IndoPak';
+  src: url('/fonts/indopak.woff2') format('woff2'),
+       url('https://verses.quran.foundation/fonts/quran/hafs/nastaleeq/indopak/indopak-nastaleeq-waqf-lazim-v4.2.1.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
-  --font-arabic: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  --font-arabic: 'IndoPak', 'Gulzar', 'Noto Nastaliq Urdu', 'Amiri Quran', 'Scheherazade New', 'Amiri', serif;
 
   /* LIGHT MODE (Ultra Premium Aesthetic) */
   --c-background: #f8f9fa;
@@ -306,8 +315,8 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
     padding: 20px 16px;
   }
   .quote-arabic {
-    font-size: 20px;
-    line-height: 1.8;
+    font-size: 24px;
+    line-height: 2.2;
   }
   .quote-english {
     font-size: 14px;
@@ -817,18 +826,19 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
 
 .quote-arabic {
   font-family: var(--font-arabic);
-  font-size: 28px;
-  line-height: 2.2;
+  font-size: 32px;
+  line-height: 2.3;
   text-align: center;
   direction: rtl;
   color: var(--c-primary);
-  font-weight: 700;
+  font-weight: 500;
   margin: 0;
-  padding: 6px 0;
-  letter-spacing: normal;
+  padding: 8px 0;
+  letter-spacing: 0;
+  word-spacing: 2px;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
-  text-shadow: 0 1px 2px rgba(191, 145, 41, 0.15);
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "mkmk" 1;
+  text-shadow: 0 1px 2px rgba(191, 145, 41, 0.12);
   transition: var(--transition-smooth);
 }
 
@@ -836,11 +846,14 @@ button { background: none; border: none; cursor: pointer; font-family: inherit; 
   font-family: var(--font-arabic);
   direction: rtl;
   text-align: right;
-  line-height: 2.2;
-  letter-spacing: normal;
+  line-height: 2.3;
+  letter-spacing: 0;
+  font-size: 26px;
+  font-weight: 500;
+  word-spacing: 2px;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
-  padding: 4px 0;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "mkmk" 1;
+  padding: 6px 0;
 }
 
 .quote-divider {
