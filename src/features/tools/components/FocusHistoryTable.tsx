@@ -535,25 +535,45 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
 
           {/* Pagination Controls for Cards */}
           {totalPages > 1 && (
-            <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderRadius: '16px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)' }}>
+            <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderRadius: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)', fontWeight: 500 }}>
                 Showing {((currentPage - 1) * PAGE_SIZE) + 1} to {Math.min(currentPage * PAGE_SIZE, filteredSessions.length)} of {filteredSessions.length} sessions
               </span>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
-                  disabled={currentPage === 1}
+                  disabled={currentPage <= 1}
                   onClick={() => setCurrentPage((prev) => prev - 1)}
-                  className="secondary-btn"
-                  style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
+                  className="primary-btn"
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    backgroundColor: currentPage <= 1 ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)',
+                    color: currentPage <= 1 ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)',
+                    opacity: currentPage <= 1 ? 0.5 : 1,
+                    cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+                    boxShadow: 'none',
+                    fontSize: '13px',
+                    fontWeight: 600
+                  }}
                 >
                   Previous
                 </button>
                 <button
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage >= totalPages}
                   onClick={() => setCurrentPage((prev) => prev + 1)}
-                  className="secondary-btn"
-                  style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
+                  className="primary-btn"
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    backgroundColor: currentPage >= totalPages ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)',
+                    color: currentPage >= totalPages ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)',
+                    opacity: currentPage >= totalPages ? 0.5 : 1,
+                    cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+                    boxShadow: 'none',
+                    fontSize: '13px',
+                    fontWeight: 600
+                  }}
                 >
                   Next
                 </button>
@@ -647,25 +667,45 @@ export default function FocusHistoryTable({ initialSessions, timerComponent }: F
 
           {/* Pagination Controls for Table */}
           {totalPages > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderTop: '1px solid var(--c-outline-variant)' }}>
-              <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderTop: '1px solid var(--c-outline-variant)', flexWrap: 'wrap', gap: '12px' }}>
+              <span style={{ fontSize: '13px', color: 'var(--c-on-surface-variant)', fontWeight: 500 }}>
                 Showing {((currentPage - 1) * PAGE_SIZE) + 1} to {Math.min(currentPage * PAGE_SIZE, filteredSessions.length)} of {filteredSessions.length} sessions
               </span>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
-                  disabled={currentPage === 1}
+                  disabled={currentPage <= 1}
                   onClick={() => setCurrentPage((prev) => prev - 1)}
-                  className="secondary-btn"
-                  style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
+                  className="primary-btn"
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    backgroundColor: currentPage <= 1 ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)',
+                    color: currentPage <= 1 ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)',
+                    opacity: currentPage <= 1 ? 0.5 : 1,
+                    cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+                    boxShadow: 'none',
+                    fontSize: '13px',
+                    fontWeight: 600
+                  }}
                 >
                   Previous
                 </button>
                 <button
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage >= totalPages}
                   onClick={() => setCurrentPage((prev) => prev + 1)}
-                  className="secondary-btn"
-                  style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
+                  className="primary-btn"
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    backgroundColor: currentPage >= totalPages ? 'var(--c-surface-container-lowest)' : 'var(--c-surface-container-high)',
+                    color: currentPage >= totalPages ? 'var(--c-on-surface-variant)' : 'var(--c-on-surface)',
+                    opacity: currentPage >= totalPages ? 0.5 : 1,
+                    cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+                    boxShadow: 'none',
+                    fontSize: '13px',
+                    fontWeight: 600
+                  }}
                 >
                   Next
                 </button>
